@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvManageZoneName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zone Details"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvCornAge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Corn Age: Loading..."
+        android:textSize="18sp"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnHarvest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Harvest Crop"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnNewCornPlanted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="New Corn Planted (Set Date)"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnSensorStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sensor Status"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnDeleteZone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Zone"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+</LinearLayout>
