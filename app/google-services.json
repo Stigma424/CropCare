@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600590529818",
+    "project_id": "cropcare-495df",
+    "storage_bucket": "cropcare-495df.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600590529818:android:413e34484562d5b8b8e8a3",
+        "android_client_info": {
+          "package_name": "com.example.cropcare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXF_ASkEcFBPC9h-2DWbXlu13NJO0wuL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
