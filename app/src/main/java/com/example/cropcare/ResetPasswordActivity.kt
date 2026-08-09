@@ -1,26 +1,31 @@
 package com.example.cropcare
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 
 class ResetPasswordActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reset_password)
 
         db = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
         val userEmail = intent.getStringExtra("USER_EMAIL") ?: ""
 
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
         val etConfirmNewPassword = findViewById<EditText>(R.id.etConfirmNewPassword)
         val btnSavePassword = findViewById<Button>(R.id.btnSavePassword)
+        val btnBack = findViewById<Button>(R.id.btnBack)
 
         btnSavePassword.setOnClickListener {
             val newPassword = etNewPassword.text.toString().trim()
@@ -60,6 +65,10 @@ class ResetPasswordActivity : AppCompatActivity() {
                 .addOnFailureListener { e ->
                     Toast.makeText(this, "Database error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+        }
+        btnBack.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            finish()
         }
     }
 }

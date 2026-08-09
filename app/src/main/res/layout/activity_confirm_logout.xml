@@ -7,19 +7,27 @@
     android:gravity="center">
 
     <TextView
-        android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Dashboard!"
+        android:text="Are you sure you want to log out?"
         android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
     <Button
-        android:id="@+id/btnSettings"
+        android:id="@+id/btnConfirmLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Settings" />
+        android:text="Yes, Log Out"
+        android:backgroundTint="#D32F2F"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnCancelLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
 </LinearLayout>

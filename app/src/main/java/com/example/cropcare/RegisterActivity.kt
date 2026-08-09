@@ -26,10 +26,10 @@ class RegisterActivity : AppCompatActivity() {
         val etAddress = findViewById<EditText>(R.id.etAddress)
         val etUsername = findViewById<EditText>(R.id.etUsername)
         val etEmail = findViewById<EditText>(R.id.etEmail)
-        val etReferralCode = findViewById<EditText>(R.id.etReferralCode)
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
+        val btnBack = findViewById<Button>(R.id.btnBack)
 
         btnRegister.setOnClickListener {
             val firstName = etFirstName.text.toString().trim()
@@ -37,13 +37,12 @@ class RegisterActivity : AppCompatActivity() {
             val address = etAddress.text.toString().trim()
             val username = etUsername.text.toString().trim()
             val email = etEmail.text.toString().trim()
-            val refCode = etReferralCode.text.toString().trim()
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
             // 1. Inputs validation
             if (firstName.isEmpty() || lastName.isEmpty() || address.isEmpty() ||
-                username.isEmpty() || email.isEmpty() || refCode.isEmpty() ||
+                username.isEmpty() || email.isEmpty() ||
                 password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -59,27 +58,21 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // 2. Validate Referral Code in Firestore
-            db.collection("referral_codes").document(refCode).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists() && document.getBoolean("active") == true) {
-                        // Referral code is valid, proceed to register user
-                        performFirebaseRegistration(
-                            email, password, firstName, lastName, address, username, refCode
-                        )
-                    } else {
-                        Toast.makeText(this, "Invalid or expired referral code", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error checking referral code: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            // 2. Direct Registration (Referral code step removed)
+            performFirebaseRegistration(
+                email, password, firstName, lastName, address, username
+            )
+        }
+
+        btnBack.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 
     private fun performFirebaseRegistration(
         email: String, pass: String, fName: String, lName: String,
-        addr: String, uname: String, refCode: String
+        addr: String, uname: String
     ) {
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener { task ->
@@ -94,7 +87,6 @@ class RegisterActivity : AppCompatActivity() {
                         "address" to addr,
                         "username" to uname,
                         "email" to email,
-                        "referralCodeUsed" to refCode,
                         "createdAt" to System.currentTimeMillis()
                     )
 

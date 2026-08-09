@@ -2,31 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
     android:padding="24dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Forgot Password"
+        android:text="Account Settings"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp" />
 
-    <EditText
-        android:id="@+id/etForgotEmail"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvAccountEmail"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Enter your account email"
-        android:inputType="textEmailAddress"
-        android:layout_marginBottom="16dp" />
+        android:text="Email: Loading..."
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvAccountUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username: Loading..."
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp" />
 
     <Button
-        android:id="@+id/btnSubmitForgot"
+        android:id="@+id/btnEditProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Continue" />
+        android:text="Edit Profile"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnChangePassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Change Password" />
+
     <Button
         android:id="@+id/btnBack"
         android:layout_width="match_parent"
