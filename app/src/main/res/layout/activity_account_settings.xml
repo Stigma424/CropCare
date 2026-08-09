@@ -14,12 +14,12 @@
         android:layout_marginBottom="24dp" />
 
     <TextView
-        android:id="@+id/tvAccountEmail"
+        android:id="@+id/tvFullName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email: Loading..."
+        android:text="Name: Loading..."
         android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="12dp" />
 
     <TextView
         android:id="@+id/tvAccountUsername"
@@ -27,7 +27,31 @@
         android:layout_height="wrap_content"
         android:text="Username: Loading..."
         android:textSize="16sp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvAccountEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email: Loading..."
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvAccountAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address: Loading..."
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvAccountPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone: Loading..."
+        android:textSize="16sp"
+        android:layout_marginBottom="28dp" />
 
     <Button
         android:id="@+id/btnEditProfile"
@@ -40,12 +64,14 @@
         android:id="@+id/btnChangePassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Change Password" />
+        android:text="Change Password"
+        android:layout_marginBottom="12dp" />
 
     <Button
         android:id="@+id/btnBack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Back"/>
+        android:text="Back"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
 </LinearLayout>

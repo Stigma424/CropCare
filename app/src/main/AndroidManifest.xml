@@ -27,7 +27,8 @@
         <activity android:name=".AccountSettingsActivity" android:exported="false" />
         <activity android:name=".HelpActivity" android:exported="false" />
         <activity android:name=".ConfirmLogoutActivity" android:exported="false" />
-
+        <activity android:name=".EditProfileActivity" android:exported="false" />
+        <activity android:name=".ChangePasswordActivity" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

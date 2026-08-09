@@ -21,35 +21,58 @@ class AccountSettingsActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        val tvAccountEmail = findViewById<TextView>(R.id.tvAccountEmail)
+        val tvFullName = findViewById<TextView>(R.id.tvFullName)
         val tvAccountUsername = findViewById<TextView>(R.id.tvAccountUsername)
+        val tvAccountEmail = findViewById<TextView>(R.id.tvAccountEmail)
+        val tvAccountAddress = findViewById<TextView>(R.id.tvAccountAddress)
+        val tvAccountPhone = findViewById<TextView>(R.id.tvAccountPhone)
+
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         val btnChangePassword = findViewById<Button>(R.id.btnChangePassword)
         val btnBack = findViewById<Button>(R.id.btnBack)
 
         val currentUser = auth.currentUser
-        tvAccountEmail.text = "Email: ${currentUser?.email ?: "N/A"}"
 
-        // Fetch additional info (like username) from Firestore
         currentUser?.uid?.let { uid ->
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
+                        val firstName = document.getString("firstName") ?: ""
+                        val middleName = document.getString("middleName") ?: ""
+                        val lastName = document.getString("lastName") ?: ""
                         val username = document.getString("username") ?: "N/A"
+                        val email = document.getString("email") ?: (currentUser.email ?: "N/A")
+                        val address = document.getString("address") ?: "N/A"
+                        val phone = document.getString("phoneNumber") ?: "Not set"
+
+                        // Format full name including middle name if present
+                        val fullName = if (middleName.isNotBlank()) {
+                            "$firstName $middleName $lastName"
+                        } else {
+                            "$firstName $lastName"
+                        }.trim()
+
+                        tvFullName.text = "Name: $fullName"
                         tvAccountUsername.text = "Username: $username"
+                        tvAccountEmail.text = "Email: $email"
+                        tvAccountAddress.text = "Address: $address"
+                        tvAccountPhone.text = "Phone: $phone"
                     }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to load details: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
 
         btnEditProfile.setOnClickListener {
-            Toast.makeText(this, "Edit Profile clicked", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
         btnChangePassword.setOnClickListener {
-            Toast.makeText(this, "Change Password clicked", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
+
         btnBack.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
             finish()
         }
     }
