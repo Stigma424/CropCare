@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:layout_marginBottom="16dp">
+
+    <TextView
+        android:id="@+id/tvZoneName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zone Mais 1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#1E4D2B"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="N Nitrogen" />
+
+        <TextView
+            android:id="@+id/tvN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 mg/kg"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvStatusN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="P Phosphorus" />
+
+        <TextView
+            android:id="@+id/tvP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 mg/kg"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvStatusP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="K Potassium" />
+
+        <TextView
+            android:id="@+id/tvK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 mg/kg"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvStatusK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSoilHealth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Soil Health: 90%"
+        android:textStyle="bold"
+        android:textColor="#1E4D2B"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnViewMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:text="view more..."
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:textColor="#1E4D2B" />
+</LinearLayout>

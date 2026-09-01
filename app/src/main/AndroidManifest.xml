@@ -31,6 +31,10 @@
         <activity android:name=".ChangePasswordActivity" android:exported="false" />
         <activity android:name=".AddZoneActivity" android:exported="false" />
         <activity android:name=".ZoneManagementActivity" android:exported="false" />
+        <activity android:name=".SensorStatusActivity" android:exported="false" />
+        <activity android:name=".AddSensorActivity" android:exported="false" />
+        <activity android:name=".SensorDetailActivity" android:exported="false" />
+        <activity android:name=".EditSensorActivity" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

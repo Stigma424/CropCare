@@ -1,62 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tvManageZoneName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zone Details"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp" />
-
-    <TextView
-        android:id="@+id/tvCornAge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Corn Age: Loading..."
-        android:textSize="18sp"
-        android:layout_marginBottom="24dp" />
-
-    <Button
-        android:id="@+id/btnHarvest"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Harvest Crop"
-        android:layout_marginBottom="12dp" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <Button
-        android:id="@+id/btnNewCornPlanted"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="New Corn Planted (Set Date)"
-        android:visibility="gone"
-        android:layout_marginBottom="12dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/btnSensorStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sensor Status"
-        android:layout_marginBottom="12dp" />
+            <TextView
+                android:id="@+id/tvManageZoneName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Main Zone 1"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#1E4D2B" />
 
-    <Button
-        android:id="@+id/btnDeleteZone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delete Zone"
-        android:backgroundTint="@android:color/holo_red_dark"
-        android:layout_marginBottom="12dp" />
+            <Button
+                android:id="@+id/btnRefresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Refresh"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Corn Age"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvCornAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 days after planting"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnNewCornPlanted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Corn Planted"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp" />
+
+        <!-- NPK Readings Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NPK Readings"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="N Nitrogen" />
+            <TextView android:id="@+id/tvAvgN" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 mg/kg" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusN" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="P Phosphorus" />
+            <TextView android:id="@+id/tvAvgP" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 mg/kg" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusP" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="K Potassium" />
+            <TextView android:id="@+id/tvAvgK" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 mg/kg" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusK" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Other Details Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other Details"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Moisture" />
+            <TextView android:id="@+id/tvAvgMoisture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusMoisture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="pH Level" />
+            <TextView android:id="@+id/tvAvgPh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusPh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Temperature" />
+            <TextView android:id="@+id/tvAvgTemp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0°C" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusTemp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Electrical Conductivity" />
+            <TextView android:id="@+id/tvAvgEc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/tvStatusEc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Normal" android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSoilHealth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Soil Health: 90%"
+            android:textStyle="bold"
+            android:textColor="#1E4D2B"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Recommendations Card (See More Option) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="#F4F4F4"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recommendations:"
+                android:textStyle="bold"
+                android:textColor="#1E4D2B"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:id="@+id/tvRecommendationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add 50 kilos of urea fertilizer to promote green leafy growth."
+                android:textSize="14sp"
+                android:layout_marginBottom="6dp" />
+
+            <Button
+                android:id="@+id/btnSeeMoreRec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="see more..."
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="#1E4D2B" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnSensorStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sensor Status"
+                android:backgroundTint="#1E4D2B"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnDeleteZone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Delete"
+                android:backgroundTint="#1E4D2B" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Back"
+                android:backgroundTint="#1E4D2B"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnHarvest"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Harvested"
+                android:backgroundTint="#1E4D2B" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
