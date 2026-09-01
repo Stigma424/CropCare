@@ -35,6 +35,7 @@
         <activity android:name=".AddSensorActivity" android:exported="false" />
         <activity android:name=".SensorDetailActivity" android:exported="false" />
         <activity android:name=".EditSensorActivity" android:exported="false" />
+        <activity android:name=".SensorHistoryActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

@@ -35,6 +35,15 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tvLastUpdated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last updated: --"
+            android:textSize="12sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Corn Age"
@@ -121,7 +130,7 @@
             android:id="@+id/tvSoilHealth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Soil Health: 90%"
+            android:text="Soil Health: --"
             android:textStyle="bold"
             android:textColor="#1E4D2B"
             android:layout_marginBottom="16dp" />
