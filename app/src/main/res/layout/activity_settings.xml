@@ -4,12 +4,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp">
-
+    <ImageView
+        android:id="@+id/btnBack"
+        android:clickable="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="start"
+        android:src="@drawable/backbutton"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Settings"
-        android:textSize="24sp"
+        android:textColor="#2E6B35"
+        android:textSize="32sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp" />
 
@@ -35,16 +42,11 @@
         android:textSize="16sp"
         android:padding="8dp"
         android:layout_marginBottom="12dp" />
-
     <Button
         android:id="@+id/btnLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Log Out"
         android:backgroundTint="#D32F2F" />
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back"/>
+
 </LinearLayout>
