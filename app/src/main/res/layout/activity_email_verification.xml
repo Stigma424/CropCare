@@ -2,34 +2,74 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:background="#F2F2F2"
+    android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="32dp">
 
+    <!-- Verification Title -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email Verification"
-        android:textSize="24sp"
+        android:text="Verification"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:textColor="#146C2E"
+        android:layout_marginBottom="8dp" />
 
+    <!-- Subtitle -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Verification link requested. Click proceed to change your password."
-        android:textAlignment="center"
+        android:text="Please verify you email inbox and input the request code below."
+        android:textSize="14sp"
+        android:textColor="#757575"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Code Input -->
+    <EditText
+        android:id="@+id/etCode"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="Enter the code here"
+        android:inputType="text"
+        android:textSize="14sp"
+        android:textColor="#000000"
+        android:textColorHint="#757575"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_input_field"
+        android:layout_marginBottom="40dp" />
+
+    <!-- Submit Button (Using TextView for perfect centering) -->
+    <TextView
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="SUBMIT"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:background="@drawable/bg_login_button"
+        android:clickable="true"
+        android:focusable="true"
         android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/btnProceedToReset"
-        android:layout_width="match_parent"
+    <!-- Cancel Link -->
+    <TextView
+        android:id="@+id/btnCancel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Proceed to Reset Password" />
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back"/>
+        android:text="CANCEL"
+        android:textColor="#146C2E"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_gravity="center_horizontal"
+        android:padding="8dp"
+        android:clickable="true"
+        android:focusable="true" />
 
 </LinearLayout>
