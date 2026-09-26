@@ -1,66 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp">
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Add Sensor"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#1E4D2B" />
-    </RelativeLayout>
-
-    <EditText
-        android:id="@+id/etSensorId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Sensor ID"
-        android:layout_marginBottom="20dp" />
-
-    <EditText
-        android:id="@+id/etSensorName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Sensor Name"
-        android:layout_marginBottom="30dp" />
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="0dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Save"
-            android:backgroundTint="#1E4D2B"
-            android:layout_marginEnd="8dp" />
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <Button
-            android:id="@+id/btnCancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Cancel"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="start"
+                android:clickable="true"
+                android:src="@drawable/backbutton"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Add Sensor"
+                android:textColor="#2E6B35"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="25dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sensor ID"
+                android:textSize="16sp"
+                android:gravity="start"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etSensorId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Sensor ID"
+                android:background="@drawable/edittextborder"
+                android:inputType="text"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sensor Name"
+                android:textSize="16sp"
+                android:gravity="start"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etSensorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Sensor Name"
+                android:background="@drawable/edittextborder"
+                android:inputType="text"
+                android:layout_marginBottom="8dp" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Cancel"
+                    android:textAllCaps="false"
+                    android:textColor="#2E7D32"
+                    android:textSize="13sp"
+                    android:backgroundTint="#E8F4E9"
+                    android:layout_marginEnd="10dp" />
+
+                <Button
+                    android:id="@+id/btnSave"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Save"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:backgroundTint="#287A32"
+                    android:layout_marginStart="10dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
     </LinearLayout>
-</LinearLayout>
+
+</ScrollView>
