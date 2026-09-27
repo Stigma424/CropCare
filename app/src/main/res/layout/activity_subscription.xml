@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subscription &amp; Membership"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1E4D2B"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Status Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#E8F5E9"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/tvSubscriptionStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Plan: FREE USER"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32" />
+
+            <TextView
+                android:id="@+id/tvStatusDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upgrade to unlock exact corn fertilization weight calculations (Urea/Complete/Potash), soil pH Lime guidance, and priority alerts!"
+                android:textSize="13sp"
+                android:textColor="#333333"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <!-- Benefits List -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Premium Pro Benefits:"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#1E4D2B"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✓ Exact fertilizer dosages in kg based on field sqm&#10;✓ Growth-stage specific NPK chemical selection (46-0-0, 14-14-14, 0-0-60)&#10;✓ Automated FCM warning push notifications&#10;✓ Soil pH &amp; moisture management schedules"
+            android:textSize="13sp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="#444444"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Payment Card -->
+        <LinearLayout
+            android:id="@+id/layoutPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#F5F5F5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GCash Payment Details"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#0052CC"
+                android:layout_marginBottom="8dp" />
+
+            <!-- GCash QR Visual Box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="#10316B"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GCash QR CODE"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SCAN TO PAY WITH GCASH"
+                    android:textColor="#00D2FF"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Account: 0917-123-4567\nName: CropCare Agritech"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textSize="13sp"
+                    android:layout_marginTop="12dp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter GCash Reference No. after payment:"
+                android:textSize="13sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/etGcashRef"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g. 10023456789"
+                android:inputType="number"
+                android:padding="12dp"
+                android:background="@android:drawable/editbox_background"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnSubscribe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Verify &amp; Activate Pro Subscription"
+                android:backgroundTint="#2E7D32" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnCancelSubscription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel / Downgrade Subscription"
+            android:backgroundTint="#D32F2F"
+            android:visibility="gone"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+</ScrollView>

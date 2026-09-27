@@ -55,6 +55,8 @@ class AddSensorActivity : AppCompatActivity() {
                 // Populate random readings for soil_data matching schema
                 val soilDataMap = hashMapOf(
                     "deviceId" to deviceId,
+                    "zoneId" to zoneId,
+                    "userId" to userId,
                     "ec" to Random.nextInt(20, 45),
                     "moisture" to Random.nextDouble(18.0, 55.0),
                     "nitrogen" to Random.nextInt(10, 60),

@@ -51,13 +51,31 @@ class ZoneAdapter(
             .get()
             .addOnSuccessListener { sensors ->
                 val deviceIds = sensors.mapNotNull { it.getString("deviceId") }
-                if (deviceIds.isEmpty()) return@addOnSuccessListener
+                if (deviceIds.isEmpty()) {
+                    holder.tvN.text = "0 mg/kg"
+                    holder.tvStatusN.text = "No Sensor"
+                    holder.tvP.text = "0 mg/kg"
+                    holder.tvStatusP.text = "No Sensor"
+                    holder.tvK.text = "0 mg/kg"
+                    holder.tvStatusK.text = "No Sensor"
+                    holder.tvSoilHealth.text = "0%"
+                    return@addOnSuccessListener
+                }
 
                 db.collection("soil_data")
                     .whereIn("deviceId", deviceIds)
                     .get()
                     .addOnSuccessListener { soilDocs ->
-                        if (soilDocs.isEmpty) return@addOnSuccessListener
+                        if (soilDocs.isEmpty) {
+                            holder.tvN.text = "0 mg/kg"
+                            holder.tvStatusN.text = "No Data"
+                            holder.tvP.text = "0 mg/kg"
+                            holder.tvStatusP.text = "No Data"
+                            holder.tvK.text = "0 mg/kg"
+                            holder.tvStatusK.text = "No Data"
+                            holder.tvSoilHealth.text = "0%"
+                            return@addOnSuccessListener
+                        }
 
                         var count = soilDocs.size()
                         var sumN = 0.0; var sumP = 0.0; var sumK = 0.0

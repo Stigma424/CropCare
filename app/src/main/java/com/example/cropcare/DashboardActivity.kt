@@ -1,13 +1,20 @@
 package com.example.cropcare
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -30,9 +37,12 @@ class DashboardActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        checkNotificationPermission()
+
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         val btnSettings = findViewById<Button>(R.id.btnSettings)
         val btnAddZone = findViewById<Button>(R.id.btnAddZone)
+        val btnNotifications = findViewById<Button>(R.id.btnNotifications)
         val btnRefreshZones = findViewById<Button>(R.id.btnRefreshZones)
         val rvZones = findViewById<RecyclerView>(R.id.rvZones)
 
@@ -51,12 +61,30 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, AddZoneActivity::class.java))
         }
 
+        btnNotifications.setOnClickListener {
+            startActivity(Intent(this, NotificationsActivity::class.java))
+        }
+
         btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
         btnRefreshZones.setOnClickListener {
             fetchUserZones()
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    101
+                )
+            }
         }
     }
 
@@ -80,7 +108,6 @@ class DashboardActivity : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
-                // Fetch latest readings per zone in parallel
                 val zoneTasks = zoneDocs.map { zoneDoc ->
                     val zoneId = zoneDoc.getString("zoneId") ?: zoneDoc.id
                     fetchLatestZoneAverages(zoneId)
@@ -107,11 +134,13 @@ class DashboardActivity : AppCompatActivity() {
             }
     }
 
-    private fun fetchLatestZoneAverages(zoneId: String): com.google.android.gms.tasks.Task<Void> {
-        val completionSource = com.google.android.gms.tasks.TaskCompletionSource<Void>()
+    private fun fetchLatestZoneAverages(zoneId: String): Task<Void> {
+        val completionSource = TaskCompletionSource<Void>()
+        val userId = auth.currentUser?.uid ?: return completionSource.task
 
         db.collection("sensors")
             .whereEqualTo("zoneId", zoneId)
+            .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { sensorDocs ->
                 val deviceIds = sensorDocs.mapNotNull { it.getString("deviceId") }.distinct()

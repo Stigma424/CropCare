@@ -27,11 +27,26 @@
         android:text="Account Settings"
         android:layout_marginBottom="12dp" />
 
+    <Button
+        android:id="@+id/btnNotificationsCenter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notifications &amp; Alerts Center"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnSubscription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subscription &amp; Membership"
+        android:backgroundTint="#1E4D2B"
+        android:layout_marginBottom="12dp" />
+
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switchNotification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Notifications"
+        android:text="Enable Notifications"
         android:textSize="16sp"
         android:padding="8dp"
         android:layout_marginBottom="12dp" />
