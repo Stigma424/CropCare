@@ -63,65 +63,116 @@ class SensorDetailActivity : AppCompatActivity() {
         }
 
         btnDeleteSensor.setOnClickListener {
-            db.collection("sensors").document(sensorId).delete()
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Sensor deleted", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
+            if (sensorId.isNotEmpty()) {
+                db.collection("sensors").document(sensorId).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Sensor deleted", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+            } else {
+                finish()
+            }
         }
 
         btnBack.setOnClickListener { finish() }
     }
 
     private fun loadLatestData(deviceId: String) {
-        if (deviceId.isEmpty()) return
+        val trimmedId = deviceId.trim()
+        if (trimmedId.isEmpty()) {
+            resetUiToEmpty("Sensor ID is empty or not found")
+            return
+        }
 
         db.collection("soil_data")
-            .whereEqualTo("deviceId", deviceId)
+            .whereEqualTo("deviceId", trimmedId)
             .get()
             .addOnSuccessListener { docs ->
-                if (!docs.isEmpty) {
-                    val latestDoc = docs.documents.maxByOrNull { parseAnyDate(it)?.time ?: 0L }
-
-                    if (latestDoc != null) {
-                        val nVal = latestDoc.getDouble("nitrogen") ?: 0.0
-                        val pVal = latestDoc.getDouble("phosphorus") ?: 0.0
-                        val kVal = latestDoc.getDouble("potassium") ?: 0.0
-                        val mVal = latestDoc.getDouble("moisture") ?: 0.0
-                        val phVal = latestDoc.getDouble("ph") ?: 0.0
-                        val tVal = latestDoc.getDouble("temperature") ?: 0.0
-                        val ecVal = latestDoc.getDouble("ec") ?: 0.0
-
-                        findViewById<TextView>(R.id.tvSensorN).text = String.format(Locale.US, "%.0f mg/kg", nVal)
-                        findViewById<TextView>(R.id.tvStatusN).text = SoilUtils.getStatus("N", nVal)
-
-                        findViewById<TextView>(R.id.tvSensorP).text = String.format(Locale.US, "%.0f mg/kg", pVal)
-                        findViewById<TextView>(R.id.tvStatusP).text = SoilUtils.getStatus("P", pVal)
-
-                        findViewById<TextView>(R.id.tvSensorK).text = String.format(Locale.US, "%.0f mg/kg", kVal)
-                        findViewById<TextView>(R.id.tvStatusK).text = SoilUtils.getStatus("K", kVal)
-
-                        findViewById<TextView>(R.id.tvSensorMoisture).text = String.format(Locale.US, "%.0f%%", mVal)
-                        findViewById<TextView>(R.id.tvStatusMoisture).text = SoilUtils.getStatus("MOISTURE", mVal)
-
-                        findViewById<TextView>(R.id.tvSensorPh).text = String.format(Locale.US, "%.1f", phVal)
-                        findViewById<TextView>(R.id.tvStatusPh).text = SoilUtils.getStatus("PH", phVal)
-
-                        findViewById<TextView>(R.id.tvSensorTemp).text = String.format(Locale.US, "%.0f°C", tVal)
-                        findViewById<TextView>(R.id.tvStatusTemp).text = SoilUtils.getStatus("TEMP", tVal)
-
-                        findViewById<TextView>(R.id.tvSensorEc).text = String.format(Locale.US, "%.0f", ecVal)
-                        findViewById<TextView>(R.id.tvStatusEc).text = SoilUtils.getStatus("EC", ecVal)
-
-                        val timeFormat = SimpleDateFormat("MMM dd, yyyy - hh:mm:ss a", Locale.US)
-                        val dateObj = parseAnyDate(latestDoc) ?: Date()
-                        tvLastUpdated.text = "Last updated: ${timeFormat.format(dateObj)}"
-                    }
+                if (docs.isEmpty) {
+                    resetUiToEmpty("No readings found for Sensor ID: $trimmedId")
+                    return@addOnSuccessListener
                 }
+
+                val latestDoc = docs.documents.maxByOrNull { parseAnyDate(it)?.time ?: 0L }
+
+                if (latestDoc == null) {
+                    resetUiToEmpty("No valid readings for Sensor ID: $trimmedId")
+                    return@addOnSuccessListener
+                }
+
+                val nVal = latestDoc.getDouble("nitrogen") ?: 0.0
+                val pVal = latestDoc.getDouble("phosphorus") ?: 0.0
+                val kVal = latestDoc.getDouble("potassium") ?: 0.0
+                val mVal = latestDoc.getDouble("moisture") ?: 0.0
+                val phVal = latestDoc.getDouble("ph") ?: 0.0
+                val tVal = latestDoc.getDouble("temperature") ?: 0.0
+                val ecVal = latestDoc.getDouble("ec") ?: 0.0
+
+                findViewById<TextView>(R.id.tvSensorN).text = String.format(Locale.US, "%.0f mg/kg", nVal)
+                findViewById<TextView>(R.id.tvStatusN).text = SoilUtils.getStatus("N", nVal)
+
+                findViewById<TextView>(R.id.tvSensorP).text = String.format(Locale.US, "%.0f mg/kg", pVal)
+                findViewById<TextView>(R.id.tvStatusP).text = SoilUtils.getStatus("P", pVal)
+
+                findViewById<TextView>(R.id.tvSensorK).text = String.format(Locale.US, "%.0f mg/kg", kVal)
+                findViewById<TextView>(R.id.tvStatusK).text = SoilUtils.getStatus("K", kVal)
+
+                findViewById<TextView>(R.id.tvSensorMoisture).text = String.format(Locale.US, "%.0f%%", mVal)
+                findViewById<TextView>(R.id.tvStatusMoisture).text = SoilUtils.getStatus("MOISTURE", mVal)
+
+                findViewById<TextView>(R.id.tvSensorPh).text = String.format(Locale.US, "%.1f", phVal)
+                findViewById<TextView>(R.id.tvStatusPh).text = SoilUtils.getStatus("PH", phVal)
+
+                findViewById<TextView>(R.id.tvSensorTemp).text = String.format(Locale.US, "%.0f°C", tVal)
+                findViewById<TextView>(R.id.tvStatusTemp).text = SoilUtils.getStatus("TEMP", tVal)
+
+                findViewById<TextView>(R.id.tvSensorEc).text = String.format(Locale.US, "%.0f", ecVal)
+                findViewById<TextView>(R.id.tvStatusEc).text = SoilUtils.getStatus("EC", ecVal)
+
+                val timeFormat = SimpleDateFormat("MMM dd, yyyy - hh:mm:ss a", Locale.US)
+                val dateObj = parseAnyDate(latestDoc) ?: Date()
+                tvLastUpdated.text = "Last updated: ${timeFormat.format(dateObj)}"
+
+                // Check and trigger notifications if sensor values are low/high
+                NotificationHelper.checkAndTriggerSoilAlerts(
+                    context = this,
+                    zoneName = "Sensor $trimmedId",
+                    n = nVal,
+                    p = pVal,
+                    k = kVal,
+                    moisture = mVal,
+                    ph = phVal,
+                    recommendationSummary = ""
+                )
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to load data: ${e.message}", Toast.LENGTH_SHORT).show()
+                resetUiToEmpty("Failed to load data: ${e.message}")
             }
+    }
+
+    private fun resetUiToEmpty(message: String) {
+        findViewById<TextView>(R.id.tvSensorN).text = "0 mg/kg"
+        findViewById<TextView>(R.id.tvStatusN).text = "No Data"
+
+        findViewById<TextView>(R.id.tvSensorP).text = "0 mg/kg"
+        findViewById<TextView>(R.id.tvStatusP).text = "No Data"
+
+        findViewById<TextView>(R.id.tvSensorK).text = "0 mg/kg"
+        findViewById<TextView>(R.id.tvStatusK).text = "No Data"
+
+        findViewById<TextView>(R.id.tvSensorMoisture).text = "0%"
+        findViewById<TextView>(R.id.tvStatusMoisture).text = "No Data"
+
+        findViewById<TextView>(R.id.tvSensorPh).text = "0.0"
+        findViewById<TextView>(R.id.tvStatusPh).text = "No Data"
+
+        findViewById<TextView>(R.id.tvSensorTemp).text = "0°C"
+        findViewById<TextView>(R.id.tvStatusTemp).text = "No Data"
+
+        findViewById<TextView>(R.id.tvSensorEc).text = "0"
+        findViewById<TextView>(R.id.tvStatusEc).text = "No Data"
+
+        tvLastUpdated.text = message
     }
 
     private fun parseAnyDate(doc: DocumentSnapshot): Date? {
@@ -146,6 +197,10 @@ class SensorDetailActivity : AppCompatActivity() {
     }
 
     private fun openHistory(deviceId: String, metricKey: String, metricTitle: String, unit: String) {
+        if (deviceId.trim().isEmpty()) {
+            Toast.makeText(this, "Cannot view history for empty Sensor ID", Toast.LENGTH_SHORT).show()
+            return
+        }
         val intent = Intent(this, SensorHistoryActivity::class.java)
         intent.putExtra("DEVICE_ID", deviceId)
         intent.putExtra("METRIC_KEY", metricKey)

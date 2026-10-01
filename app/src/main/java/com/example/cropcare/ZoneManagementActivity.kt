@@ -321,6 +321,18 @@ class ZoneManagementActivity : AppCompatActivity() {
         )
 
         tvRecommendationText.text = activeRecommendation?.summaryText ?: "No recommendations available."
+
+        // Trigger real-time notifications if sensor values are low/high or new recommendations exist
+        NotificationHelper.checkAndTriggerSoilAlerts(
+            context = this,
+            zoneName = tvManageZoneName.text.toString(),
+            n = n,
+            p = p,
+            k = k,
+            moisture = m,
+            ph = ph,
+            recommendationSummary = activeRecommendation?.summaryText ?: ""
+        )
     }
 
     private fun showDetailedRecommendationDialog() {

@@ -6,8 +6,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 import java.util.Locale
 
 class ZoneAdapter(
@@ -50,7 +53,7 @@ class ZoneAdapter(
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { sensors ->
-                val deviceIds = sensors.mapNotNull { it.getString("deviceId") }
+                val deviceIds = sensors.mapNotNull { it.getString("deviceId") }.distinct()
                 if (deviceIds.isEmpty()) {
                     holder.tvN.text = "0 mg/kg"
                     holder.tvStatusN.text = "No Sensor"
@@ -77,18 +80,39 @@ class ZoneAdapter(
                             return@addOnSuccessListener
                         }
 
-                        var count = soilDocs.size()
-                        var sumN = 0.0; var sumP = 0.0; var sumK = 0.0
+                        // Take the LATEST reading per device in this zone
+                        val latestDocs = soilDocs.documents
+                            .groupBy { it.getString("deviceId") ?: "default" }
+                            .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
 
-                        for (doc in soilDocs) {
-                            sumN += doc.getDouble("nitrogen") ?: 0.0
-                            sumP += doc.getDouble("phosphorus") ?: 0.0
-                            sumK += doc.getDouble("potassium") ?: 0.0
+                        if (latestDocs.isEmpty()) {
+                            holder.tvN.text = "0 mg/kg"
+                            holder.tvStatusN.text = "No Data"
+                            holder.tvP.text = "0 mg/kg"
+                            holder.tvStatusP.text = "No Data"
+                            holder.tvK.text = "0 mg/kg"
+                            holder.tvStatusK.text = "No Data"
+                            holder.tvSoilHealth.text = "0%"
+                            return@addOnSuccessListener
+                        }
+
+                        val count = latestDocs.size.toDouble()
+                        var sumN = 0.0; var sumP = 0.0; var sumK = 0.0
+                        var sumMoisture = 0.0; var sumPh = 0.0
+
+                        for (doc in latestDocs) {
+                            sumN += getDoubleValue(doc, "nitrogen", "n", "N")
+                            sumP += getDoubleValue(doc, "phosphorus", "p", "P")
+                            sumK += getDoubleValue(doc, "potassium", "k", "K")
+                            sumMoisture += getDoubleValue(doc, "moisture", "humidity")
+                            sumPh += getDoubleValue(doc, "ph", "pH")
                         }
 
                         val avgN = sumN / count
                         val avgP = sumP / count
                         val avgK = sumK / count
+                        val avgMoisture = sumMoisture / count
+                        val avgPh = sumPh / count
 
                         holder.tvN.text = String.format(Locale.US, "%.0f mg/kg", avgN)
                         holder.tvStatusN.text = SoilUtils.getStatus("N", avgN)
@@ -99,9 +123,47 @@ class ZoneAdapter(
                         holder.tvK.text = String.format(Locale.US, "%.0f mg/kg", avgK)
                         holder.tvStatusK.text = SoilUtils.getStatus("K", avgK)
 
-                        holder.tvSoilHealth.text = "90%"
+                        val healthScore = calculateSoilHealthPercentage(avgN, avgP, avgK, avgMoisture, avgPh)
+                        holder.tvSoilHealth.text = "$healthScore%"
                     }
             }
+    }
+
+    private fun getDoubleValue(doc: DocumentSnapshot, vararg keys: String): Double {
+        for (key in keys) {
+            val valDouble = doc.getDouble(key)
+            if (valDouble != null) return valDouble
+
+            val valLong = doc.getLong(key)
+            if (valLong != null) return valLong.toDouble()
+
+            val valString = doc.getString(key)
+            if (valString != null) {
+                val parsed = valString.toDoubleOrNull()
+                if (parsed != null) return parsed
+            }
+        }
+        return 0.0
+    }
+
+    private fun calculateSoilHealthPercentage(n: Double, p: Double, k: Double, m: Double, ph: Double): Int {
+        var score = 0
+        if (n in 20.0..80.0) score += 20 else if (n > 10) score += 10
+        if (p in 10.0..50.0) score += 20 else if (p > 5) score += 10
+        if (k in 20.0..60.0) score += 20 else if (k > 10) score += 10
+        if (m in 30.0..75.0) score += 20 else if (m in 15.0..85.0) score += 10
+        if (ph in 5.8..7.5) score += 20 else if (ph in 5.0..8.0) score += 10
+        return score
+    }
+
+    private fun parseAnyDate(doc: DocumentSnapshot): Date? {
+        val rawValue = doc.get("timestamp") ?: doc.get("lastScanTimestamp")
+        return when (rawValue) {
+            is Timestamp -> rawValue.toDate()
+            is Long -> Date(rawValue)
+            is Double -> Date(rawValue.toLong())
+            else -> null
+        }
     }
 
     override fun getItemCount(): Int = zoneList.size
