@@ -6,52 +6,118 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <ImageView
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/cropcarelogo"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:textSize="28sp"
+        android:text="Welcome to CropCare"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Precision Farming Starts with Smarter Fertilizing."
+        android:textSize="12sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Username"
+        android:textSize="16sp"
+        android:gravity="start"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/etLoginUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/edittextborder"
         android:hint="Username"
         android:inputType="text"
         android:layout_marginBottom="12dp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textSize="16sp"
+        android:gravity="start"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/etLoginPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/edittextborder"
         android:hint="Password"
-        android:inputType="textPassword"
-        android:layout_marginBottom="16dp" />
+        android:inputType="textPassword" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/cbRememberMe"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Remember me"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center_vertical" />
 
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Forgot Password?"
+            android:textColor="#2E6B35"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="8dp" />
+
+    </LinearLayout>
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
+        android:background="@drawable/green_button"
         android:text="Login" />
 
-    <TextView
-        android:id="@+id/tvForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Forgot Password?"
-        android:textColor="#0066CC"
-        android:padding="8dp"
-        android:layout_marginTop="12dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Don't have an account? Register"
-        android:textColor="#0066CC"
-        android:padding="8dp"
-        android:layout_marginTop="4dp" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Dont have an account yet? "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Register Here!"
+            android:textColor="#2E6B35"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingEnd="8dp"
+            android:gravity="center_vertical|end" />
+
+    </LinearLayout>
 
 </LinearLayout>
