@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header Section -->
+        <!-- title -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
             android:textColor="#666666"
             android:textSize="12sp" />
 
-        <!-- White Card Container -->
+        <!-- white container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- NPK Readings Title -->
+            <!-- NPK readings -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- NITROGEN -->
+            <!-- nitrogen -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <!-- Weight=1 pushes the View History to the right -->
+                <!-- detail -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -135,7 +135,7 @@
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
-                        <!-- Added minWidth and gravity to prevent squishing -->
+                        <!-- status -->
                         <TextView
                             android:id="@+id/tvStatusN"
                             android:layout_width="wrap_content"
@@ -171,7 +171,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- PHOSPHORUS -->
+            <!-- phosporus -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -188,7 +188,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="20sp"
                     android:textStyle="bold" />
-
+                <!-- detail -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -212,7 +212,7 @@
                             android:textColor="#000000"
                             android:textSize="14sp"
                             android:textStyle="bold" />
-
+                        <!-- status -->
                         <TextView
                             android:id="@+id/tvStatusP"
                             android:layout_width="wrap_content"
@@ -248,7 +248,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- POTASSIUM -->
+            <!-- potassium -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -265,7 +265,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="20sp"
                     android:textStyle="bold" />
-
+                <!-- detail -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -289,7 +289,7 @@
                             android:textColor="#000000"
                             android:textSize="14sp"
                             android:textStyle="bold" />
-
+                        <!-- status -->
                         <TextView
                             android:id="@+id/tvStatusK"
                             android:layout_width="wrap_content"
@@ -325,7 +325,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- OTHER DETAILS SECTION -->
+            <!-- other details -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -335,7 +335,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Moisture -->
+            <!-- moisture -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -385,7 +385,7 @@
                     android:textSize="10sp" />
             </LinearLayout>
 
-            <!-- pH Level -->
+            <!-- pH level -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -435,7 +435,7 @@
                     android:textSize="10sp" />
             </LinearLayout>
 
-            <!-- Temperature -->
+            <!-- temperature -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -485,7 +485,7 @@
                     android:textSize="10sp" />
             </LinearLayout>
 
-            <!-- Electrical Conductivity -->
+            <!-- electrical conductivity -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -537,13 +537,14 @@
 
         </LinearLayout>
 
-        <!-- Bottom Buttons -->
+        <!-- buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:orientation="horizontal">
 
+            <!-- delete button -->
             <TextView
                 android:id="@+id/btnDeleteSensor"
                 android:layout_width="0dp"
@@ -559,6 +560,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
+            <!-- edit button -->
             <TextView
                 android:id="@+id/btnEditSensor"
                 android:layout_width="0dp"

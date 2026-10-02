@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#F2F2F2">
 
-    <!-- The White Box -->
+    <!-- white box -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Login Title -->
+        <!-- login title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
             android:textColor="#146C2E"
             android:layout_marginBottom="24dp" />
 
-        <!-- Username Input -->
+        <!-- username input -->
         <EditText
             android:id="@+id/etLoginUsername"
             android:layout_width="match_parent"
@@ -42,7 +42,7 @@
             android:background="@drawable/bg_input_field"
             android:layout_marginBottom="12dp" />
 
-        <!-- Password Input (With Eye Icon Container) -->
+        <!-- password input -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -62,7 +62,7 @@
                 android:paddingEnd="48dp"
                 android:background="@drawable/bg_input_field" />
 
-            <!-- The Eye Icon perfectly centered on the right -->
+            <!-- eye icon  -->
             <ImageView
                 android:id="@+id/ivTogglePassword"
                 android:layout_width="24dp"
@@ -73,7 +73,7 @@
                 app:tint="#000000" />
         </FrameLayout>
 
-        <!-- Forgot Password -->
+        <!-- forgot password -->
         <TextView
             android:id="@+id/tvForgotPassword"
             android:layout_width="wrap_content"
@@ -85,7 +85,7 @@
             android:padding="4dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Login Button (Using TextView for perfect centering) -->
+        <!-- login button -->
         <TextView
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
@@ -100,7 +100,7 @@
             android:focusable="true"
             android:layout_marginBottom="24dp" />
 
-        <!-- Register Section -->
+        <!-- register section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

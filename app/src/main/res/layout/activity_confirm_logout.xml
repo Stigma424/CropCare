@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EAEAEA"> <!-- This is the grey background -->
+    android:background="#EAEAEA">
 
     <LinearLayout
         android:layout_width="300dp"
@@ -13,7 +13,7 @@
         android:padding="24dp"
         android:background="@drawable/logout_dialog_bg">
 
-        <!-- Question Text -->
+        <!-- question text -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,14 +25,14 @@
             android:lineSpacingExtra="4dp"
             android:layout_marginBottom="28dp" />
 
-        <!-- Buttons Container -->
+        <!-- button container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
 
-            <!-- "No" Button -->
+            <!-- no button -->
             <TextView
                 android:id="@+id/btnCancelLogout"
                 android:layout_width="0dp"
@@ -48,7 +48,7 @@
                 android:clickable="true"
                 android:focusable="true" />
 
-            <!-- "Yes" Button -->
+            <!-- yes button -->
             <TextView
                 android:id="@+id/btnConfirmLogout"
                 android:layout_width="0dp"
