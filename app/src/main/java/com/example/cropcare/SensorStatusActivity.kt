@@ -24,6 +24,7 @@ class SensorStatusActivity : AppCompatActivity() {
     private lateinit var adapter: SensorAdapter
     private val sensorList = mutableListOf<SensorModel>()
     private var zoneId: String = ""
+    private var zoneName: String = "Zone"
 
     private val handler = Handler(Looper.getMainLooper())
     private val refreshRunnable = object : Runnable {
@@ -40,6 +41,12 @@ class SensorStatusActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
         zoneId = intent.getStringExtra("ZONE_ID") ?: ""
+
+        if (zoneId.isNotEmpty()) {
+            db.collection("zones").document(zoneId).get().addOnSuccessListener { doc ->
+                zoneName = doc.getString("zoneName") ?: "Zone"
+            }
+        }
 
         val rvSensors = findViewById<RecyclerView>(R.id.rvSensors)
         val btnAddSensor = findViewById<ImageButton>(R.id.btnAddSensor)
@@ -120,6 +127,14 @@ class SensorStatusActivity : AppCompatActivity() {
                             // Sensor is ONLINE if latest reading occurred within the last 2 minutes (120,000 ms)
                             val now = System.currentTimeMillis()
                             val isOnline = (now - latestTime) <= 120000L
+
+                            if (!isOnline) {
+                                NotificationHelper.checkAndTriggerOfflineSensorAlert(
+                                    this@SensorStatusActivity,
+                                    zoneName,
+                                    sensorName
+                                )
+                            }
 
                             tempSensors.add(
                                 SensorModel(

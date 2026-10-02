@@ -140,4 +140,32 @@ object NotificationHelper {
                 Log.e("NotificationHelper", "Failed to save notification: ${e.message}")
             }
     }
+
+    fun checkAndTriggerOfflineSensorAlert(
+        context: Context,
+        zoneName: String,
+        sensorName: String
+    ) {
+        val prefs = context.getSharedPreferences("CropCarePrefs", Context.MODE_PRIVATE)
+        val notificationsEnabled = prefs.getBoolean("notifications_enabled", true)
+
+        if (!notificationsEnabled) {
+            return
+        }
+
+        val lastAlertKey = "last_offline_alert_$sensorName"
+        val lastAlertTime = prefs.getLong(lastAlertKey, 0L)
+        val now = System.currentTimeMillis()
+
+        if (now - lastAlertTime < 300000L) {
+            return
+        }
+
+        prefs.edit().putLong(lastAlertKey, now).apply()
+
+        val title = "Sensor Offline Warning"
+        val body = "Sensor '$sensorName' in $zoneName is currently offline or has not reported data recently."
+        sendSystemNotification(context, title, body)
+        saveToFirestoreHistory(title, body)
+    }
 }

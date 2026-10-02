@@ -3,6 +3,7 @@ package com.example.cropcare
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -25,51 +26,49 @@ class SettingsActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("CropCarePrefs", MODE_PRIVATE)
 
-        val btnHelp = findViewById<Button>(R.id.btnHelp)
-        val btnAccountSettings = findViewById<Button>(R.id.btnAccountSettings)
-        val btnNotificationsCenter = findViewById<Button>(R.id.btnNotificationsCenter)
-        val btnSubscription = findViewById<Button>(R.id.btnSubscription)
-        val switchNotification = findViewById<SwitchMaterial>(R.id.switchNotification)
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
-        val btnBack = findViewById<ImageView>(R.id.btnBack)
+        val btnHelp = findViewById<View?>(R.id.btnHelp)
+        val btnAccountSettings = findViewById<View?>(R.id.btnAccountSettings)
+        val btnNotificationsCenter = findViewById<View?>(R.id.btnNotificationsCenter)
+        val btnSubscription = findViewById<View?>(R.id.btnSubscription)
+        val btnLogout = findViewById<View?>(R.id.btnLogout)
+        val btnBack = findViewById<View?>(R.id.btnBack)
 
-        // Set initial switch state from preferences
-        val isNotifEnabled = prefs.getBoolean("notifications_enabled", true)
-        switchNotification.isChecked = isNotifEnabled
+        // Bottom Navigation
+        findViewById<View?>(R.id.navHome)?.setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
+            finish()
+        }
+        findViewById<View?>(R.id.navAddZone)?.setOnClickListener {
+            startActivity(Intent(this, AddZoneActivity::class.java))
+        }
+        findViewById<View?>(R.id.navNotif)?.setOnClickListener {
+            startActivity(Intent(this, NotificationsActivity::class.java))
+        }
+        findViewById<View?>(R.id.navSettings)?.setOnClickListener {
+            // Already settings
+        }
 
-        btnHelp.setOnClickListener {
+        btnHelp?.setOnClickListener {
             startActivity(Intent(this, HelpActivity::class.java))
         }
 
-        btnAccountSettings.setOnClickListener {
+        btnAccountSettings?.setOnClickListener {
             startActivity(Intent(this, AccountSettingsActivity::class.java))
         }
 
-        btnNotificationsCenter.setOnClickListener {
+        btnNotificationsCenter?.setOnClickListener {
             startActivity(Intent(this, NotificationsActivity::class.java))
         }
 
-        btnSubscription.setOnClickListener {
+        btnSubscription?.setOnClickListener {
             startActivity(Intent(this, SubscriptionActivity::class.java))
         }
 
-        switchNotification.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("notifications_enabled", isChecked).apply()
-
-            if (isChecked) {
-                FirebaseMessaging.getInstance().subscribeToTopic("cropcare_alerts")
-                Toast.makeText(this, "Notifications turned ON", Toast.LENGTH_SHORT).show()
-            } else {
-                FirebaseMessaging.getInstance().unsubscribeFromTopic("cropcare_alerts")
-                Toast.makeText(this, "Notifications turned OFF", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        btnLogout.setOnClickListener {
+        btnLogout?.setOnClickListener {
             startActivity(Intent(this, ConfirmLogoutActivity::class.java))
         }
 
-        btnBack.setOnClickListener {
+        btnBack?.setOnClickListener {
             startActivity(Intent(this, DashboardActivity::class.java))
             finish()
         }

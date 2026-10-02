@@ -1,209 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEEEEE"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#F8F9FA">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Add Sensor"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1E4D2B" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/etSensorId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Sensor ID"
+        android:layout_marginBottom="20dp" />
+
+    <EditText
+        android:id="@+id/etSensorName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Sensor Name"
+        android:layout_marginBottom="30dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="vertical"
-            android:background="@drawable/rounded_corners"
-            android:backgroundTint="#2E6B35"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:paddingTop="20dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/btnBack"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@drawable/backbutton"
-                    android:contentDescription="Back" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Add Zone"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="-10dp"
-            android:layout_marginBottom="16dp"
-            android:padding="20dp"
-            android:background="@drawable/zone_card_background"
-            android:elevation="6dp">
+            android:layout_weight="1"
+            android:text="Save"
+            android:backgroundTint="#1E4D2B"
+            android:layout_marginEnd="8dp" />
 
-            <!-- Zone Name -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Enter Zone Name"
-                android:textColor="#555555"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="10dp" />
-
-            <EditText
-                android:id="@+id/etZoneName"
-                android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:background="@drawable/zone_edittext_background"
-                android:hint="e.g., Mais 3"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:textSize="12sp"
-                android:inputType="text"
-                android:layout_marginBottom="22dp" />
-
-            <!-- Zone Area -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Enter Zone Area per Square Meter"
-                android:textColor="#555555"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="10dp" />
-
-            <EditText
-                android:id="@+id/etZoneArea"
-                android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:background="@drawable/zone_edittext_background"
-                android:hint="e.g., 500"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:textSize="12sp"
-                android:inputType="numberDecimal"
-                android:layout_marginBottom="10dp" />
-
-            <!-- Planting Date -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="When did you start planting?"
-                android:textColor="#555555"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Calendar Month Navigation -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageButton
-                    android:id="@+id/btnPreviousMonth"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/calendar_nav_background"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:contentDescription="Previous month"
-                    android:scaleType="centerInside" />
-
-                <TextView
-                    android:id="@+id/tvCalendarMonth"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="April"
-                    android:textColor="#111111"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <ImageButton
-                    android:id="@+id/btnNextMonth"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/calendar_nav_background"
-                    android:src="@android:drawable/ic_media_next"
-                    android:contentDescription="Next month"
-                    android:scaleType="centerInside" />
-
-            </LinearLayout>
-
-            <!-- Calendar -->
-            <CalendarView
-                android:id="@+id/calendarView"
-                android:layout_width="match_parent"
-                android:layout_height="280dp"
-                android:showWeekNumber="false"
-                android:firstDayOfWeek="2"
-                android:dateTextAppearance="@android:style/TextAppearance.Small"
-                android:weekDayTextAppearance="@android:style/TextAppearance.Small"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Bottom Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="4dp">
-
-                <Button
-                    android:id="@+id/btnCancel"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Cancel"
-                    android:textColor="#2E7137"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:backgroundTint="#E8F4E8"
-                    android:layout_marginEnd="10dp" />
-
-                <Button
-                    android:id="@+id/btnAddZoneSubmit"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Add"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:backgroundTint="#267333"
-                    android:layout_marginStart="10dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

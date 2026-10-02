@@ -3,13 +3,14 @@ package com.example.cropcare
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -20,6 +21,10 @@ class ZoneAdapter(
 
     class ZoneViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvZoneName: TextView = itemView.findViewById(R.id.tvZoneName)
+        val tvRefresh: TextView = itemView.findViewById(R.id.tvRefresh)
+        val tvDate: TextView = itemView.findViewById(R.id.tvDate)
+        val tvTime: TextView = itemView.findViewById(R.id.tvTime)
+        val tvAlert: TextView = itemView.findViewById(R.id.tvAlert)
         val tvN: TextView = itemView.findViewById(R.id.tvN)
         val tvStatusN: TextView = itemView.findViewById(R.id.tvStatusN)
         val tvP: TextView = itemView.findViewById(R.id.tvP)
@@ -27,7 +32,7 @@ class ZoneAdapter(
         val tvK: TextView = itemView.findViewById(R.id.tvK)
         val tvStatusK: TextView = itemView.findViewById(R.id.tvStatusK)
         val tvSoilHealth: TextView = itemView.findViewById(R.id.tvSoilHealth)
-        val btnViewMore: Button = itemView.findViewById(R.id.btnViewMore)
+        val btnViewMore: TextView = itemView.findViewById(R.id.btnViewMore)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ZoneViewHolder {
@@ -40,6 +45,11 @@ class ZoneAdapter(
         holder.tvZoneName.text = zone.zoneName
 
         loadZoneReadings(zone.zoneId, zone.zoneName, holder)
+
+        holder.tvRefresh.setOnClickListener {
+            loadZoneReadings(zone.zoneId, zone.zoneName, holder)
+            Toast.makeText(holder.itemView.context, "Refreshing ${zone.zoneName}...", Toast.LENGTH_SHORT).show()
+        }
 
         holder.btnViewMore.setOnClickListener { onItemClick(zone.zoneId) }
     }
@@ -61,7 +71,11 @@ class ZoneAdapter(
                     holder.tvStatusP.text = "No Sensor"
                     holder.tvK.text = "0 mg/kg"
                     holder.tvStatusK.text = "No Sensor"
-                    holder.tvSoilHealth.text = "0%"
+                    holder.tvSoilHealth.text = "Overall Soil Health  0%"
+                    holder.tvDate.text = "No data"
+                    holder.tvTime.text = ""
+                    holder.tvAlert.text = "No sensors connected"
+                    holder.tvAlert.visibility = View.VISIBLE
                     return@addOnSuccessListener
                 }
 
@@ -76,7 +90,11 @@ class ZoneAdapter(
                             holder.tvStatusP.text = "No Data"
                             holder.tvK.text = "0 mg/kg"
                             holder.tvStatusK.text = "No Data"
-                            holder.tvSoilHealth.text = "0%"
+                            holder.tvSoilHealth.text = "Overall Soil Health  0%"
+                            holder.tvDate.text = "No data"
+                            holder.tvTime.text = ""
+                            holder.tvAlert.text = "No soil data recorded"
+                            holder.tvAlert.visibility = View.VISIBLE
                             return@addOnSuccessListener
                         }
 
@@ -92,8 +110,25 @@ class ZoneAdapter(
                             holder.tvStatusP.text = "No Data"
                             holder.tvK.text = "0 mg/kg"
                             holder.tvStatusK.text = "No Data"
-                            holder.tvSoilHealth.text = "0%"
+                            holder.tvSoilHealth.text = "Overall Soil Health  0%"
+                            holder.tvDate.text = "No data"
+                            holder.tvTime.text = ""
+                            holder.tvAlert.text = "No soil data recorded"
+                            holder.tvAlert.visibility = View.VISIBLE
                             return@addOnSuccessListener
+                        }
+
+                        val newestDoc = latestDocs.maxByOrNull { parseAnyDate(it)?.time ?: 0L }
+                        val latestDate = newestDoc?.let { parseAnyDate(it) }
+
+                        if (latestDate != null) {
+                            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
+                            val timeFormat = SimpleDateFormat("hh:mm a", Locale.US)
+                            holder.tvDate.text = "As of ${dateFormat.format(latestDate)}"
+                            holder.tvTime.text = "    ${timeFormat.format(latestDate)}"
+                        } else {
+                            holder.tvDate.text = "As of N/A"
+                            holder.tvTime.text = ""
                         }
 
                         val count = latestDocs.size.toDouble()
@@ -124,7 +159,14 @@ class ZoneAdapter(
                         holder.tvStatusK.text = SoilUtils.getStatus("K", avgK)
 
                         val healthScore = calculateSoilHealthPercentage(avgN, avgP, avgK, avgMoisture, avgPh)
-                        holder.tvSoilHealth.text = "$healthScore%"
+                        holder.tvSoilHealth.text = "Overall Soil Health  $healthScore%"
+
+                        if (avgN < 20.0) {
+                            holder.tvAlert.text = "Low nitrogen - action needed"
+                            holder.tvAlert.visibility = View.VISIBLE
+                        } else {
+                            holder.tvAlert.visibility = View.GONE
+                        }
 
                         // Trigger notifications and log to notification history when sensor data is received/loaded
                         NotificationHelper.checkAndTriggerSoilAlerts(
@@ -165,13 +207,29 @@ class ZoneAdapter(
     }
 
     private fun parseAnyDate(doc: DocumentSnapshot): Date? {
-        val rawValue = doc.get("timestamp") ?: doc.get("lastScanTimestamp")
-        return when (rawValue) {
-            is Timestamp -> rawValue.toDate()
-            is Long -> Date(rawValue)
-            is Double -> Date(rawValue.toLong())
-            else -> null
+        val keys = arrayOf("timestamp", "lastScanTimestamp", "createdAt", "date", "updatedAt")
+        for (key in keys) {
+            val rawValue = doc.get(key) ?: continue
+            when (rawValue) {
+                is Timestamp -> return rawValue.toDate()
+                is Long -> return Date(rawValue)
+                is Double -> return Date(rawValue.toLong())
+                is String -> {
+                    val formats = arrayOf(
+                        "yyyy-MM-dd HH:mm:ss",
+                        "MMMM dd, yyyy 'at' h:mm:ss a z",
+                        "MMMM dd, yyyy - hh:mm:ss a"
+                    )
+                    for (fmt in formats) {
+                        try {
+                            val parsed = SimpleDateFormat(fmt, Locale.US).parse(rawValue)
+                            if (parsed != null) return parsed
+                        } catch (_: Exception) {}
+                    }
+                }
+            }
         }
+        return null
     }
 
     override fun getItemCount(): Int = zoneList.size

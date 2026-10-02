@@ -1,8 +1,9 @@
 package com.example.cropcare
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.EmailAuthProvider
@@ -18,10 +19,11 @@ class ChangePasswordActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val etCurrentPassword = findViewById<EditText>(R.id.etCurrentPassword)
-        val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
-        val btnSave = findViewById<TextView>(R.id.btnSave)
-        val btnCancel = findViewById<TextView>(R.id.btnCancel)
+        val etCurrentPassword = findViewById<EditText>(R.id.EditOldPassword)
+        val etNewPassword = findViewById<EditText>(R.id.EditNewPassword)
+        val btnSave = findViewById<Button>(R.id.btnUpdatePassword)
+        val btnCancel = findViewById<Button>(R.id.cancelButton)
+        val btnBack = findViewById<View>(R.id.btnBack)
 
         btnSave.setOnClickListener {
             val currentPass = etCurrentPassword.text.toString().trim()
@@ -61,6 +63,10 @@ class ChangePasswordActivity : AppCompatActivity() {
         }
 
         btnCancel.setOnClickListener {
+            finish()
+        }
+
+        btnBack.setOnClickListener {
             finish()
         }
     }

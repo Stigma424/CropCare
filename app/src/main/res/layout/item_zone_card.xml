@@ -51,6 +51,17 @@
         android:textSize="14sp"
         android:textColor="#757575" />
 
+    <TextView
+        android:id="@+id/tvAlert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#D32F2F"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -94,6 +105,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tvStatusN"
             android:text="Normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -150,6 +162,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tvStatusP"
             android:text="Normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -206,6 +219,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tvStatusK"
             android:text="Normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

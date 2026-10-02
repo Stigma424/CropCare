@@ -319,7 +319,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvMoistureLabel"
+                android:id="@+id/tvAvgMoisture"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -556,9 +556,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:backgroundTint="#007A3D"
-                app:cornerRadius="7dp"
-                app:insetBottom="0dp"
-                app:insetTop="0dp" />
+                app:cornerRadius="7dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteZone"
@@ -570,9 +568,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:backgroundTint="#007A3D"
-                app:cornerRadius="7dp"
-                app:insetBottom="0dp"
-                app:insetTop="0dp" />
+                app:cornerRadius="7dp" />
 
         </LinearLayout>
 
@@ -593,9 +589,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:backgroundTint="#007A3D"
-                app:cornerRadius="7dp"
-                app:insetBottom="0dp"
-                app:insetTop="0dp" />
+                app:cornerRadius="7dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHarvest"
@@ -607,9 +601,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:backgroundTint="#007A3D"
-                app:cornerRadius="7dp"
-                app:insetBottom="0dp"
-                app:insetTop="0dp" />
+                app:cornerRadius="7dp" />
 
         </LinearLayout>
 
