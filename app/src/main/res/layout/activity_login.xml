@@ -1,123 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="#F2F2F2">
 
-    <ImageView
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:src="@drawable/cropcarelogo"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome to CropCare"
-        android:textSize="22sp"
-        android:textStyle="bold" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Precision Farming Starts with Smarter Fertilizing."
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="24dp" />
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Username"
-        android:textSize="16sp"
-        android:gravity="start"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/etLoginUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edittextborder"
-        android:hint="Username"
-        android:inputType="text"
-        android:layout_marginBottom="12dp" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Password"
-        android:textSize="16sp"
-        android:gravity="start"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/etLoginPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edittextborder"
-        android:hint="Password"
-        android:inputType="textPassword" />
+    <!-- The White Box -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal">
-        <CheckBox
-            android:id="@+id/cbRememberMe"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Remember me"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="center_vertical" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="24dp"
+        android:background="@drawable/loginbg_white_box"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
 
+        <!-- Login Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#146C2E"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Username Input -->
+        <EditText
+            android:id="@+id/etLoginUsername"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Username"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:textColorHint="#757575"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@drawable/bg_input_field"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Password Input (With Eye Icon Container) -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp">
+
+            <EditText
+                android:id="@+id/etLoginPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textColorHint="#757575"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:background="@drawable/bg_input_field" />
+
+            <!-- The Eye Icon perfectly centered on the right -->
+            <ImageView
+                android:id="@+id/ivTogglePassword"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="16dp"
+                android:src="@android:drawable/ic_menu_view"
+                app:tint="#000000" />
+        </FrameLayout>
+
+        <!-- Forgot Password -->
         <TextView
             android:id="@+id/tvForgotPassword"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Forgot Password?"
-            android:textColor="#2E6B35"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="center_vertical|end"
-            android:paddingEnd="8dp" />
+            android:textColor="#D32F2F"
+            android:textSize="12sp"
+            android:layout_gravity="end"
+            android:padding="4dp"
+            android:layout_marginBottom="24dp" />
 
-    </LinearLayout>
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@drawable/green_button"
-        android:text="Login" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:orientation="horizontal">
-
+        <!-- Login Button (Using TextView for perfect centering) -->
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Dont have an account yet? "
-            android:textSize="14sp"
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="LOGIN"
+            android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="@drawable/bg_login_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Register Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have Account?"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/tvRegister"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Register Here!"
-            android:textColor="#2E6B35"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="REGISTER"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:paddingEnd="8dp"
-            android:gravity="center_vertical|end" />
+            android:textColor="#146C2E"
+            android:layout_gravity="center_horizontal"
+            android:padding="4dp" />
 
     </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>
