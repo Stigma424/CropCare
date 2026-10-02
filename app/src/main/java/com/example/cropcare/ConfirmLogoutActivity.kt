@@ -2,7 +2,7 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
@@ -16,8 +16,8 @@ class ConfirmLogoutActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val btnConfirmLogout = findViewById<Button>(R.id.btnConfirmLogout)
-        val btnCancelLogout = findViewById<Button>(R.id.btnCancelLogout)
+        val btnConfirmLogout = findViewById<TextView>(R.id.btnConfirmLogout)
+        val btnCancelLogout = findViewById<TextView>(R.id.btnCancelLogout)
 
         btnConfirmLogout.setOnClickListener {
             auth.signOut()

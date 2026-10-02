@@ -34,12 +34,12 @@ object NotificationHelper {
             return
         }
 
-        // Avoid firing duplicate alerts for same zone within 5 minutes (300,000 ms)
+        // Avoid firing duplicate alerts for same zone within 30 seconds (30,000 ms)
         val lastAlertKey = "last_alert_$zoneName"
         val lastAlertTime = prefs.getLong(lastAlertKey, 0L)
         val now = System.currentTimeMillis()
 
-        if (now - lastAlertTime < 300000L) {
+        if (now - lastAlertTime < 30000L) {
             return
         }
 

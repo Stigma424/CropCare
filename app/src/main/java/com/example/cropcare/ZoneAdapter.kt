@@ -39,12 +39,12 @@ class ZoneAdapter(
         val zone = zoneList[position]
         holder.tvZoneName.text = zone.zoneName
 
-        loadZoneReadings(zone.zoneId, holder)
+        loadZoneReadings(zone.zoneId, zone.zoneName, holder)
 
         holder.btnViewMore.setOnClickListener { onItemClick(zone.zoneId) }
     }
 
-    private fun loadZoneReadings(zoneId: String, holder: ZoneViewHolder) {
+    private fun loadZoneReadings(zoneId: String, zoneName: String, holder: ZoneViewHolder) {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
@@ -125,6 +125,14 @@ class ZoneAdapter(
 
                         val healthScore = calculateSoilHealthPercentage(avgN, avgP, avgK, avgMoisture, avgPh)
                         holder.tvSoilHealth.text = "$healthScore%"
+
+                        // Trigger notifications and log to notification history when sensor data is received/loaded
+                        NotificationHelper.checkAndTriggerSoilAlerts(
+                            holder.itemView.context,
+                            zoneName,
+                            avgN, avgP, avgK, avgMoisture, avgPh,
+                            ""
+                        )
                     }
             }
     }

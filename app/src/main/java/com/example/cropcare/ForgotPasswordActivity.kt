@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         val etEmail = findViewById<EditText>(R.id.etForgotEmail)
         val btnSubmit = findViewById<Button>(R.id.btnSubmitForgot)
-        val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
 
         btnSubmit.setOnClickListener {
             val email = etEmail.text.toString().trim()

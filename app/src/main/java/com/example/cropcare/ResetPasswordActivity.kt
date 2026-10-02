@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,7 +26,7 @@ class ResetPasswordActivity : AppCompatActivity() {
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
         val etConfirmNewPassword = findViewById<EditText>(R.id.etConfirmNewPassword)
         val btnSavePassword = findViewById<Button>(R.id.btnSavePassword)
-        val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
 
         btnSavePassword.setOnClickListener {
             val newPassword = etNewPassword.text.toString().trim()

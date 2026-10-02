@@ -2,7 +2,6 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -24,7 +23,7 @@ class LoginActivity : AppCompatActivity() {
 
         val etUsername = findViewById<EditText>(R.id.etLoginUsername)
         val etPassword = findViewById<EditText>(R.id.etLoginPassword)
-        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        val btnLogin = findViewById<TextView>(R.id.btnLogin)
         val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
 

@@ -100,10 +100,9 @@ class DashboardActivity : AppCompatActivity() {
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { documents ->
-                zoneList.clear()
-
                 val zoneDocs = documents.documents
                 if (zoneDocs.isEmpty()) {
+                    zoneList.clear()
                     zoneAdapter.notifyDataSetChanged()
                     return@addOnSuccessListener
                 }
@@ -114,8 +113,8 @@ class DashboardActivity : AppCompatActivity() {
                 }
 
                 Tasks.whenAllComplete(zoneTasks).addOnCompleteListener {
-                    for (i in zoneDocs.indices) {
-                        val doc = zoneDocs[i]
+                    val tempZoneList = mutableListOf<ZoneModel>()
+                    for (doc in zoneDocs) {
                         val zone = ZoneModel(
                             zoneId = doc.getString("zoneId") ?: doc.id,
                             zoneName = doc.getString("zoneName") ?: "",
@@ -123,8 +122,12 @@ class DashboardActivity : AppCompatActivity() {
                             dateOfPlanting = doc.getLong("dateOfPlanting") ?: 0L,
                             isHarvested = doc.getBoolean("isHarvested") ?: false
                         )
-                        zoneList.add(zone)
+                        if (tempZoneList.none { it.zoneId == zone.zoneId }) {
+                            tempZoneList.add(zone)
+                        }
                     }
+                    zoneList.clear()
+                    zoneList.addAll(tempZoneList)
                     zoneAdapter.notifyDataSetChanged()
                     Toast.makeText(this, "Zones refreshed", Toast.LENGTH_SHORT).show()
                 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -30,7 +31,7 @@ class SettingsActivity : AppCompatActivity() {
         val btnSubscription = findViewById<Button>(R.id.btnSubscription)
         val switchNotification = findViewById<SwitchMaterial>(R.id.switchNotification)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
-        val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
 
         // Set initial switch state from preferences
         val isNotifEnabled = prefs.getBoolean("notifications_enabled", true)

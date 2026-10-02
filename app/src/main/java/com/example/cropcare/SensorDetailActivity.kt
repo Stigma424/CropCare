@@ -2,7 +2,7 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -32,10 +32,10 @@ class SensorDetailActivity : AppCompatActivity() {
         val tvTitle = findViewById<TextView>(R.id.tvSensorDetailTitle)
         tvLastUpdated = findViewById(R.id.tvLastUpdated)
 
-        val btnDeleteSensor = findViewById<Button>(R.id.btnDeleteSensor)
-        val btnEditSensor = findViewById<Button>(R.id.btnEditSensor)
+        val btnDeleteSensor = findViewById<TextView>(R.id.btnDeleteSensor)
+        val btnEditSensor = findViewById<TextView>(R.id.btnEditSensor)
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        val btnRefresh = findViewById<ImageButton>(R.id.btnRefreshDetail)
+        val btnRefresh = findViewById<View>(R.id.btnRefreshDetail)
 
         tvTitle.text = sensorName
 
