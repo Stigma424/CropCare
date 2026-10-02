@@ -1,227 +1,272 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    app:cardCornerRadius="22dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="#FFFFFF">
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/loginbg_white_box"
+    android:elevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="14dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/tvAlert"
-            android:layout_width="match_parent"
-            android:layout_height="34dp"
-            android:gravity="center"
-            android:text="Low nitrogen - action needed"
-            android:textColor="#C62828"
+            android:id="@+id/tvZoneName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Zone Mais 1"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
+
+        <TextView
+            android:id="@+id/tvRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="refresh"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:background="@drawable/alert_background"
-            android:layout_marginBottom="16dp" />
+            android:textColor="#1B5E20" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="As of April 04, 2026"
+        android:textSize="14sp"
+        android:textColor="#757575" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10:00am"
+        android:textSize="14sp"
+        android:textColor="#757575" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="N"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_circle_red" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tvZoneName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Zone Mais 2"
-                android:textColor="#111111"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvRefresh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="↻  refresh"
-                android:textColor="#287A32"
-                android:textSize="11sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="14dp">
-
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="As of April 17, 2026"
-                android:textColor="#A0A0A0"
-                android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/tvTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="    10:00 AM"
-                android:textColor="#A0A0A0"
-                android:textSize="10sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="34dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="12dp"
-            android:paddingEnd="10dp"
-            android:background="@drawable/nutrient_row"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="N"
-                android:textColor="#111111"
-                android:textSize="16sp" />
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvN"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="20 mg/kg"
-                android:textColor="#111111"
+                android:text="60 mg/kg"
                 android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
+                android:textStyle="bold"
+                android:textColor="#212121" />
 
             <TextView
-                android:id="@+id/tvStatusN"
-                android:layout_width="45dp"
-                android:layout_height="26dp"
-                android:gravity="center"
-                android:text="Low"
-                android:textColor="#C47A00"
-                android:textSize="10sp"
-                android:background="@drawable/status_low" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nitrogen"
+                android:textSize="14sp"
+                android:textColor="#757575" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="34dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+        <TextView
+            android:text="Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_status_pill"
             android:paddingStart="12dp"
-            android:paddingEnd="10dp"
-            android:background="@drawable/nutrient_row"
-            android:layout_marginBottom="8dp">
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="P"
-                android:textColor="#111111"
-                android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="P"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_circle_green" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvP"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="30 mg/kg"
-                android:textColor="#111111"
                 android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
+                android:textStyle="bold"
+                android:textColor="#212121" />
 
             <TextView
-                android:id="@+id/tvStatusP"
-                android:layout_width="55dp"
-                android:layout_height="26dp"
-                android:gravity="center"
-                android:text="Normal"
-                android:textColor="#287A32"
-                android:textSize="10sp"
-                android:background="@drawable/status_normal" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phosphorus"
+                android:textSize="14sp"
+                android:textColor="#757575" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="34dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+        <TextView
+            android:text="Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_status_pill"
             android:paddingStart="12dp"
-            android:paddingEnd="10dp"
-            android:background="@drawable/nutrient_row"
-            android:layout_marginBottom="18dp">
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="K"
-                android:textColor="#111111"
-                android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="K"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_circle_blue" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvK"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="40 mg/kg"
-                android:textColor="#111111"
                 android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
+                android:textStyle="bold"
+                android:textColor="#212121" />
 
             <TextView
-                android:id="@+id/tvStatusK"
-                android:layout_width="55dp"
-                android:layout_height="26dp"
-                android:gravity="center"
-                android:text="Normal"
-                android:textColor="#287A32"
-                android:textSize="10sp"
-                android:background="@drawable/status_normal" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tvSoilHealth"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Overall Soil Health  75%"
-                android:textColor="#222222"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/btnViewMore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="view more ›"
-                android:textColor="#287A32"
-                android:textSize="11sp"
-                android:clickable="true" />
+                android:text="Potassium"
+                android:textSize="14sp"
+                android:textColor="#757575" />
 
         </LinearLayout>
+
+        <TextView
+            android:text="Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_status_pill"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+    <LinearLayout
+        android:id="@+id/soilHealthBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:background="@drawable/loginbg_white_box">
+
+        <TextView
+            android:id="@+id/tvHealthStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Overall Soil Health"
+            android:textSize="14sp"
+            android:textColor="#757575" />
+
+        <TextView
+            android:id="@+id/tvSoilHealth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="90%"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnViewMore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="view more..."
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#1B5E20" />
+
+</LinearLayout>
