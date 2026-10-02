@@ -1,120 +1,272 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@android:color/white"
-    android:elevation="4dp"
-    android:layout_marginBottom="16dp">
-
-    <TextView
-        android:id="@+id/tvZoneName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zone Mais 1"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#1E4D2B"
-        android:layout_marginBottom="12dp" />
+    android:padding="20dp"
+    android:background="@drawable/loginbg_white_box"
+    android:elevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
+        android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/tvZoneName"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="N Nitrogen" />
+            android:text="Zone Mais 1"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
 
         <TextView
-            android:id="@+id/tvN"
+            android:id="@+id/tvRefresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 mg/kg"
-            android:layout_marginEnd="8dp" />
+            android:text="refresh"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
 
-        <TextView
-            android:id="@+id/tvStatusN"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Normal"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="P Phosphorus" />
-
-        <TextView
-            android:id="@+id/tvP"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 mg/kg"
-            android:layout_marginEnd="8dp" />
-
-        <TextView
-            android:id="@+id/tvStatusP"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Normal"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="K Potassium" />
-
-        <TextView
-            android:id="@+id/tvK"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 mg/kg"
-            android:layout_marginEnd="8dp" />
-
-        <TextView
-            android:id="@+id/tvStatusK"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Normal"
-            android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/tvSoilHealth"
+        android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Soil Health: 90%"
-        android:textStyle="bold"
-        android:textColor="#1E4D2B"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginTop="8dp"
+        android:text="As of April 04, 2026"
+        android:textSize="14sp"
+        android:textColor="#757575" />
 
-    <Button
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10:00am"
+        android:textSize="14sp"
+        android:textColor="#757575" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="N"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_circle_red" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="60 mg/kg"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nitrogen"
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+        </LinearLayout>
+
+        <TextView
+            android:text="Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_status_pill"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="P"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_circle_green" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30 mg/kg"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phosphorus"
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+        </LinearLayout>
+
+        <TextView
+            android:text="Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_status_pill"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="K"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_circle_blue" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvK"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="40 mg/kg"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Potassium"
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+        </LinearLayout>
+
+        <TextView
+            android:text="Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_status_pill"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/soilHealthBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:background="@drawable/loginbg_white_box">
+
+        <TextView
+            android:id="@+id/tvHealthStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Overall Soil Health"
+            android:textSize="14sp"
+            android:textColor="#757575" />
+
+        <TextView
+            android:id="@+id/tvSoilHealth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="90%"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20" />
+
+    </LinearLayout>
+
+    <TextView
         android:id="@+id/btnViewMore"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
         android:text="view more..."
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:textColor="#1E4D2B" />
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#1B5E20" />
+
 </LinearLayout>
