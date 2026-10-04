@@ -82,22 +82,25 @@
                     android:layout_marginBottom="12dp"/>
 
                 <TextView
+                    android:id="@+id/tvProfileName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="John Alpha Doe"
+                    android:text="User"
                     android:textColor="#1B5E20"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
 
                 <TextView
+                    android:id="@+id/tvProfileEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="John_Doe"
+                    android:text="user@example.com"
                     android:textColor="#757575"
                     android:textSize="14sp"
                     android:layout_marginBottom="12dp"/>
 
                 <TextView
+                    android:id="@+id/btnEditProfileHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Edit Profile"
@@ -106,6 +109,8 @@
                     android:textStyle="bold"
                     android:background="@android:drawable/radiobutton_off_background"
                     android:backgroundTint="#E8F5E9"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:paddingTop="6dp"

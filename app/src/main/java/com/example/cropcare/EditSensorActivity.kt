@@ -1,9 +1,9 @@
 package com.example.cropcare
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,9 +24,9 @@ class EditSensorActivity : AppCompatActivity() {
 
         val etSensorId = findViewById<EditText>(R.id.etEditSensorId)
         val etSensorName = findViewById<EditText>(R.id.etEditSensorName)
-        val btnSave = findViewById<Button>(R.id.btnSave)
-        val btnCancel = findViewById<Button>(R.id.btnCancel)
-        val btnBack = findViewById<ImageButton>(R.id.btnBack)
+        val btnSave = findViewById<TextView>(R.id.btnSave)
+        val btnCancel = findViewById<TextView>(R.id.btnCancel)
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
 
         etSensorId.setText(currentDeviceId)
         etSensorName.setText(currentSensorName)
@@ -45,11 +45,38 @@ class EditSensorActivity : AppCompatActivity() {
                 "sensorName" to newSensorName
             )
 
-            db.collection("sensors").document(sensorId).update(updates)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Sensor updated!", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
+            if (sensorId.isNotEmpty()) {
+                db.collection("sensors").document(sensorId).update(updates)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Sensor updated!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to update: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else if (currentDeviceId.isNotEmpty()) {
+                db.collection("sensors").whereEqualTo("deviceId", currentDeviceId).get()
+                    .addOnSuccessListener { query ->
+                        if (!query.isEmpty) {
+                            val docId = query.documents[0].id
+                            db.collection("sensors").document(docId).update(updates)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Sensor updated!", Toast.LENGTH_SHORT).show()
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Failed to update: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            Toast.makeText(this, "Sensor not found in database", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Search failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Toast.makeText(this, "Missing sensor identifier", Toast.LENGTH_SHORT).show()
+            }
         }
 
         btnCancel.setOnClickListener { finish() }

@@ -31,6 +31,7 @@ class ZoneAdapter(
         val tvStatusP: TextView = itemView.findViewById(R.id.tvStatusP)
         val tvK: TextView = itemView.findViewById(R.id.tvK)
         val tvStatusK: TextView = itemView.findViewById(R.id.tvStatusK)
+        val tvHealthStatus: TextView? = itemView.findViewById(R.id.tvHealthStatus)
         val tvSoilHealth: TextView = itemView.findViewById(R.id.tvSoilHealth)
         val btnViewMore: TextView = itemView.findViewById(R.id.btnViewMore)
     }
@@ -56,127 +57,140 @@ class ZoneAdapter(
 
     private fun loadZoneReadings(zoneId: String, zoneName: String, holder: ZoneViewHolder) {
         val db = FirebaseFirestore.getInstance()
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-        db.collection("sensors")
+        // 1. Try fetching soil_data directly by zoneId
+        db.collection("soil_data")
             .whereEqualTo("zoneId", zoneId)
-            .whereEqualTo("userId", userId)
             .get()
-            .addOnSuccessListener { sensors ->
-                val deviceIds = sensors.mapNotNull { it.getString("deviceId") }.distinct()
-                if (deviceIds.isEmpty()) {
-                    holder.tvN.text = "0 mg/kg"
-                    holder.tvStatusN.text = "No Sensor"
-                    holder.tvP.text = "0 mg/kg"
-                    holder.tvStatusP.text = "No Sensor"
-                    holder.tvK.text = "0 mg/kg"
-                    holder.tvStatusK.text = "No Sensor"
-                    holder.tvSoilHealth.text = "Overall Soil Health  0%"
-                    holder.tvDate.text = "No data"
-                    holder.tvTime.text = ""
-                    holder.tvAlert.text = "No sensors connected"
-                    holder.tvAlert.visibility = View.VISIBLE
-                    return@addOnSuccessListener
+            .addOnSuccessListener { directDocs ->
+                if (!directDocs.isEmpty) {
+                    val latestDocs = directDocs.documents
+                        .groupBy { it.getString("deviceId") ?: "default" }
+                        .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
+
+                    bindSoilDataToHolder(latestDocs, holder, zoneName)
+                } else {
+                    // 2. Fallback: fetch sensors for zoneId -> fetch soil_data by deviceId
+                    db.collection("sensors")
+                        .whereEqualTo("zoneId", zoneId)
+                        .whereEqualTo("userId", userId)
+                        .get()
+                        .addOnSuccessListener { sensors ->
+                            val deviceIds = sensors.mapNotNull { it.getString("deviceId") }.distinct()
+                            if (deviceIds.isEmpty()) {
+                                bindEmptyDataToHolder(holder, "No sensors connected")
+                                return@addOnSuccessListener
+                            }
+
+                            db.collection("soil_data")
+                                .whereIn("deviceId", deviceIds)
+                                .get()
+                                .addOnSuccessListener { soilDocs ->
+                                    if (soilDocs.isEmpty) {
+                                        bindEmptyDataToHolder(holder, "No soil data recorded")
+                                        return@addOnSuccessListener
+                                    }
+
+                                    val latestDocs = soilDocs.documents
+                                        .groupBy { it.getString("deviceId") ?: "default" }
+                                        .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
+
+                                    bindSoilDataToHolder(latestDocs, holder, zoneName)
+                                }
+                                .addOnFailureListener {
+                                    bindEmptyDataToHolder(holder, "No soil data recorded")
+                                }
+                        }
+                        .addOnFailureListener {
+                            bindEmptyDataToHolder(holder, "No sensors connected")
+                        }
                 }
-
-                db.collection("soil_data")
-                    .whereIn("deviceId", deviceIds)
-                    .get()
-                    .addOnSuccessListener { soilDocs ->
-                        if (soilDocs.isEmpty) {
-                            holder.tvN.text = "0 mg/kg"
-                            holder.tvStatusN.text = "No Data"
-                            holder.tvP.text = "0 mg/kg"
-                            holder.tvStatusP.text = "No Data"
-                            holder.tvK.text = "0 mg/kg"
-                            holder.tvStatusK.text = "No Data"
-                            holder.tvSoilHealth.text = "Overall Soil Health  0%"
-                            holder.tvDate.text = "No data"
-                            holder.tvTime.text = ""
-                            holder.tvAlert.text = "No soil data recorded"
-                            holder.tvAlert.visibility = View.VISIBLE
-                            return@addOnSuccessListener
-                        }
-
-                        // Take the LATEST reading per device in this zone
-                        val latestDocs = soilDocs.documents
-                            .groupBy { it.getString("deviceId") ?: "default" }
-                            .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
-
-                        if (latestDocs.isEmpty()) {
-                            holder.tvN.text = "0 mg/kg"
-                            holder.tvStatusN.text = "No Data"
-                            holder.tvP.text = "0 mg/kg"
-                            holder.tvStatusP.text = "No Data"
-                            holder.tvK.text = "0 mg/kg"
-                            holder.tvStatusK.text = "No Data"
-                            holder.tvSoilHealth.text = "Overall Soil Health  0%"
-                            holder.tvDate.text = "No data"
-                            holder.tvTime.text = ""
-                            holder.tvAlert.text = "No soil data recorded"
-                            holder.tvAlert.visibility = View.VISIBLE
-                            return@addOnSuccessListener
-                        }
-
-                        val newestDoc = latestDocs.maxByOrNull { parseAnyDate(it)?.time ?: 0L }
-                        val latestDate = newestDoc?.let { parseAnyDate(it) }
-
-                        if (latestDate != null) {
-                            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
-                            val timeFormat = SimpleDateFormat("hh:mm a", Locale.US)
-                            holder.tvDate.text = "As of ${dateFormat.format(latestDate)}"
-                            holder.tvTime.text = "    ${timeFormat.format(latestDate)}"
-                        } else {
-                            holder.tvDate.text = "As of N/A"
-                            holder.tvTime.text = ""
-                        }
-
-                        val count = latestDocs.size.toDouble()
-                        var sumN = 0.0; var sumP = 0.0; var sumK = 0.0
-                        var sumMoisture = 0.0; var sumPh = 0.0
-
-                        for (doc in latestDocs) {
-                            sumN += getDoubleValue(doc, "nitrogen", "n", "N")
-                            sumP += getDoubleValue(doc, "phosphorus", "p", "P")
-                            sumK += getDoubleValue(doc, "potassium", "k", "K")
-                            sumMoisture += getDoubleValue(doc, "moisture", "humidity")
-                            sumPh += getDoubleValue(doc, "ph", "pH")
-                        }
-
-                        val avgN = sumN / count
-                        val avgP = sumP / count
-                        val avgK = sumK / count
-                        val avgMoisture = sumMoisture / count
-                        val avgPh = sumPh / count
-
-                        holder.tvN.text = String.format(Locale.US, "%.0f mg/kg", avgN)
-                        holder.tvStatusN.text = SoilUtils.getStatus("N", avgN)
-
-                        holder.tvP.text = String.format(Locale.US, "%.0f mg/kg", avgP)
-                        holder.tvStatusP.text = SoilUtils.getStatus("P", avgP)
-
-                        holder.tvK.text = String.format(Locale.US, "%.0f mg/kg", avgK)
-                        holder.tvStatusK.text = SoilUtils.getStatus("K", avgK)
-
-                        val healthScore = calculateSoilHealthPercentage(avgN, avgP, avgK, avgMoisture, avgPh)
-                        holder.tvSoilHealth.text = "Overall Soil Health  $healthScore%"
-
-                        if (avgN < 20.0) {
-                            holder.tvAlert.text = "Low nitrogen - action needed"
-                            holder.tvAlert.visibility = View.VISIBLE
-                        } else {
-                            holder.tvAlert.visibility = View.GONE
-                        }
-
-                        // Trigger notifications and log to notification history when sensor data is received/loaded
-                        NotificationHelper.checkAndTriggerSoilAlerts(
-                            holder.itemView.context,
-                            zoneName,
-                            avgN, avgP, avgK, avgMoisture, avgPh,
-                            ""
-                        )
-                    }
             }
+            .addOnFailureListener {
+                bindEmptyDataToHolder(holder, "No soil data recorded")
+            }
+    }
+
+    private fun bindSoilDataToHolder(latestDocs: List<DocumentSnapshot>, holder: ZoneViewHolder, zoneName: String) {
+        if (latestDocs.isEmpty()) {
+            bindEmptyDataToHolder(holder, "No soil data recorded")
+            return
+        }
+
+        val newestDoc = latestDocs.maxByOrNull { parseAnyDate(it)?.time ?: 0L }
+        val latestDate = newestDoc?.let { parseAnyDate(it) }
+
+        if (latestDate != null) {
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
+            val timeFormat = SimpleDateFormat("hh:mm a", Locale.US)
+            holder.tvDate.text = "As of ${dateFormat.format(latestDate)}"
+            holder.tvTime.text = timeFormat.format(latestDate)
+        } else {
+            holder.tvDate.text = "As of N/A"
+            holder.tvTime.text = ""
+        }
+
+        val count = latestDocs.size.toDouble()
+        val avgN = latestDocs.sumOf { getDoubleValue(it, "nitrogen", "n", "N", "nitro") } / count
+        val avgP = latestDocs.sumOf { getDoubleValue(it, "phosphorus", "p", "P", "phos") } / count
+        val avgK = latestDocs.sumOf { getDoubleValue(it, "potassium", "k", "K", "pot") } / count
+        val avgMoisture = latestDocs.sumOf { getDoubleValue(it, "moisture", "humidity", "mois") } / count
+        val avgPh = latestDocs.sumOf { getDoubleValue(it, "ph", "pH", "PH") } / count
+
+        holder.tvN.text = String.format(Locale.US, "%.0f mg/kg", avgN)
+        holder.tvStatusN.text = SoilUtils.getStatus("N", avgN)
+
+        holder.tvP.text = String.format(Locale.US, "%.0f mg/kg", avgP)
+        holder.tvStatusP.text = SoilUtils.getStatus("P", avgP)
+
+        holder.tvK.text = String.format(Locale.US, "%.0f mg/kg", avgK)
+        holder.tvStatusK.text = SoilUtils.getStatus("K", avgK)
+
+        var score = 0
+        if (avgN >= 20) score += 20
+        if (avgP >= 10) score += 20
+        if (avgK >= 100) score += 20
+        if (avgMoisture in 40.0..80.0) score += 20
+        if (avgPh in 5.5..7.5) score += 20
+
+        val healthStatus = when {
+            score >= 80 -> "Optimal"
+            score >= 40 -> "Fair"
+            else -> "Poor"
+        }
+
+        holder.tvHealthStatus?.text = healthStatus
+        holder.tvSoilHealth.text = "$score%"
+
+        if (avgN < 20.0) {
+            holder.tvAlert.text = "Low nitrogen - action needed"
+            holder.tvAlert.visibility = View.VISIBLE
+        } else {
+            holder.tvAlert.visibility = View.GONE
+        }
+
+        NotificationHelper.checkAndTriggerSoilAlerts(
+            holder.itemView.context,
+            zoneName,
+            avgN, avgP, avgK, avgMoisture, avgPh,
+            ""
+        )
+    }
+
+    private fun bindEmptyDataToHolder(holder: ZoneViewHolder, alertMsg: String) {
+        holder.tvN.text = "0 mg/kg"
+        holder.tvStatusN.text = "No Data"
+        holder.tvP.text = "0 mg/kg"
+        holder.tvStatusP.text = "No Data"
+        holder.tvK.text = "0 mg/kg"
+        holder.tvStatusK.text = "No Data"
+        holder.tvHealthStatus?.text = "Poor"
+        holder.tvSoilHealth.text = "0%"
+        holder.tvDate.text = "No data"
+        holder.tvTime.text = ""
+        holder.tvAlert.text = alertMsg
+        holder.tvAlert.visibility = View.VISIBLE
     }
 
     private fun getDoubleValue(doc: DocumentSnapshot, vararg keys: String): Double {
@@ -194,16 +208,6 @@ class ZoneAdapter(
             }
         }
         return 0.0
-    }
-
-    private fun calculateSoilHealthPercentage(n: Double, p: Double, k: Double, m: Double, ph: Double): Int {
-        var score = 0
-        if (n in 20.0..80.0) score += 20 else if (n > 10) score += 10
-        if (p in 10.0..50.0) score += 20 else if (p > 5) score += 10
-        if (k in 20.0..60.0) score += 20 else if (k > 10) score += 10
-        if (m in 30.0..75.0) score += 20 else if (m in 15.0..85.0) score += 10
-        if (ph in 5.8..7.5) score += 20 else if (ph in 5.0..8.0) score += 10
-        return score
     }
 
     private fun parseAnyDate(doc: DocumentSnapshot): Date? {
