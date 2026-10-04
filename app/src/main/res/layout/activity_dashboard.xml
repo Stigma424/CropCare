@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="#F2F2F2">
 
-    <!-- Scrollable Content Area -->
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -20,7 +20,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Header -->
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Profile Card -->
+            <!-- Profile Card  -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

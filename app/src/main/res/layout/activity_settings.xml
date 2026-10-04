@@ -187,7 +187,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"/>
 
-            <!-- Log out -->
+            <!-- Log out  -->
             <LinearLayout
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
