@@ -1,119 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    app:cardCornerRadius="22dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="#FFFFFF">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F2F2F2"
+    android:padding="24dp">
 
-    <LinearLayout
+    <!-- Header with Back Button and Title -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_marginBottom="30dp">
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="start"
-            android:clickable="true"
-            android:src="@drawable/backbutton"
-            android:contentDescription="Back" />
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_backcolorblack"
+            android:contentDescription="Back"
+            android:layout_marginBottom="20dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
             android:text="Edit Sensor"
-            android:textColor="#2E6B35"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginBottom="25dp" />
+            android:textColor="#1B5E20" />
+    </RelativeLayout>
 
+    <!-- Sensor ID Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter Sensor ID"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etEditSensorId"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint=""
+        android:background="@drawable/bg_input_field"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Sensor Name Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter Sensor Name"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etEditSensorName"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint=""
+        android:background="@drawable/bg_input_field"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="40dp" />
+
+    <!-- Spacer to push buttons to bottom -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- save button -->
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enter Sensor ID"
-            android:textColor="#444444"
-            android:textSize="13sp"
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="SAVE"
+            android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:layout_marginBottom="10dp" />
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="@drawable/bg_login_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="8dp" />
 
-        <EditText
-            android:id="@+id/etEditSensorId"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:hint="e.g., Sensor 1"
-            android:textSize="11sp"
-            android:textColor="#333333"
-            android:textColorHint="#B0B0B0"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:singleLine="true"
-            android:inputType="text"
-            android:background="@drawable/edittextborder"
-            android:layout_marginBottom="25dp" />
-
+        <!-- cancel button -->
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enter Sensor Name"
-            android:textColor="#444444"
-            android:textSize="13sp"
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="CANCEL"
+            android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:layout_marginBottom="10dp" />
-
-        <EditText
-            android:id="@+id/etEditSensorName"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:hint="e.g., Main Farm Sensor"
-            android:textSize="11sp"
-            android:textColor="#333333"
-            android:textColorHint="#B0B0B0"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:singleLine="true"
-            android:inputType="text"
-            android:background="@drawable/edittextborder"
-            android:layout_marginBottom="50dp" />
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textColor="#2E7D32"
-                android:textSize="13sp"
-                android:backgroundTint="#E8F4E9"
-                android:layout_marginEnd="10dp" />
-
-            <Button
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:text="Save"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:backgroundTint="#287A32"
-                android:layout_marginStart="10dp" />
-
-        </LinearLayout>
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="@drawable/bg_login_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginStart="8dp" />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</LinearLayout>
