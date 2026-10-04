@@ -197,49 +197,34 @@ class DashboardActivity : AppCompatActivity() {
             return completionSource.task
         }
 
-        db.collection("soil_data")
+        db.collection("sensors")
             .whereEqualTo("zoneId", zoneId)
+            .whereEqualTo("userId", userId)
             .get()
-            .addOnSuccessListener { directDocs ->
-                if (!directDocs.isEmpty) {
-                    val latestDocs = directDocs.documents
-                        .groupBy { it.getString("deviceId") ?: "default" }
-                        .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
-
-                    val score = calculateHealthScore(latestDocs)
-                    completionSource.setResult(score)
-                } else {
-                    db.collection("sensors")
-                        .whereEqualTo("zoneId", zoneId)
-                        .whereEqualTo("userId", userId)
-                        .get()
-                        .addOnSuccessListener { sensorDocs ->
-                            val deviceIds = sensorDocs.mapNotNull { it.getString("deviceId") }.distinct()
-                            if (deviceIds.isEmpty()) {
-                                completionSource.setResult(0.0)
-                                return@addOnSuccessListener
-                            }
-
-                            db.collection("soil_data")
-                                .whereIn("deviceId", deviceIds)
-                                .get()
-                                .addOnSuccessListener { soilDocs ->
-                                    if (soilDocs.isEmpty) {
-                                        completionSource.setResult(0.0)
-                                        return@addOnSuccessListener
-                                    }
-
-                                    val latestDocs = soilDocs.documents
-                                        .groupBy { it.getString("deviceId") ?: "default" }
-                                        .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
-
-                                    val score = calculateHealthScore(latestDocs)
-                                    completionSource.setResult(score)
-                                }
-                                .addOnFailureListener { completionSource.setResult(0.0) }
-                        }
-                        .addOnFailureListener { completionSource.setResult(0.0) }
+            .addOnSuccessListener { sensorDocs ->
+                val deviceIds = sensorDocs.mapNotNull { it.getString("deviceId") }.distinct()
+                if (deviceIds.isEmpty()) {
+                    completionSource.setResult(0.0)
+                    return@addOnSuccessListener
                 }
+
+                db.collection("soil_data")
+                    .whereIn("deviceId", deviceIds)
+                    .get()
+                    .addOnSuccessListener { soilDocs ->
+                        if (soilDocs.isEmpty) {
+                            completionSource.setResult(0.0)
+                            return@addOnSuccessListener
+                        }
+
+                        val latestDocs = soilDocs.documents
+                            .groupBy { it.getString("deviceId") ?: "default" }
+                            .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
+
+                        val score = calculateHealthScore(latestDocs)
+                        completionSource.setResult(score)
+                    }
+                    .addOnFailureListener { completionSource.setResult(0.0) }
             }
             .addOnFailureListener { completionSource.setResult(0.0) }
 

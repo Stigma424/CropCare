@@ -59,56 +59,44 @@ class ZoneAdapter(
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-        // 1. Try fetching soil_data directly by zoneId
-        db.collection("soil_data")
+        if (zoneId.isEmpty() || userId.isEmpty()) {
+            bindEmptyDataToHolder(holder, "No sensors connected")
+            return
+        }
+
+        // Query sensors assigned to this zone and user (consistent with ZoneManagementActivity)
+        db.collection("sensors")
             .whereEqualTo("zoneId", zoneId)
+            .whereEqualTo("userId", userId)
             .get()
-            .addOnSuccessListener { directDocs ->
-                if (!directDocs.isEmpty) {
-                    val latestDocs = directDocs.documents
-                        .groupBy { it.getString("deviceId") ?: "default" }
-                        .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
-
-                    bindSoilDataToHolder(latestDocs, holder, zoneName)
-                } else {
-                    // 2. Fallback: fetch sensors for zoneId -> fetch soil_data by deviceId
-                    db.collection("sensors")
-                        .whereEqualTo("zoneId", zoneId)
-                        .whereEqualTo("userId", userId)
-                        .get()
-                        .addOnSuccessListener { sensors ->
-                            val deviceIds = sensors.mapNotNull { it.getString("deviceId") }.distinct()
-                            if (deviceIds.isEmpty()) {
-                                bindEmptyDataToHolder(holder, "No sensors connected")
-                                return@addOnSuccessListener
-                            }
-
-                            db.collection("soil_data")
-                                .whereIn("deviceId", deviceIds)
-                                .get()
-                                .addOnSuccessListener { soilDocs ->
-                                    if (soilDocs.isEmpty) {
-                                        bindEmptyDataToHolder(holder, "No soil data recorded")
-                                        return@addOnSuccessListener
-                                    }
-
-                                    val latestDocs = soilDocs.documents
-                                        .groupBy { it.getString("deviceId") ?: "default" }
-                                        .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
-
-                                    bindSoilDataToHolder(latestDocs, holder, zoneName)
-                                }
-                                .addOnFailureListener {
-                                    bindEmptyDataToHolder(holder, "No soil data recorded")
-                                }
-                        }
-                        .addOnFailureListener {
-                            bindEmptyDataToHolder(holder, "No sensors connected")
-                        }
+            .addOnSuccessListener { sensors ->
+                val deviceIds = sensors.mapNotNull { it.getString("deviceId") }.distinct()
+                if (deviceIds.isEmpty()) {
+                    bindEmptyDataToHolder(holder, "No sensors connected")
+                    return@addOnSuccessListener
                 }
+
+                db.collection("soil_data")
+                    .whereIn("deviceId", deviceIds)
+                    .get()
+                    .addOnSuccessListener { soilDocs ->
+                        if (soilDocs.isEmpty) {
+                            bindEmptyDataToHolder(holder, "No soil data recorded")
+                            return@addOnSuccessListener
+                        }
+
+                        val latestDocs = soilDocs.documents
+                            .groupBy { it.getString("deviceId") ?: "default" }
+                            .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
+
+                        bindSoilDataToHolder(latestDocs, holder, zoneName)
+                    }
+                    .addOnFailureListener {
+                        bindEmptyDataToHolder(holder, "No soil data recorded")
+                    }
             }
             .addOnFailureListener {
-                bindEmptyDataToHolder(holder, "No soil data recorded")
+                bindEmptyDataToHolder(holder, "No sensors connected")
             }
     }
 
