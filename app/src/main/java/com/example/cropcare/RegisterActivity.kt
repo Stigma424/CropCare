@@ -2,8 +2,8 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -28,8 +28,8 @@ class RegisterActivity : AppCompatActivity() {
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
-        val btnRegister = findViewById<Button>(R.id.btnRegister)
-        val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnRegister = findViewById<TextView>(R.id.btnRegister)
+        val btnBack = findViewById<TextView>(R.id.btnBack)
 
         btnRegister.setOnClickListener {
             val firstName = etFirstName.text.toString().trim()
@@ -87,6 +87,7 @@ class RegisterActivity : AppCompatActivity() {
                         "address" to addr,
                         "username" to uname,
                         "email" to email,
+                        "password" to pass,
                         "createdAt" to System.currentTimeMillis()
                     )
 

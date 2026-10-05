@@ -2,7 +2,7 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -19,52 +19,56 @@ class SensorDetailActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var tvLastUpdated: TextView
 
+    private var currentSensorId: String = ""
+    private var currentDeviceId: String = ""
+    private var currentSensorName: String = "Sensor"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sensor_detail)
 
         db = FirebaseFirestore.getInstance()
 
-        val sensorId = intent.getStringExtra("SENSOR_ID") ?: ""
-        val deviceId = intent.getStringExtra("DEVICE_ID") ?: ""
-        val sensorName = intent.getStringExtra("SENSOR_NAME") ?: "Sensor"
+        currentSensorId = intent.getStringExtra("SENSOR_ID") ?: ""
+        currentDeviceId = intent.getStringExtra("DEVICE_ID") ?: ""
+        currentSensorName = intent.getStringExtra("SENSOR_NAME") ?: "Sensor"
 
         val tvTitle = findViewById<TextView>(R.id.tvSensorDetailTitle)
         tvLastUpdated = findViewById(R.id.tvLastUpdated)
 
-        val btnDeleteSensor = findViewById<Button>(R.id.btnDeleteSensor)
-        val btnEditSensor = findViewById<Button>(R.id.btnEditSensor)
+        val btnDeleteSensor = findViewById<TextView>(R.id.btnDeleteSensor)
+        val btnEditSensor = findViewById<TextView>(R.id.btnEditSensor)
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        val btnRefresh = findViewById<ImageButton>(R.id.btnRefreshDetail)
+        val btnRefresh = findViewById<View>(R.id.btnRefreshDetail)
 
-        tvTitle.text = sensorName
+        tvTitle.text = currentSensorName
 
-        loadLatestData(deviceId)
+        loadLatestData(currentDeviceId)
 
         btnRefresh.setOnClickListener {
-            loadLatestData(deviceId)
+            loadSensorInfoAndData()
             Toast.makeText(this, "Refreshed", Toast.LENGTH_SHORT).show()
         }
 
-        findViewById<TextView>(R.id.btnViewHistoryN).setOnClickListener { openHistory(deviceId, "nitrogen", "Nitrogen", "mg/kg") }
-        findViewById<TextView>(R.id.btnViewHistoryP).setOnClickListener { openHistory(deviceId, "phosphorus", "Phosphorus", "mg/kg") }
-        findViewById<TextView>(R.id.btnViewHistoryK).setOnClickListener { openHistory(deviceId, "potassium", "Potassium", "mg/kg") }
-        findViewById<TextView>(R.id.btnViewHistoryMoisture).setOnClickListener { openHistory(deviceId, "moisture", "Moisture", "%") }
-        findViewById<TextView>(R.id.btnViewHistoryPh).setOnClickListener { openHistory(deviceId, "ph", "pH Level", "") }
-        findViewById<TextView>(R.id.btnViewHistoryTemp).setOnClickListener { openHistory(deviceId, "temperature", "Soil Temperature", "°C") }
-        findViewById<TextView>(R.id.btnViewHistoryEc).setOnClickListener { openHistory(deviceId, "ec", "Electrical Conductivity", "") }
+        findViewById<TextView>(R.id.btnViewHistoryN).setOnClickListener { openHistory(currentDeviceId, "nitrogen", "Nitrogen", "mg/kg") }
+        findViewById<TextView>(R.id.btnViewHistoryP).setOnClickListener { openHistory(currentDeviceId, "phosphorus", "Phosphorus", "mg/kg") }
+        findViewById<TextView>(R.id.btnViewHistoryK).setOnClickListener { openHistory(currentDeviceId, "potassium", "Potassium", "mg/kg") }
+        findViewById<TextView>(R.id.btnViewHistoryMoisture).setOnClickListener { openHistory(currentDeviceId, "moisture", "Moisture", "%") }
+        findViewById<TextView>(R.id.btnViewHistoryPh).setOnClickListener { openHistory(currentDeviceId, "ph", "pH Level", "") }
+        findViewById<TextView>(R.id.btnViewHistoryTemp).setOnClickListener { openHistory(currentDeviceId, "temperature", "Soil Temperature", "°C") }
+        findViewById<TextView>(R.id.btnViewHistoryEc).setOnClickListener { openHistory(currentDeviceId, "ec", "Electrical Conductivity", "") }
 
         btnEditSensor.setOnClickListener {
             val intent = Intent(this, EditSensorActivity::class.java)
-            intent.putExtra("SENSOR_ID", sensorId)
-            intent.putExtra("DEVICE_ID", deviceId)
-            intent.putExtra("SENSOR_NAME", sensorName)
+            intent.putExtra("SENSOR_ID", currentSensorId)
+            intent.putExtra("DEVICE_ID", currentDeviceId)
+            intent.putExtra("SENSOR_NAME", currentSensorName)
             startActivity(intent)
         }
 
         btnDeleteSensor.setOnClickListener {
-            if (sensorId.isNotEmpty()) {
-                db.collection("sensors").document(sensorId).delete()
+            if (currentSensorId.isNotEmpty()) {
+                db.collection("sensors").document(currentSensorId).delete()
                     .addOnSuccessListener {
                         Toast.makeText(this, "Sensor deleted", Toast.LENGTH_SHORT).show()
                         finish()
@@ -75,6 +79,30 @@ class SensorDetailActivity : AppCompatActivity() {
         }
 
         btnBack.setOnClickListener { finish() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadSensorInfoAndData()
+    }
+
+    private fun loadSensorInfoAndData() {
+        if (currentSensorId.isNotEmpty()) {
+            db.collection("sensors").document(currentSensorId).get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        currentDeviceId = doc.getString("deviceId") ?: currentDeviceId
+                        currentSensorName = doc.getString("sensorName") ?: currentSensorName
+                        findViewById<TextView>(R.id.tvSensorDetailTitle).text = currentSensorName
+                    }
+                    loadLatestData(currentDeviceId)
+                }
+                .addOnFailureListener {
+                    loadLatestData(currentDeviceId)
+                }
+        } else {
+            loadLatestData(currentDeviceId)
+        }
     }
 
     private fun loadLatestData(deviceId: String) {

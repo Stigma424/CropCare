@@ -2,6 +2,7 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -21,15 +22,15 @@ class AccountSettingsActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        val tvFullName = findViewById<TextView>(R.id.tvFullName)
-        val tvAccountUsername = findViewById<TextView>(R.id.tvAccountUsername)
-        val tvAccountEmail = findViewById<TextView>(R.id.tvAccountEmail)
-        val tvAccountAddress = findViewById<TextView>(R.id.tvAccountAddress)
-        val tvAccountPhone = findViewById<TextView>(R.id.tvAccountPhone)
+        val tvFirstName = findViewById<TextView?>(R.id.tvFirstName)
+        val tvMiddleName = findViewById<TextView?>(R.id.tvMiddleName)
+        val tvLastName = findViewById<TextView?>(R.id.tvLastName)
+        val tvAccountEmail = findViewById<TextView?>(R.id.tvAccountEmail)
+        val tvAccountPhone = findViewById<TextView?>(R.id.tvAccountPhone)
 
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         val btnChangePassword = findViewById<Button>(R.id.btnChangePassword)
-        val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnBack = findViewById<View>(R.id.btnBack)
 
         val currentUser = auth.currentUser
 
@@ -40,23 +41,14 @@ class AccountSettingsActivity : AppCompatActivity() {
                         val firstName = document.getString("firstName") ?: ""
                         val middleName = document.getString("middleName") ?: ""
                         val lastName = document.getString("lastName") ?: ""
-                        val username = document.getString("username") ?: "N/A"
                         val email = document.getString("email") ?: (currentUser.email ?: "N/A")
-                        val address = document.getString("address") ?: "N/A"
                         val phone = document.getString("phoneNumber") ?: "Not set"
 
-                        // Format full name including middle name if present
-                        val fullName = if (middleName.isNotBlank()) {
-                            "$firstName $middleName $lastName"
-                        } else {
-                            "$firstName $lastName"
-                        }.trim()
-
-                        tvFullName.text = "Name: $fullName"
-                        tvAccountUsername.text = "Username: $username"
-                        tvAccountEmail.text = "Email: $email"
-                        tvAccountAddress.text = "Address: $address"
-                        tvAccountPhone.text = "Phone: $phone"
+                        tvFirstName?.text = firstName
+                        tvMiddleName?.text = middleName
+                        tvLastName?.text = lastName
+                        tvAccountEmail?.text = email
+                        tvAccountPhone?.text = phone
                     }
                 }
                 .addOnFailureListener { e ->

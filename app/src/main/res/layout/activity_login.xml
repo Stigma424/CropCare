@@ -1,57 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="#F2F2F2">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="24dp" />
-
-    <EditText
-        android:id="@+id/etLoginUsername"
+    <!-- white box -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
-        android:inputType="text"
-        android:layout_marginBottom="12dp" />
+        android:layout_gravity="center"
+        android:layout_margin="24dp"
+        android:background="@drawable/loginbg_white_box"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <EditText
-        android:id="@+id/etLoginPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:layout_marginBottom="16dp" />
+        <!-- login title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#146C2E"
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login" />
+        <!-- username input -->
+        <EditText
+            android:id="@+id/etLoginUsername"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Email or Username"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:textColorHint="#757575"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@drawable/bg_input_field"
+            android:layout_marginBottom="12dp" />
 
-    <TextView
-        android:id="@+id/tvForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Forgot Password?"
-        android:textColor="#0066CC"
-        android:padding="8dp"
-        android:layout_marginTop="12dp" />
+        <!-- password input -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp">
 
-    <TextView
-        android:id="@+id/tvRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Don't have an account? Register"
-        android:textColor="#0066CC"
-        android:padding="8dp"
-        android:layout_marginTop="4dp" />
+            <EditText
+                android:id="@+id/etLoginPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textColorHint="#757575"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:background="@drawable/bg_input_field" />
 
-</LinearLayout>
+            <!-- eye icon  -->
+            <ImageView
+                android:id="@+id/ivTogglePassword"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="16dp"
+                android:src="@android:drawable/ic_menu_view"
+                app:tint="#000000" />
+        </FrameLayout>
+
+        <!-- forgot password -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot Password?"
+            android:textColor="#D32F2F"
+            android:textSize="12sp"
+            android:layout_gravity="end"
+            android:padding="4dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- login button -->
+        <TextView
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="LOGIN"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="@drawable/bg_login_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="24dp" />
+
+        <!-- register section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have Account?"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="REGISTER"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#146C2E"
+            android:layout_gravity="center_horizontal"
+            android:padding="4dp" />
+
+    </LinearLayout>
+</FrameLayout>

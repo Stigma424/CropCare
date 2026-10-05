@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -32,6 +33,8 @@ class NotificationsActivity : AppCompatActivity() {
     private lateinit var adapter: NotificationAdapter
     private val notifList = mutableListOf<NotificationModel>()
     private lateinit var tvEmptyNotif: TextView
+
+    private var listenerRegistration: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,18 +57,30 @@ class NotificationsActivity : AppCompatActivity() {
         btnClearAll.setOnClickListener {
             clearNotifications()
         }
-
-        fetchNotifications()
     }
 
-    private fun fetchNotifications() {
+    override fun onStart() {
+        super.onStart()
+        startListeningNotifications()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        listenerRegistration?.remove()
+    }
+
+    private fun startListeningNotifications() {
         val userId = auth.currentUser?.uid ?: return
 
-        db.collection("users")
+        listenerRegistration = db.collection("users")
             .document(userId)
             .collection("notifications")
-            .get()
-            .addOnSuccessListener { docs ->
+            .addSnapshotListener { docs, e ->
+                if (e != null || docs == null) {
+                    tvEmptyNotif.visibility = View.VISIBLE
+                    return@addSnapshotListener
+                }
+
                 notifList.clear()
                 for (doc in docs) {
                     val rawTime = doc.get("timestamp")
@@ -93,9 +108,6 @@ class NotificationsActivity : AppCompatActivity() {
                 }
                 adapter.notifyDataSetChanged()
             }
-            .addOnFailureListener {
-                tvEmptyNotif.visibility = View.VISIBLE
-            }
     }
 
     private fun clearNotifications() {
@@ -112,7 +124,6 @@ class NotificationsActivity : AppCompatActivity() {
                 }
                 batch.commit().addOnSuccessListener {
                     Toast.makeText(this, "Notifications cleared", Toast.LENGTH_SHORT).show()
-                    fetchNotifications()
                 }
             }
     }

@@ -2,8 +2,11 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import android.util.Patterns
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +17,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private var isPasswordVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,47 +26,66 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        val etUsername = findViewById<EditText>(R.id.etLoginUsername)
+        val etLoginInput = findViewById<EditText>(R.id.etLoginUsername)
         val etPassword = findViewById<EditText>(R.id.etLoginPassword)
-        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        val ivTogglePassword = findViewById<ImageView>(R.id.ivTogglePassword)
+        val btnLogin = findViewById<TextView>(R.id.btnLogin)
         val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
 
+        // Password visibility toggle
+        ivTogglePassword.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                etPassword.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            } else {
+                etPassword.transformationMethod = PasswordTransformationMethod.getInstance()
+            }
+            etPassword.setSelection(etPassword.text.length)
+        }
+
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString().trim()
+            val loginInput = etLoginInput.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show()
+            if (loginInput.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter both Email/Username and Password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Find email corresponding to entered username in Firestore
+            // Check if loginInput matches a Username in Firestore
             db.collection("users")
-                .whereEqualTo("username", username)
+                .whereEqualTo("username", loginInput)
                 .get()
-                .addOnSuccessListener { documents ->
-                    if (!documents.isEmpty) {
-                        val email = documents.documents[0].getString("email") ?: ""
-
-                        // Authenticate via Firebase Auth using retrieved email
-                        auth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
-
-                                    // Navigate to MainActivity / Dashboard
-                                    val intent = Intent(this, DashboardActivity::class.java)
-                                    // Clear back stack so pressing back button won't return to LoginActivity
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
-                                    finish()
+                .addOnSuccessListener { usernameDocs ->
+                    if (!usernameDocs.isEmpty) {
+                        val email = usernameDocs.documents[0].getString("email") ?: loginInput
+                        performSignIn(email, password)
+                    } else {
+                        // Check if loginInput matches an Email in Firestore
+                        db.collection("users")
+                            .whereEqualTo("email", loginInput)
+                            .get()
+                            .addOnSuccessListener { emailDocs ->
+                                if (!emailDocs.isEmpty) {
+                                    val email = emailDocs.documents[0].getString("email") ?: loginInput
+                                    performSignIn(email, password)
                                 } else {
-                                    Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                                    // If not found in Firestore but looks like an email, attempt direct auth
+                                    if (Patterns.EMAIL_ADDRESS.matcher(loginInput).matches()) {
+                                        performSignIn(loginInput, password)
+                                    } else {
+                                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
-                    } else {
-                        Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
+                            .addOnFailureListener { e ->
+                                if (Patterns.EMAIL_ADDRESS.matcher(loginInput).matches()) {
+                                    performSignIn(loginInput, password)
+                                } else {
+                                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                     }
                 }
                 .addOnFailureListener { e ->
@@ -77,5 +100,43 @@ class LoginActivity : AppCompatActivity() {
         tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    private fun performSignIn(email: String, pass: String) {
+        auth.signInWithEmailAndPassword(email, pass)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onLoginSuccess()
+                } else {
+                    // Fallback: Check if entered password matches updated password in Firestore database
+                    db.collection("users")
+                        .whereEqualTo("email", email)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            if (!documents.isEmpty) {
+                                val savedPassword = documents.documents[0].getString("password")
+                                if (savedPassword == pass) {
+                                    // Password matches Firestore reset password!
+                                    onLoginSuccess()
+                                } else {
+                                    Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
+    }
+
+    private fun onLoginSuccess() {
+        Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, DashboardActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

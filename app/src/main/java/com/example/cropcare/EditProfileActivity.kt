@@ -3,6 +3,7 @@ package com.example.cropcare
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -26,7 +27,7 @@ class EditProfileActivity : AppCompatActivity() {
         val etEditAddress = findViewById<EditText>(R.id.etEditAddress)
         val etEditPhone = findViewById<EditText>(R.id.etEditPhone)
         val btnSaveProfile = findViewById<Button>(R.id.btnSaveProfile)
-        val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
 
         val userId = auth.currentUser?.uid ?: ""
 
