@@ -1,3 +1,4 @@
+
 package com.example.cropcare
 
 data class SensorModel(
@@ -7,5 +8,7 @@ data class SensorModel(
     val zoneId: String = "",
     val userId: String = "",
     val lastScanTimestamp: Long = 0L,
-    val isOnline: Boolean = true
+    val isOnline: Boolean = false,
+    val pairingStatus: String = "",
+    val readingStatusUnavailable: Boolean = false
 )

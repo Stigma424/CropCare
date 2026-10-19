@@ -1,3 +1,4 @@
+
 package com.example.cropcare
 
 import android.content.Intent
@@ -14,6 +15,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+    private lateinit var btnLogin: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -21,60 +24,135 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        val etUsername = findViewById<EditText>(R.id.etLoginUsername)
-        val etPassword = findViewById<EditText>(R.id.etLoginPassword)
-        val btnLogin = findViewById<TextView>(R.id.btnLogin)
-        val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
-        val tvRegister = findViewById<TextView>(R.id.tvRegister)
+        val etUsername =
+            findViewById<EditText>(R.id.etLoginUsername)
+
+        val etPassword =
+            findViewById<EditText>(R.id.etLoginPassword)
+
+        btnLogin = findViewById(R.id.btnLogin)
+
+        val tvForgotPassword =
+            findViewById<TextView>(R.id.tvForgotPassword)
+
+        val tvRegister =
+            findViewById<TextView>(R.id.tvRegister)
 
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+            val identifier =
+                etUsername.text.toString().trim()
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show()
+            val password =
+                etPassword.text.toString()
+
+            if (identifier.isBlank() ||
+                password.isBlank()
+            ) {
+                showMessage(
+                    "Enter your username/email and password."
+                )
                 return@setOnClickListener
             }
 
-            // Find email corresponding to entered username in Firestore
-            db.collection("users")
-                .whereEqualTo("username", username)
-                .get()
-                .addOnSuccessListener { documents ->
-                    if (!documents.isEmpty) {
-                        val email = documents.documents[0].getString("email") ?: ""
+            btnLogin.isEnabled = false
 
-                        // Authenticate via Firebase Auth using retrieved email
-                        auth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
-
-                                    // Navigate to MainActivity / Dashboard
-                                    val intent = Intent(this, DashboardActivity::class.java)
-                                    // Clear back stack so pressing back button won't return to LoginActivity
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
-                                    finish()
-                                } else {
-                                    Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                    } else {
-                        Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            if (identifier.contains("@")) {
+                // Direct Firebase Authentication login.
+                signIn(identifier, password)
+            } else {
+                // Existing username compatibility.
+                resolveUsername(identifier, password)
+            }
         }
 
         tvForgotPassword.setOnClickListener {
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            startActivity(
+                Intent(
+                    this,
+                    ForgotPasswordActivity::class.java
+                )
+            )
         }
 
         tvRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            startActivity(
+                Intent(
+                    this,
+                    RegisterActivity::class.java
+                )
+            )
         }
+    }
+
+    private fun resolveUsername(
+        username: String,
+        password: String
+    ) {
+        db.collection("users")
+            .whereEqualTo("username", username)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+
+                if (documents.isEmpty) {
+                    btnLogin.isEnabled = true
+                    showMessage("Invalid username or password.")
+                    return@addOnSuccessListener
+                }
+
+                val email = documents.documents.first()
+                    .getString("email")
+
+                if (email.isNullOrBlank()) {
+                    btnLogin.isEnabled = true
+                    showMessage("Account email was not found.")
+                    return@addOnSuccessListener
+                }
+
+                signIn(email, password)
+            }
+            .addOnFailureListener { error ->
+                btnLogin.isEnabled = true
+
+                showMessage(
+                    "Login failed: ${error.message}"
+                )
+            }
+    }
+
+    private fun signIn(
+        email: String,
+        password: String
+    ) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { result ->
+
+                if (result.isSuccessful) {
+                    showMessage("Login successful!")
+
+                    val intent = Intent(
+                        this,
+                        DashboardActivity::class.java
+                    )
+
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                    startActivity(intent)
+                    finish()
+                } else {
+                    btnLogin.isEnabled = true
+                    showMessage("Invalid username/email or password.")
+                }
+            }
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

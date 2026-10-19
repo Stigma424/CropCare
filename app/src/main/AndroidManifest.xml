@@ -13,19 +13,29 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.CropCare"
         tools:targetApi="31">
-        <activity android:name=".LoginActivity" android:exported="true">
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterActivity" android:exported="false"/>
-        <activity android:name=".ForgotPasswordActivity" android:exported="false"/>
-        <activity android:name=".EmailVerificationActivity" android:exported="false"/>
-        <activity android:name=".ResetPasswordActivity" android:exported="false"/>
-        <activity android:name=".DashboardActivity" android:exported="false"/>
+
+        <!-- Temporary API connection page -->
+        <activity
+            android:name=".ApiConnectionActivity"
+            android:exported="false" />
+
+        <activity android:name=".RegisterActivity" android:exported="false" />
+        <activity android:name=".ForgotPasswordActivity" android:exported="false" />
+        <activity android:name=".EmailVerificationActivity" android:exported="false" />
+        <activity android:name=".ResetPasswordActivity" android:exported="false" />
+        <activity android:name=".DashboardActivity" android:exported="false" />
         <activity android:name=".SettingsActivity" android:exported="false" />
         <activity android:name=".AccountSettingsActivity" android:exported="false" />
         <activity android:name=".HelpActivity" android:exported="false" />
@@ -38,12 +48,10 @@
         <activity android:name=".AddSensorActivity" android:exported="false" />
         <activity android:name=".SensorDetailActivity" android:exported="false" />
         <activity android:name=".EditSensorActivity" android:exported="false" />
-        <activity android:name=".SensorHistoryActivity" />
+        <activity android:name=".SensorHistoryActivity" android:exported="false" />
         <activity android:name=".SubscriptionActivity" android:exported="false" />
         <activity android:name=".NotificationsActivity" android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="false" />
 
         <service
             android:name=".MyFirebaseMessagingService"
@@ -52,6 +60,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
     </application>
 
 </manifest>

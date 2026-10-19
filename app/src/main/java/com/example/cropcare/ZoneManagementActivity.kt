@@ -1,3 +1,4 @@
+
 package com.example.cropcare
 
 import android.content.Intent
@@ -13,6 +14,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,22 +22,22 @@ import java.util.concurrent.TimeUnit
 
 class ZoneManagementActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-    private var currentZoneId: String = ""
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    private var zoneAreaSqm: Double = 1000.0
-    private var dateOfPlanting: Long = 0L
-    private var isHarvested: Boolean = false
-    private var isSubscribed: Boolean = false
+    private var currentZoneId = ""
+    private var zoneAreaSqm = 0.0
+    private var dateOfPlanting = 0L
+    private var isHarvested = false
+    private var isSubscribed = false
+    private var zoneUpdateInProgress = false
+    private var zoneLoaded = false
 
     private lateinit var tvManageZoneName: TextView
     private lateinit var tvLastUpdated: TextView
     private lateinit var tvCornAge: TextView
-    private lateinit var btnNewCornPlanted: Button
     private lateinit var tvSoilHealth: TextView
 
-    // NPK
     private lateinit var tvAvgN: TextView
     private lateinit var tvStatusN: TextView
     private lateinit var tvAvgP: TextView
@@ -43,7 +45,6 @@ class ZoneManagementActivity : AppCompatActivity() {
     private lateinit var tvAvgK: TextView
     private lateinit var tvStatusK: TextView
 
-    // Other details
     private lateinit var tvAvgMoisture: TextView
     private lateinit var tvStatusMoisture: TextView
     private lateinit var tvAvgPh: TextView
@@ -53,23 +54,23 @@ class ZoneManagementActivity : AppCompatActivity() {
     private lateinit var tvAvgEc: TextView
     private lateinit var tvStatusEc: TextView
 
-    // Recommendations
     private lateinit var tvRecommendationText: TextView
     private lateinit var btnSeeMoreRec: Button
+    private lateinit var btnNewCornPlanted: Button
+    private lateinit var btnHarvest: Button
+    private lateinit var btnDeleteZone: Button
+
     private var activeRecommendation: RecommendationResult? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_zone_management)
 
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
         currentZoneId = intent.getStringExtra("ZONE_ID") ?: ""
 
         tvManageZoneName = findViewById(R.id.tvManageZoneName)
         tvLastUpdated = findViewById(R.id.tvLastUpdated)
         tvCornAge = findViewById(R.id.tvCornAge)
-        btnNewCornPlanted = findViewById(R.id.btnNewCornPlanted)
         tvSoilHealth = findViewById(R.id.tvSoilHealth)
 
         tvAvgN = findViewById(R.id.tvAvgN)
@@ -88,185 +89,441 @@ class ZoneManagementActivity : AppCompatActivity() {
         tvAvgEc = findViewById(R.id.tvAvgEc)
         tvStatusEc = findViewById(R.id.tvStatusEc)
 
-        tvRecommendationText = findViewById(R.id.tvRecommendationText)
+        tvRecommendationText =
+            findViewById(R.id.tvRecommendationText)
+
         btnSeeMoreRec = findViewById(R.id.btnSeeMoreRec)
+        btnNewCornPlanted = findViewById(R.id.btnNewCornPlanted)
+        btnHarvest = findViewById(R.id.btnHarvest)
+        btnDeleteZone = findViewById(R.id.btnDeleteZone)
+
+        // Use one visible button for both crop actions.
+        // The old top button has a height of 1dp in XML.
+        btnNewCornPlanted.visibility = View.GONE
+
+        btnHarvest.text = "Loading..."
+        btnHarvest.isEnabled = false
+
+        btnHarvest.setOnClickListener {
+            if (!zoneLoaded || zoneUpdateInProgress) {
+                return@setOnClickListener
+            }
+
+            if (isHarvested) {
+                confirmNewPlanting()
+            } else {
+                confirmHarvest()
+            }
+        }
 
         btnSeeMoreRec.setOnClickListener {
             showDetailedRecommendationDialog()
         }
 
-        findViewById<Button>(R.id.btnRefresh).setOnClickListener {
-            loadZoneData()
-            Toast.makeText(this, "Refreshed", Toast.LENGTH_SHORT).show()
-        }
-
-        findViewById<Button>(R.id.btnBack).setOnClickListener { finish() }
-
-        findViewById<Button>(R.id.btnSensorStatus).setOnClickListener {
-            val intent = Intent(this, SensorStatusActivity::class.java)
-            intent.putExtra("ZONE_ID", currentZoneId)
-            startActivity(intent)
-        }
-
-        findViewById<Button>(R.id.btnDeleteZone).setOnClickListener {
-            if (currentZoneId.isNotEmpty()) {
-                db.collection("zones").document(currentZoneId).delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Zone deleted", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
+        findViewById<Button>(R.id.btnRefresh)
+            .setOnClickListener {
+                loadZoneData()
             }
+
+        findViewById<Button>(R.id.btnBack)
+            .setOnClickListener {
+                finish()
+            }
+
+        findViewById<Button>(R.id.btnSensorStatus)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, SensorStatusActivity::class.java)
+                        .putExtra("ZONE_ID", currentZoneId)
+                )
+            }
+
+        btnDeleteZone.setOnClickListener {
+            confirmDeleteZone()
         }
 
-        findViewById<Button>(R.id.btnHarvest).setOnClickListener {
-            db.collection("zones").document(currentZoneId)
-                .update("isHarvested", true)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Zone marked as harvested", Toast.LENGTH_SHORT).show()
-                    loadZoneData()
-                }
+        if (currentZoneId.isBlank()) {
+            showMessage("Missing farm zone.")
+            finish()
         }
-
-        btnNewCornPlanted.setOnClickListener {
-            val now = System.currentTimeMillis()
-            db.collection("zones").document(currentZoneId)
-                .update("dateOfPlanting", now, "isHarvested", false)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "New crop record updated", Toast.LENGTH_SHORT).show()
-                    loadZoneData()
-                }
-        }
-
-        loadZoneData()
     }
 
     override fun onResume() {
         super.onResume()
-        loadZoneData()
+
+        if (currentZoneId.isNotBlank()) {
+            loadZoneData()
+        }
     }
 
     private fun loadZoneData() {
-        if (currentZoneId.isEmpty()) return
-        val userId = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid
 
-        // Check user subscription status
-        db.collection("users").document(userId).get()
+        if (uid == null) {
+            showMessage("Please log in again.")
+            finish()
+            return
+        }
+
+        db.collection("users")
+            .document(uid)
+            .get()
             .addOnSuccessListener { userDoc ->
-                isSubscribed = userDoc.getBoolean("isSubscribed") ?: false
+                isSubscribed =
+                    userDoc.getBoolean("isSubscribed") ?: false
 
-                // Fetch zone data
-                db.collection("zones").document(currentZoneId).get()
-                    .addOnSuccessListener { doc ->
-                        if (doc.exists()) {
-                            tvManageZoneName.text = doc.getString("zoneName") ?: "Zone Details"
-
-                            isHarvested = doc.getBoolean("isHarvested") ?: false
-                            dateOfPlanting = doc.getLong("dateOfPlanting") ?: 0L
-                            zoneAreaSqm = doc.getDouble("zoneAreaSqm") ?: 1000.0
-
-                            if (isHarvested) {
-                                tvCornAge.text = "Harvested"
-                                btnNewCornPlanted.visibility = View.VISIBLE
-                            } else if (dateOfPlanting > 0) {
-                                val days = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - dateOfPlanting)
-                                tvCornAge.text = "$days days after planting"
-                                btnNewCornPlanted.visibility = View.GONE
-                            } else {
-                                tvCornAge.text = "No planting date recorded"
-                                btnNewCornPlanted.visibility = View.GONE
-                            }
-
-                            fetchZoneAverages()
-                        }
-                    }
+                loadZoneFromApi()
             }
+            .addOnFailureListener {
+                isSubscribed = false
+                loadZoneFromApi()
+            }
+    }
+
+    private fun loadZoneFromApi() {
+        zoneLoaded = false
+        btnHarvest.isEnabled = false
+
+        CropCareApiClient.getZone(currentZoneId) { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@getZone
+            }
+
+            if (!result.successful || result.data == null) {
+                btnHarvest.text = "Zone Unavailable"
+
+                showMessage(
+                    "Unable to load zone: ${result.message}"
+                )
+                return@getZone
+            }
+
+            val zone = result.data
+
+            tvManageZoneName.text =
+                zone.optString("zoneName", "Zone Details")
+
+            zoneAreaSqm = zone.optDouble("zoneAreaSqm", 0.0)
+            dateOfPlanting = zone.optLong("dateOfPlanting", 0L)
+            isHarvested = zone.optBoolean("isHarvested", false)
+
+            zoneLoaded = true
+
+            updateCornAge()
+            fetchZoneAverages()
+        }
+    }
+
+    private fun updateCornAge() {
+
+        // Always use this bottom button for the next action.
+        btnNewCornPlanted.visibility = View.GONE
+        btnHarvest.isEnabled =
+            zoneLoaded && !zoneUpdateInProgress
+
+        if (isHarvested) {
+            tvCornAge.text = "Harvested"
+
+            // FIX: The button changes its label and action.
+            btnHarvest.text = "New Corn Planted"
+
+        } else if (dateOfPlanting > 0L) {
+            val elapsed =
+                System.currentTimeMillis() - dateOfPlanting
+
+            val days = TimeUnit.MILLISECONDS.toDays(
+                elapsed.coerceAtLeast(0L)
+            )
+
+            tvCornAge.text = "$days days after planting"
+
+            btnHarvest.text = "Mark Harvested"
+
+        } else {
+            tvCornAge.text = "No planting date recorded"
+            btnHarvest.text = "Mark Harvested"
+        }
+    }
+
+    private fun confirmHarvest() {
+        if (zoneUpdateInProgress) return
+
+        AlertDialog.Builder(this)
+            .setTitle("Mark Zone as Harvested?")
+            .setMessage(
+                "This marks the current corn crop as harvested. " +
+                        "You can start a new planting afterward."
+            )
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Confirm") { _, _ ->
+
+                val changes = JSONObject().apply {
+                    put("isHarvested", true)
+                }
+
+                updateZone(changes)
+            }
+            .show()
+    }
+
+    private fun confirmNewPlanting() {
+        if (zoneUpdateInProgress) return
+
+        AlertDialog.Builder(this)
+            .setTitle("Start New Corn Planting?")
+            .setMessage(
+                "This starts a new crop cycle using today's date. " +
+                        "The zone will no longer be marked harvested."
+            )
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Confirm") { _, _ ->
+
+                val changes = JSONObject().apply {
+                    put("dateOfPlanting", System.currentTimeMillis())
+                    put("isHarvested", false)
+                }
+
+                updateZone(changes)
+            }
+            .show()
+    }
+
+    private fun updateZone(changes: JSONObject) {
+        if (zoneUpdateInProgress) return
+
+        zoneUpdateInProgress = true
+        btnHarvest.isEnabled = false
+        btnHarvest.text = "Saving..."
+
+        CropCareApiClient.updateZone(
+            currentZoneId,
+            changes
+        ) { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@updateZone
+            }
+
+            zoneUpdateInProgress = false
+
+            if (result.successful) {
+
+                // Update the displayed state immediately.
+                if (changes.has("isHarvested")) {
+                    isHarvested =
+                        changes.optBoolean("isHarvested")
+                }
+
+                if (changes.has("dateOfPlanting")) {
+                    dateOfPlanting =
+                        changes.optLong("dateOfPlanting")
+                }
+
+                updateCornAge()
+                showMessage("Zone updated successfully.")
+
+                // Refresh the authoritative state from the API.
+                loadZoneData()
+
+            } else {
+                updateCornAge()
+                showMessage(
+                    "Could not update zone: ${result.message}"
+                )
+            }
+        }
+    }
+
+    private fun confirmDeleteZone() {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Farm Zone?")
+            .setMessage(
+                "You must remove its registered sensors first. " +
+                        "Historical soil readings will not be deleted."
+            )
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                deleteZone()
+            }
+            .show()
+    }
+
+    private fun deleteZone() {
+        btnDeleteZone.isEnabled = false
+
+        CropCareApiClient.deleteZone(currentZoneId) { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@deleteZone
+            }
+
+            if (result.successful) {
+                showMessage("Zone deleted successfully.")
+                finish()
+
+            } else {
+                btnDeleteZone.isEnabled = true
+
+                if (result.statusCode == 409) {
+                    showMessage(
+                        "Remove the registered sensors " +
+                                "before deleting this zone."
+                    )
+                } else {
+                    showMessage("Delete failed: ${result.message}")
+                }
+            }
+        }
     }
 
     private fun fetchZoneAverages() {
         val userId = auth.currentUser?.uid
-        if (currentZoneId.isEmpty() || userId == null) {
-            updateUiWithAverages(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null)
+
+        if (userId == null || currentZoneId.isBlank()) {
+            showNoReadings()
             return
         }
 
-        // Strictly query sensors owned by current user for this specific zone
         db.collection("sensors")
             .whereEqualTo("zoneId", currentZoneId)
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { sensors ->
-                val deviceIds = sensors.mapNotNull { it.getString("deviceId") }.distinct()
+
+                val deviceIds = sensors.documents
+                    .mapNotNull { it.getString("deviceId") }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+
                 if (deviceIds.isEmpty()) {
-                    updateUiWithAverages(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null)
+                    showNoReadings()
+                    return@addOnSuccessListener
+                }
+
+                if (deviceIds.size > 30) {
+                    showNoReadings()
+                    showMessage(
+                        "Too many sensors for the current reading query."
+                    )
                     return@addOnSuccessListener
                 }
 
                 db.collection("soil_data")
                     .whereIn("deviceId", deviceIds)
                     .get()
-                    .addOnSuccessListener { soilDocs ->
-                        if (soilDocs.isEmpty) {
-                            updateUiWithAverages(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null)
+                    .addOnSuccessListener { readings ->
+
+                        if (readings.isEmpty) {
+                            showNoReadings()
                             return@addOnSuccessListener
                         }
 
-                        val latestDocs = soilDocs.documents
-                            .groupBy { it.getString("deviceId") ?: "default" }
-                            .mapNotNull { (_, docs) -> docs.maxByOrNull { parseAnyDate(it)?.time ?: 0L } }
+                        val latestDocuments = readings.documents
+                            .groupBy {
+                                it.getString("deviceId") ?: ""
+                            }
+                            .mapNotNull { (_, documents) ->
+                                documents.maxByOrNull {
+                                    parseAnyDate(it)?.time ?: 0L
+                                }
+                            }
 
-                        processReadings(latestDocs)
+                        processReadings(latestDocuments)
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("ZoneManagement", "Error fetching soil data", e)
-                        updateUiWithAverages(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null)
+                    .addOnFailureListener { error ->
+                        Log.e("CropCareZone", "Reading query failed", error)
+                        showNoReadings()
                     }
             }
-            .addOnFailureListener { e ->
-                Log.e("ZoneManagement", "Error fetching sensors", e)
-                updateUiWithAverages(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null)
+            .addOnFailureListener { error ->
+                Log.e("CropCareZone", "Sensor query failed", error)
+                showNoReadings()
             }
     }
 
-    private fun processReadings(readings: List<DocumentSnapshot>) {
+    private fun processReadings(
+        readings: List<DocumentSnapshot>
+    ) {
         if (readings.isEmpty()) {
-            updateUiWithAverages(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null)
+            showNoReadings()
             return
         }
 
         val count = readings.size.toDouble()
-        val newestDate = readings.mapNotNull { parseAnyDate(it) }.maxByOrNull { it.time }
 
-        val avgN = readings.sumOf { getDoubleValue(it, "nitrogen", "n", "N", "nitro") } / count
-        val avgP = readings.sumOf { getDoubleValue(it, "phosphorus", "p", "P", "phos") } / count
-        val avgK = readings.sumOf { getDoubleValue(it, "potassium", "k", "K", "pot") } / count
-        val avgMoisture = readings.sumOf { getDoubleValue(it, "moisture", "humidity", "mois") } / count
-        val avgPh = readings.sumOf { getDoubleValue(it, "ph", "pH", "PH") } / count
-        val avgTemp = readings.sumOf { getDoubleValue(it, "temperature", "temp") } / count
-        val avgEc = readings.sumOf { getDoubleValue(it, "ec", "EC") } / count
+        val newestDate = readings
+            .mapNotNull { parseAnyDate(it) }
+            .maxByOrNull { it.time }
 
-        updateUiWithAverages(avgN, avgP, avgK, avgMoisture, avgPh, avgTemp, avgEc, newestDate)
+        val n = readings.sumOf {
+            getDoubleValue(it, "nitrogen", "n", "N", "nitro")
+        } / count
+
+        val p = readings.sumOf {
+            getDoubleValue(it, "phosphorus", "p", "P", "phos")
+        } / count
+
+        val k = readings.sumOf {
+            getDoubleValue(it, "potassium", "k", "K", "pot")
+        } / count
+
+        val m = readings.sumOf {
+            getDoubleValue(it, "moisture", "humidity", "mois")
+        } / count
+
+        val ph = readings.sumOf {
+            getDoubleValue(it, "ph", "pH", "PH")
+        } / count
+
+        val temp = readings.sumOf {
+            getDoubleValue(it, "temperature", "temp")
+        } / count
+
+        val ec = readings.sumOf {
+            getDoubleValue(it, "ec", "EC")
+        } / count
+
+        updateUiWithAverages(
+            n, p, k, m, ph, temp, ec, newestDate
+        )
     }
 
-    private fun getDoubleValue(doc: DocumentSnapshot, vararg keys: String): Double {
-        for (key in keys) {
-            val valDouble = doc.getDouble(key)
-            if (valDouble != null) return valDouble
+    private fun showNoReadings() {
+        tvAvgN.text = "—"
+        tvAvgP.text = "—"
+        tvAvgK.text = "—"
+        tvAvgMoisture.text = "—"
+        tvAvgPh.text = "—"
+        tvAvgTemp.text = "—"
+        tvAvgEc.text = "—"
 
-            val valLong = doc.getLong(key)
-            if (valLong != null) return valLong.toDouble()
+        tvStatusN.text = "No Data"
+        tvStatusP.text = "No Data"
+        tvStatusK.text = "No Data"
+        tvStatusMoisture.text = "No Data"
+        tvStatusPh.text = "No Data"
+        tvStatusTemp.text = "No Data"
+        tvStatusEc.text = "No Data"
 
-            val valString = doc.getString(key)
-            if (valString != null) {
-                val parsed = valString.toDoubleOrNull()
-                if (parsed != null) return parsed
-            }
-        }
-        return 0.0
+        tvLastUpdated.text = "Last updated: No data"
+        tvSoilHealth.text = "Soil Health: No readings yet"
+        tvRecommendationText.text =
+            "Waiting for actual soil readings."
+
+        activeRecommendation = null
+        btnSeeMoreRec.isEnabled = false
     }
 
     private fun updateUiWithAverages(
-        n: Double, p: Double, k: Double, m: Double,
-        ph: Double, t: Double, ec: Double, latestDate: Date?
+        n: Double,
+        p: Double,
+        k: Double,
+        m: Double,
+        ph: Double,
+        temp: Double,
+        ec: Double,
+        latestDate: Date?
     ) {
         tvAvgN.text = String.format(Locale.US, "%.0f mg/kg", n)
         tvStatusN.text = getParameterStatus("N", n)
@@ -277,52 +534,70 @@ class ZoneManagementActivity : AppCompatActivity() {
         tvAvgK.text = String.format(Locale.US, "%.0f mg/kg", k)
         tvStatusK.text = getParameterStatus("K", k)
 
-        tvAvgMoisture.text = String.format(Locale.US, "%.0f%%", m)
-        tvStatusMoisture.text = getParameterStatus("MOISTURE", m)
+        tvAvgMoisture.text =
+            String.format(Locale.US, "%.0f%%", m)
+        tvStatusMoisture.text =
+            getParameterStatus("MOISTURE", m)
 
         tvAvgPh.text = String.format(Locale.US, "%.1f", ph)
         tvStatusPh.text = getParameterStatus("PH", ph)
 
-        tvAvgTemp.text = String.format(Locale.US, "%.0f°C", t)
-        tvStatusTemp.text = getParameterStatus("TEMP", t)
+        tvAvgTemp.text =
+            String.format(Locale.US, "%.0f°C", temp)
+        tvStatusTemp.text =
+            getParameterStatus("TEMP", temp)
 
-        tvAvgEc.text = String.format(Locale.US, "%.0f us/cm", ec)
-        tvStatusEc.text = getParameterStatus("EC", ec)
+        tvAvgEc.text =
+            String.format(Locale.US, "%.0f us/cm", ec)
+        tvStatusEc.text =
+            getParameterStatus("EC", ec)
 
-        if (n == 0.0 && p == 0.0 && k == 0.0) {
-            tvSoilHealth.text = "Soil Health: Poor (0/100)"
-        } else {
-            val overallHealth = calculateOverallSoilHealth(n, p, k, m, ph)
-            tvSoilHealth.text = "Soil Health: $overallHealth"
-        }
-
-        if (latestDate != null) {
-            val timeFormat = SimpleDateFormat("MMM dd, yyyy - hh:mm:ss a", Locale.US)
-            tvLastUpdated.text = "Last updated: ${timeFormat.format(latestDate)}"
-        } else {
-            tvLastUpdated.text = "Last updated: No data"
-        }
-
-        // Generate Corn Fertilization Recommendation
-        val cornAgeDays = if (dateOfPlanting > 0) {
-            TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - dateOfPlanting)
-        } else 0L
-
-        activeRecommendation = CornRecommendationEngine.generateRecommendation(
-            n = n,
-            p = p,
-            k = k,
-            ph = ph,
-            moisture = m,
-            cornAgeDays = cornAgeDays,
-            isHarvested = isHarvested,
-            zoneAreaSqm = zoneAreaSqm,
-            isSubscribed = isSubscribed
+        val score = calculateOverallSoilHealth(
+            n, p, k, m, ph
         )
 
-        tvRecommendationText.text = activeRecommendation?.summaryText ?: "No recommendations available."
+        tvSoilHealth.text = "Soil Health: $score"
 
-        // Trigger real-time notifications if sensor values are low/high or new recommendations exist
+        tvLastUpdated.text = if (latestDate != null) {
+            val formatter = SimpleDateFormat(
+                "MMM dd, yyyy - hh:mm:ss a",
+                Locale.US
+            )
+            "Last updated: ${formatter.format(latestDate)}"
+        } else {
+            "Last updated: Unknown"
+        }
+
+        // Existing recommendation system is unchanged.
+        val days = if (dateOfPlanting > 0L) {
+            TimeUnit.MILLISECONDS.toDays(
+                (System.currentTimeMillis() -
+                        dateOfPlanting).coerceAtLeast(0L)
+            )
+        } else {
+            0L
+        }
+
+        activeRecommendation =
+            CornRecommendationEngine.generateRecommendation(
+                n = n,
+                p = p,
+                k = k,
+                ph = ph,
+                moisture = m,
+                cornAgeDays = days,
+                isHarvested = isHarvested,
+                zoneAreaSqm = zoneAreaSqm,
+                isSubscribed = isSubscribed
+            )
+
+        tvRecommendationText.text =
+            activeRecommendation?.summaryText
+                ?: "No recommendation available."
+
+        btnSeeMoreRec.isEnabled =
+            activeRecommendation != null
+
         NotificationHelper.checkAndTriggerSoilAlerts(
             context = this,
             zoneName = tvManageZoneName.text.toString(),
@@ -331,45 +606,52 @@ class ZoneManagementActivity : AppCompatActivity() {
             k = k,
             moisture = m,
             ph = ph,
-            recommendationSummary = activeRecommendation?.summaryText ?: ""
+            recommendationSummary =
+                activeRecommendation?.summaryText ?: ""
         )
     }
 
     private fun showDetailedRecommendationDialog() {
-        val rec = activeRecommendation ?: return
+        val recommendation = activeRecommendation ?: return
 
         val builder = AlertDialog.Builder(this)
-            .setTitle(rec.stageName)
-            .setMessage(rec.detailedAdvice)
+            .setTitle(recommendation.stageName)
+            .setMessage(recommendation.detailedAdvice)
             .setPositiveButton("OK", null)
 
-        if (rec.isPremiumLocked) {
+        if (recommendation.isPremiumLocked) {
             builder.setNeutralButton("Subscribe to Pro") { _, _ ->
-                startActivity(Intent(this, SubscriptionActivity::class.java))
+                startActivity(
+                    Intent(this, SubscriptionActivity::class.java)
+                )
             }
         }
 
         builder.show()
     }
 
-    private fun getParameterStatus(type: String, value: Double): String {
-        if (value <= 0.0) return "Low"
+    private fun getParameterStatus(
+        type: String,
+        value: Double
+    ): String {
+        if (value <= 0.0) return "No Data"
+
         return try {
             SoilUtils.getStatus(type, value)
         } catch (_: Exception) {
-            when (type) {
-                "N" -> if (value in 20.0..50.0) "Normal" else "Low"
-                "P" -> if (value in 10.0..30.0) "Normal" else "Low"
-                "K" -> if (value in 100.0..200.0) "Normal" else "Low"
-                "MOISTURE" -> if (value in 40.0..80.0) "Normal" else "Low"
-                "PH" -> if (value in 5.5..7.5) "Normal" else "Low"
-                else -> if (value > 0) "Normal" else "Low"
-            }
+            "Unknown"
         }
     }
 
-    private fun calculateOverallSoilHealth(n: Double, p: Double, k: Double, m: Double, ph: Double): String {
+    private fun calculateOverallSoilHealth(
+        n: Double,
+        p: Double,
+        k: Double,
+        m: Double,
+        ph: Double
+    ): String {
         var score = 0
+
         if (n >= 20) score += 20
         if (p >= 10) score += 20
         if (k >= 100) score += 20
@@ -383,29 +665,68 @@ class ZoneManagementActivity : AppCompatActivity() {
         }
     }
 
-    private fun parseAnyDate(doc: DocumentSnapshot): Date? {
-        val keys = arrayOf("timestamp", "lastScanTimestamp", "createdAt", "date", "updatedAt")
+    private fun getDoubleValue(
+        doc: DocumentSnapshot,
+        vararg keys: String
+    ): Double {
         for (key in keys) {
-            val rawValue = doc.get(key) ?: continue
-            when (rawValue) {
-                is Timestamp -> return rawValue.toDate()
-                is Long -> return Date(rawValue)
-                is Double -> return Date(rawValue.toLong())
+            doc.getDouble(key)?.let { return it }
+            doc.getLong(key)?.let { return it.toDouble() }
+            doc.getString(key)?.toDoubleOrNull()?.let { return it }
+        }
+
+        return 0.0
+    }
+
+    private fun parseAnyDate(
+        doc: DocumentSnapshot
+    ): Date? {
+        val keys = arrayOf(
+            "timestamp",
+            "lastScanTimestamp",
+            "createdAt",
+            "date",
+            "updatedAt"
+        )
+
+        for (key in keys) {
+            val raw = doc.get(key) ?: continue
+
+            when (raw) {
+                is Timestamp -> return raw.toDate()
+                is Long -> return Date(raw)
+                is Double -> return Date(raw.toLong())
+
                 is String -> {
                     val formats = arrayOf(
                         "yyyy-MM-dd HH:mm:ss",
                         "MMMM dd, yyyy 'at' h:mm:ss a z",
                         "MMMM dd, yyyy - hh:mm:ss a"
                     )
-                    for (fmt in formats) {
+
+                    for (format in formats) {
                         try {
-                            val parsed = SimpleDateFormat(fmt, Locale.US).parse(rawValue)
-                            if (parsed != null) return parsed
-                        } catch (_: Exception) {}
+                            val date = SimpleDateFormat(
+                                format,
+                                Locale.US
+                            ).parse(raw)
+
+                            if (date != null) return date
+                        } catch (_: Exception) {
+                        }
                     }
                 }
             }
         }
+
         return null
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }

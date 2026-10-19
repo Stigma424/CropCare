@@ -1,5 +1,7 @@
+
 package com.example.cropcare
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -7,77 +9,190 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import org.json.JSONObject
 
 class EditProfileActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private lateinit var etFirstName: EditText
+    private lateinit var etMiddleName: EditText
+    private lateinit var etLastName: EditText
+    private lateinit var etAddress: EditText
+    private lateinit var etPhone: EditText
+    private lateinit var btnSaveProfile: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_edit_profile)
 
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+        etFirstName = findViewById(R.id.etEditFirstName)
+        etMiddleName = findViewById(R.id.etEditMiddleName)
+        etLastName = findViewById(R.id.etEditLastName)
+        etAddress = findViewById(R.id.etEditAddress)
+        etPhone = findViewById(R.id.etEditPhone)
 
-        val etEditFirstName = findViewById<EditText>(R.id.etEditFirstName)
-        val etEditMiddleName = findViewById<EditText>(R.id.etEditMiddleName)
-        val etEditLastName = findViewById<EditText>(R.id.etEditLastName)
-        val etEditAddress = findViewById<EditText>(R.id.etEditAddress)
-        val etEditPhone = findViewById<EditText>(R.id.etEditPhone)
-        val btnSaveProfile = findViewById<Button>(R.id.btnSaveProfile)
+        btnSaveProfile = findViewById(R.id.btnSaveProfile)
+
         val btnBack = findViewById<ImageView>(R.id.btnBack)
-
-        val userId = auth.currentUser?.uid ?: ""
-
-        // Pre-fill current details
-        if (userId.isNotEmpty()) {
-            db.collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        etEditFirstName.setText(document.getString("firstName") ?: "")
-                        etEditMiddleName.setText(document.getString("middleName") ?: "")
-                        etEditLastName.setText(document.getString("lastName") ?: "")
-                        etEditAddress.setText(document.getString("address") ?: "")
-                        etEditPhone.setText(document.getString("phoneNumber") ?: "")
-                    }
-                }
-        }
-
-        btnSaveProfile.setOnClickListener {
-            val updatedFName = etEditFirstName.text.toString().trim()
-            val updatedMName = etEditMiddleName.text.toString().trim()
-            val updatedLName = etEditLastName.text.toString().trim()
-            val updatedAddress = etEditAddress.text.toString().trim()
-            val updatedPhone = etEditPhone.text.toString().trim()
-
-            if (updatedFName.isEmpty() || updatedLName.isEmpty() || updatedAddress.isEmpty()) {
-                Toast.makeText(this, "First Name, Last Name, and Address cannot be empty", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val updates = mapOf(
-                "firstName" to updatedFName,
-                "middleName" to updatedMName,
-                "lastName" to updatedLName,
-                "address" to updatedAddress,
-                "phoneNumber" to updatedPhone
-            )
-
-            db.collection("users").document(userId)
-                .update(updates)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-        }
+        val btnBackForm = findViewById<Button>(R.id.btnBackForm)
 
         btnBack.setOnClickListener {
             finish()
+        }
+
+        btnBackForm.setOnClickListener {
+            finish()
+        }
+
+        btnSaveProfile.setOnClickListener {
+            saveProfile()
+        }
+
+        loadExistingProfile()
+    }
+
+    private fun loadExistingProfile() {
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            Toast.makeText(
+                this,
+                "Please log in again.",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+            return
+        }
+
+        btnSaveProfile.isEnabled = false
+        btnSaveProfile.text = "Loading Profile..."
+
+        // Load the existing profile through ASP.NET Core.
+        CropCareApiClient.getMyProfile { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@getMyProfile
+            }
+
+            if (result.successful && result.data != null) {
+                displayExistingProfile(result.data)
+
+                btnSaveProfile.isEnabled = true
+                btnSaveProfile.text = "Save Changes"
+            } else {
+                btnSaveProfile.isEnabled = false
+                btnSaveProfile.text = "Profile Unavailable"
+
+                Toast.makeText(
+                    this,
+                    "Failed to load profile: ${result.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun displayExistingProfile(profile: JSONObject) {
+        etFirstName.setText(readField(profile, "firstName"))
+        etMiddleName.setText(readField(profile, "middleName"))
+        etLastName.setText(readField(profile, "lastName"))
+        etAddress.setText(readField(profile, "address"))
+        etPhone.setText(readField(profile, "phoneNumber"))
+    }
+
+    private fun readField(
+        json: JSONObject,
+        field: String
+    ): String {
+        if (json.isNull(field)) return ""
+        return json.optString(field, "")
+    }
+
+    private fun saveProfile() {
+        val firstName = etFirstName.text.toString().trim()
+        val middleName = etMiddleName.text.toString().trim()
+        val lastName = etLastName.text.toString().trim()
+        val address = etAddress.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
+
+        // Keep the original CropCare validation requirements.
+        if (firstName.isEmpty() ||
+            lastName.isEmpty() ||
+            address.isEmpty()
+        ) {
+            Toast.makeText(
+                this,
+                "First Name, Last Name, and Address cannot be empty.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        if (firstName.length > 80 ||
+            middleName.length > 80 ||
+            lastName.length > 80
+        ) {
+            Toast.makeText(
+                this,
+                "Name fields cannot exceed 80 characters.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        if (address.length > 250) {
+            Toast.makeText(
+                this,
+                "Address cannot exceed 250 characters.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        if (phone.length > 30) {
+            Toast.makeText(
+                this,
+                "Phone number cannot exceed 30 characters.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        val updatedProfile = CropCareApiClient.ProfileUpdate(
+            firstName = firstName,
+            middleName = middleName,
+            lastName = lastName,
+            address = address,
+            phoneNumber = phone
+        )
+
+        btnSaveProfile.isEnabled = false
+        btnSaveProfile.text = "Saving..."
+
+        // Save through PATCH /api/account/me.
+        CropCareApiClient.updateMyProfile(updatedProfile) { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@updateMyProfile
+            }
+
+            if (result.successful) {
+                Toast.makeText(
+                    this,
+                    "Profile updated successfully!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                setResult(Activity.RESULT_OK)
+                finish()
+            } else {
+                btnSaveProfile.isEnabled = true
+                btnSaveProfile.text = "Save Changes"
+
+                Toast.makeText(
+                    this,
+                    "Update failed: ${result.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 }

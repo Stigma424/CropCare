@@ -1,3 +1,4 @@
+
 package com.example.cropcare
 
 import android.view.LayoutInflater
@@ -17,38 +18,123 @@ class SensorAdapter(
     private val onViewDetailsClick: (SensorModel) -> Unit
 ) : RecyclerView.Adapter<SensorAdapter.SensorViewHolder>() {
 
-    class SensorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvSensorName: TextView = itemView.findViewById(R.id.tvSensorName)
-        val tvLastScan: TextView = itemView.findViewById(R.id.tvLastScan)
-        val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
-        val btnDelete: ImageButton = itemView.findViewById(R.id.btnDeleteSensor)
-        val btnViewDetails: Button = itemView.findViewById(R.id.btnViewDetails)
+    class SensorViewHolder(itemView: View) :
+        RecyclerView.ViewHolder(itemView) {
+
+        val tvSensorName: TextView =
+            itemView.findViewById(R.id.tvSensorName)
+
+        val tvLastScan: TextView =
+            itemView.findViewById(R.id.tvLastScan)
+
+        val tvStatus: TextView =
+            itemView.findViewById(R.id.tvStatus)
+
+        val btnDelete: ImageButton =
+            itemView.findViewById(R.id.btnDeleteSensor)
+
+        val btnViewDetails: Button =
+            itemView.findViewById(R.id.btnViewDetails)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SensorViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_sensor, parent, false)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): SensorViewHolder {
+
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_sensor, parent, false)
+
         return SensorViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: SensorViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: SensorViewHolder,
+        position: Int
+    ) {
         val sensor = sensors[position]
+
         holder.tvSensorName.text = sensor.sensorName
 
-        val sdf = SimpleDateFormat("EEEE, MMMM dd, yyyy @ hh:mm a", Locale.getDefault())
-        val formattedDate = if (sensor.lastScanTimestamp > 0) sdf.format(Date(sensor.lastScanTimestamp)) else "No scan data"
-        holder.tvLastScan.text = formattedDate
+        val dateFormat = SimpleDateFormat(
+            "EEEE, MMMM dd, yyyy @ hh:mm a",
+            Locale.getDefault()
+        )
 
-        if (sensor.isOnline) {
-            holder.tvStatus.text = "Active"
-            holder.tvStatus.setTextColor(0xFF4CAF50.toInt())
-        } else {
-            holder.tvStatus.text = "Offline"
-            holder.tvStatus.setTextColor(0xFFF44336.toInt())
+        holder.tvLastScan.text = when {
+            sensor.readingStatusUnavailable ->
+                "Last reading: Unavailable"
+
+            sensor.lastScanTimestamp > 0L ->
+                "Last reading: " +
+                        dateFormat.format(
+                            Date(sensor.lastScanTimestamp)
+                        )
+
+            else ->
+                "No readings received yet"
         }
 
-        holder.btnDelete.setOnClickListener { onDeleteClick(sensor) }
-        holder.btnViewDetails.setOnClickListener { onViewDetailsClick(sensor) }
+        val isUnverified =
+            sensor.pairingStatus.equals(
+                "unverified",
+                ignoreCase = true
+            )
+
+        when {
+            sensor.readingStatusUnavailable -> {
+                holder.tvStatus.text = "Status Unavailable"
+                holder.tvStatus.setTextColor(
+                    0xFF757575.toInt()
+                )
+            }
+
+            sensor.lastScanTimestamp <= 0L -> {
+                holder.tvStatus.text =
+                    "Awaiting First Reading"
+
+                holder.tvStatus.setTextColor(
+                    0xFFE69500.toInt()
+                )
+            }
+
+            sensor.isOnline && isUnverified -> {
+                holder.tvStatus.text =
+                    "Recent Data - Unverified"
+
+                holder.tvStatus.setTextColor(
+                    0xFFE69500.toInt()
+                )
+            }
+
+            sensor.isOnline -> {
+                holder.tvStatus.text = "Active"
+
+                holder.tvStatus.setTextColor(
+                    0xFF4CAF50.toInt()
+                )
+            }
+
+            else -> {
+                holder.tvStatus.text =
+                    "No Recent Readings"
+
+                holder.tvStatus.setTextColor(
+                    0xFFF44336.toInt()
+                )
+            }
+        }
+
+        holder.btnDelete.setOnClickListener {
+            onDeleteClick(sensor)
+        }
+
+        holder.btnViewDetails.setOnClickListener {
+            onViewDetailsClick(sensor)
+        }
     }
 
-    override fun getItemCount(): Int = sensors.size
+    override fun getItemCount(): Int {
+        return sensors.size
+    }
 }

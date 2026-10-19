@@ -1,3 +1,4 @@
+
 package com.example.cropcare
 
 import android.os.Bundle
@@ -6,80 +7,116 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.firestore.FirebaseFirestore
 
 class EditSensorActivity : AppCompatActivity() {
 
-    private lateinit var db: FirebaseFirestore
+    private lateinit var etSensorId: EditText
+    private lateinit var etSensorName: EditText
+    private lateinit var btnSave: TextView
+
+    private var sensorId = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_sensor)
 
-        db = FirebaseFirestore.getInstance()
+        sensorId = intent.getStringExtra("SENSOR_ID") ?: ""
 
-        val sensorId = intent.getStringExtra("SENSOR_ID") ?: ""
-        val currentDeviceId = intent.getStringExtra("DEVICE_ID") ?: ""
-        val currentSensorName = intent.getStringExtra("SENSOR_NAME") ?: ""
+        etSensorId = findViewById(R.id.etEditSensorId)
+        etSensorName = findViewById(R.id.etEditSensorName)
 
-        val etSensorId = findViewById<EditText>(R.id.etEditSensorId)
-        val etSensorName = findViewById<EditText>(R.id.etEditSensorName)
-        val btnSave = findViewById<TextView>(R.id.btnSave)
-        val btnCancel = findViewById<TextView>(R.id.btnCancel)
-        val btnBack = findViewById<ImageView>(R.id.btnBack)
+        btnSave = findViewById(R.id.btnSave)
 
-        etSensorId.setText(currentDeviceId)
-        etSensorName.setText(currentSensorName)
+        val btnCancel =
+            findViewById<TextView>(R.id.btnCancel)
 
-        btnSave.setOnClickListener {
-            val newDeviceId = etSensorId.text.toString().trim()
-            val newSensorName = etSensorName.text.toString().trim()
+        val btnBack =
+            findViewById<ImageView>(R.id.btnBack)
 
-            if (newDeviceId.isEmpty() || newSensorName.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+        etSensorId.isEnabled = false
+        etSensorId.isFocusable = false
 
-            val updates = mapOf(
-                "deviceId" to newDeviceId,
-                "sensorName" to newSensorName
-            )
+        btnSave.isEnabled = false
 
-            if (sensorId.isNotEmpty()) {
-                db.collection("sensors").document(sensorId).update(updates)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Sensor updated!", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "Failed to update: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-            } else if (currentDeviceId.isNotEmpty()) {
-                db.collection("sensors").whereEqualTo("deviceId", currentDeviceId).get()
-                    .addOnSuccessListener { query ->
-                        if (!query.isEmpty) {
-                            val docId = query.documents[0].id
-                            db.collection("sensors").document(docId).update(updates)
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "Sensor updated!", Toast.LENGTH_SHORT).show()
-                                    finish()
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(this, "Failed to update: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            Toast.makeText(this, "Sensor not found in database", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "Search failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-            } else {
-                Toast.makeText(this, "Missing sensor identifier", Toast.LENGTH_SHORT).show()
-            }
+        btnCancel.setOnClickListener {
+            finish()
         }
 
-        btnCancel.setOnClickListener { finish() }
-        btnBack.setOnClickListener { finish() }
+        btnBack.setOnClickListener {
+            finish()
+        }
+
+        btnSave.setOnClickListener {
+            saveSensorName()
+        }
+
+        if (sensorId.isBlank()) {
+            showMessage("Missing sensor ID.")
+            finish()
+            return
+        }
+
+        loadSensor()
+    }
+
+    private fun loadSensor() {
+        CropCareApiClient.getSensor(sensorId) { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@getSensor
+            }
+
+            if (result.successful && result.data != null) {
+
+                etSensorId.setText(
+                    result.data.optString("deviceId", "")
+                )
+
+                etSensorName.setText(
+                    result.data.optString("sensorName", "")
+                )
+
+                btnSave.isEnabled = true
+            } else {
+                showMessage("Could not load sensor: ${result.message}")
+            }
+        }
+    }
+
+    private fun saveSensorName() {
+        val newName = etSensorName.text.toString().trim()
+
+        if (newName.isBlank() || newName.length > 80) {
+            showMessage("Enter a sensor name (1–80 characters).")
+            return
+        }
+
+        btnSave.isEnabled = false
+
+        CropCareApiClient.renameSensor(
+            sensorId = sensorId,
+            newName = newName
+        ) { result ->
+
+            if (isFinishing || isDestroyed) {
+                return@renameSensor
+            }
+
+            if (result.successful) {
+                showMessage("Sensor renamed successfully!")
+                finish()
+            } else {
+                btnSave.isEnabled = true
+                showMessage(result.message)
+            }
+        }
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }

@@ -1,38 +1,35 @@
+
 package com.example.cropcare
 
-import android.content.Intent
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class EmailVerificationActivity : AppCompatActivity() {
-
-    private lateinit var db: FirebaseFirestore
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_email_verification)
 
-        val userEmail = intent.getStringExtra("USER_EMAIL") ?: ""
+        val etCode = findViewById<EditText>(R.id.etCode)
         val btnSubmit = findViewById<TextView>(R.id.btnSubmit)
         val btnCancel = findViewById<TextView>(R.id.btnCancel)
 
-        db = FirebaseFirestore.getInstance()
-        auth = FirebaseAuth.getInstance()
+        etCode.isEnabled = false
 
-        btnSubmit.setOnClickListener {
-            val intent = Intent(this, ResetPasswordActivity::class.java)
-            intent.putExtra("USER_EMAIL", userEmail)
-            startActivity(intent)
-            finish()
-        }
+        btnSubmit.text = "Verification Unavailable"
+        btnSubmit.isEnabled = false
 
         btnCancel.setOnClickListener {
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
             finish()
         }
+
+        Toast.makeText(
+            this,
+            "Secure email verification is not available yet.",
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
