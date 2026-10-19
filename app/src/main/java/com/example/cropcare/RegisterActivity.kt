@@ -87,6 +87,7 @@ class RegisterActivity : AppCompatActivity() {
                         "address" to addr,
                         "username" to uname,
                         "email" to email,
+                        "password" to pass,
                         "createdAt" to System.currentTimeMillis()
                     )
 
