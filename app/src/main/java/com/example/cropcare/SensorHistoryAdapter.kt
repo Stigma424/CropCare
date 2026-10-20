@@ -5,28 +5,99 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-
-data class HistoryItem(val timeFormatted: String, val valueFormatted: String)
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class SensorHistoryAdapter(
-    private val historyList: List<HistoryItem>
-) : RecyclerView.Adapter<SensorHistoryAdapter.ViewHolder>() {
+    private val history: List<SensorHistoryReading>
+) : RecyclerView.Adapter<SensorHistoryAdapter.HistoryHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTime: TextView = view.findViewById(R.id.tvHistoryTime)
-        val tvValue: TextView = view.findViewById(R.id.tvHistoryValue)
+    class HistoryHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val date: TextView = view.findViewById(R.id.tvHistoryDate)
+        val time: TextView = view.findViewById(R.id.tvHistoryTime)
+        val status: TextView = view.findViewById(R.id.tvHistoryStatus)
+        val nitrogen: TextView = view.findViewById(R.id.tvHistoryN)
+        val phosphorus: TextView = view.findViewById(R.id.tvHistoryP)
+        val potassium: TextView = view.findViewById(R.id.tvHistoryK)
+        val moisture: TextView = view.findViewById(R.id.tvHistoryMoisture)
+        val ph: TextView = view.findViewById(R.id.tvHistoryPh)
+        val temp: TextView = view.findViewById(R.id.tvHistoryTemp)
+        val ec: TextView = view.findViewById(R.id.tvHistoryEc)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_history, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_history, parent, false)
+        return HistoryHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = historyList[position]
-        holder.tvTime.text = item.timeFormatted
-        holder.tvValue.text = item.valueFormatted
+    override fun onBindViewHolder(holder: HistoryHolder, position: Int) {
+        val item = history[position]
+        val previous = if (position > 0) history[position - 1] else null
+        val showDate = position == 0 || dayKey(item.recordedAtMs) !=
+                dayKey(previous?.recordedAtMs ?: 0L)
+
+        holder.date.visibility = if (showDate) View.VISIBLE else View.GONE
+        if (showDate) holder.date.text = dateTitle(item.recordedAtMs)
+
+        holder.time.text = if (item.recordedAtMs > 0L) {
+            SimpleDateFormat("h:mm a", Locale.getDefault())
+                .format(Date(item.recordedAtMs))
+        } else "Time unavailable"
+
+        // 'RECORDED' describes a saved historical reading.
+        // A past timestamp is not proof the sensor is online now.
+        holder.status.text = "RECORDED"
+
+        holder.nitrogen.text = metric(item.nitrogen, "mg/kg", 1)
+        holder.phosphorus.text = metric(item.phosphorus, "mg/kg", 1)
+        holder.potassium.text = metric(item.potassium, "mg/kg", 1)
+        holder.moisture.text = metric(item.moisture, "%", 1)
+        holder.ph.text = metric(item.ph, "", 2)
+        holder.temp.text = metric(item.temperature, "°C", 1)
+        holder.ec.text = metric(item.ec, "", 1)
     }
 
-    override fun getItemCount(): Int = historyList.size
+    override fun getItemCount(): Int = history.size
+
+    private fun metric(value: Double?, unit: String, decimals: Int): String {
+        if (value == null) return "—"
+        val raw = if (value == value.toLong().toDouble()) {
+            value.toLong().toString()
+        } else {
+            String.format(Locale.US, "%.${decimals}f", value)
+        }
+        return if (unit.isEmpty()) raw else "$raw $unit"
+    }
+
+    private fun dayKey(milliseconds: Long): String =
+        if (milliseconds <= 0L) "unknown" else
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                .format(Date(milliseconds))
+
+    private fun dateTitle(milliseconds: Long): String {
+        if (milliseconds <= 0L) return "UNKNOWN DATE"
+
+        val date = Date(milliseconds)
+        val today = Calendar.getInstance()
+        val yesterday = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, -1)
+        }
+        val recordDate = Calendar.getInstance().apply { time = date }
+        val label = when {
+            sameDay(today, recordDate) -> "TODAY"
+            sameDay(yesterday, recordDate) -> "YESTERDAY"
+            else -> SimpleDateFormat("EEEE", Locale.US)
+                .format(date).uppercase(Locale.US)
+        }
+        val monthDay = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
+            .format(date).uppercase(Locale.US)
+        return "$label · $monthDay"
+    }
+
+    private fun sameDay(a: Calendar, b: Calendar): Boolean =
+        a.get(Calendar.YEAR) == b.get(Calendar.YEAR) &&
+                a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR)
 }

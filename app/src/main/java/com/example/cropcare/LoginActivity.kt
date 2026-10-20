@@ -1,54 +1,63 @@
 
 package com.example.cropcare
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     private lateinit var btnLogin: TextView
+
+    private val askNotificationPermission =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {
+            openDashboard()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+        val username =
+            findViewById<EditText>(
+                R.id.etLoginUsername
+            )
 
-        val etUsername =
-            findViewById<EditText>(R.id.etLoginUsername)
-
-        val etPassword =
-            findViewById<EditText>(R.id.etLoginPassword)
+        val password =
+            findViewById<EditText>(
+                R.id.etLoginPassword
+            )
 
         btnLogin = findViewById(R.id.btnLogin)
 
-        val tvForgotPassword =
-            findViewById<TextView>(R.id.tvForgotPassword)
-
-        val tvRegister =
-            findViewById<TextView>(R.id.tvRegister)
-
         btnLogin.setOnClickListener {
+
             val identifier =
-                etUsername.text.toString().trim()
+                username.text.toString().trim()
 
-            val password =
-                etPassword.text.toString()
+            val passwordValue =
+                password.text.toString()
 
-            if (identifier.isBlank() ||
-                password.isBlank()
+            if (
+                identifier.isBlank() ||
+                passwordValue.isBlank()
             ) {
-                showMessage(
+                show(
                     "Enter your username/email and password."
                 )
                 return@setOnClickListener
@@ -56,16 +65,51 @@ class LoginActivity : AppCompatActivity() {
 
             btnLogin.isEnabled = false
 
-            if (identifier.contains("@")) {
-                // Direct Firebase Authentication login.
-                signIn(identifier, password)
+            if (identifier.contains('@')) {
+                signIn(identifier, passwordValue)
             } else {
-                // Existing username compatibility.
-                resolveUsername(identifier, password)
+                db.collection("users")
+                    .whereEqualTo(
+                        "username",
+                        identifier
+                    )
+                    .limit(1)
+                    .get()
+                    .addOnSuccessListener { docs ->
+
+                        val email =
+                            docs.documents
+                                .firstOrNull()
+                                ?.getString("email")
+
+                        if (email.isNullOrBlank()) {
+                            btnLogin.isEnabled = true
+                            show(
+                                "Invalid username or password."
+                            )
+                        } else {
+                            signIn(
+                                email,
+                                passwordValue
+                            )
+                        }
+                    }
+                    .addOnFailureListener { error ->
+
+                        btnLogin.isEnabled = true
+
+                        show(
+                            "Could not resolve username: " +
+                                    "${error.message}"
+                        )
+                    }
             }
         }
 
-        tvForgotPassword.setOnClickListener {
+        findViewById<TextView>(
+            R.id.tvForgotPassword
+        ).setOnClickListener {
+
             startActivity(
                 Intent(
                     this,
@@ -74,7 +118,10 @@ class LoginActivity : AppCompatActivity() {
             )
         }
 
-        tvRegister.setOnClickListener {
+        findViewById<TextView>(
+            R.id.tvRegister
+        ).setOnClickListener {
+
             startActivity(
                 Intent(
                     this,
@@ -84,71 +131,61 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun resolveUsername(
-        username: String,
-        password: String
-    ) {
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-
-                if (documents.isEmpty) {
-                    btnLogin.isEnabled = true
-                    showMessage("Invalid username or password.")
-                    return@addOnSuccessListener
-                }
-
-                val email = documents.documents.first()
-                    .getString("email")
-
-                if (email.isNullOrBlank()) {
-                    btnLogin.isEnabled = true
-                    showMessage("Account email was not found.")
-                    return@addOnSuccessListener
-                }
-
-                signIn(email, password)
-            }
-            .addOnFailureListener { error ->
-                btnLogin.isEnabled = true
-
-                showMessage(
-                    "Login failed: ${error.message}"
-                )
-            }
-    }
-
     private fun signIn(
         email: String,
         password: String
     ) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { result ->
+        auth.signInWithEmailAndPassword(
+            email,
+            password
+        ).addOnCompleteListener { task ->
 
-                if (result.isSuccessful) {
-                    showMessage("Login successful!")
+            if (!task.isSuccessful) {
 
-                    val intent = Intent(
-                        this,
-                        DashboardActivity::class.java
-                    )
+                btnLogin.isEnabled = true
 
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                show(
+                    "Invalid username/email or password."
+                )
 
-                    startActivity(intent)
-                    finish()
-                } else {
-                    btnLogin.isEnabled = true
-                    showMessage("Invalid username/email or password.")
-                }
+                return@addOnCompleteListener
             }
+
+            // Store the FCM token in users/{uid}.
+            CropCareFcmRegistration.register()
+
+            if (
+                Build.VERSION.SDK_INT >= 33 &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                askNotificationPermission.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            } else {
+                openDashboard()
+            }
+        }
     }
 
-    private fun showMessage(message: String) {
+    private fun openDashboard() {
+        startActivity(
+            Intent(
+                this,
+                DashboardActivity::class.java
+            ).apply {
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        )
+
+        finish()
+    }
+
+    private fun show(message: String) {
         Toast.makeText(
             this,
             message,

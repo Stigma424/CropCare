@@ -40,6 +40,7 @@ object CropCareApiClient {
             return if (isEmulator) {
                 "http://10.0.2.2:5056"
             } else {
+                // Physical phone through adb reverse.
                 "http://127.0.0.1:5056"
             }
         }
@@ -71,11 +72,23 @@ object CropCareApiClient {
         val zoneId: String
     )
 
+    data class SensorPairingInput(
+        val deviceId: String,
+        val claimCode: String,
+        val sensorName: String,
+        val zoneId: String
+    )
+
+    // -------------------------------------
     // ACCOUNT
+    // -------------------------------------
 
     fun getMyProfile(callback: (ApiResult) -> Unit) {
         authenticatedRequest(
-            "GET", "/api/account/me", null, callback
+            "GET",
+            "/api/account/me",
+            null,
+            callback
         )
     }
 
@@ -92,11 +105,16 @@ object CropCareApiClient {
         }
 
         authenticatedRequest(
-            "PATCH", "/api/account/me", json, callback
+            "PATCH",
+            "/api/account/me",
+            json,
+            callback
         )
     }
 
+    // -------------------------------------
     // ZONES
+    // -------------------------------------
 
     fun createZone(
         zone: ZoneInput,
@@ -109,7 +127,10 @@ object CropCareApiClient {
         }
 
         authenticatedRequest(
-            "POST", "/api/zones", json, callback
+            "POST",
+            "/api/zones",
+            json,
+            callback
         )
     }
 
@@ -150,8 +171,12 @@ object CropCareApiClient {
         )
     }
 
+    // -------------------------------------
     // SENSORS
+    // -------------------------------------
 
+    // Older manual-registration method retained for
+    // source compatibility. The API now returns HTTP 410.
     fun registerSensor(
         sensor: SensorInput,
         callback: (ApiResult) -> Unit
@@ -163,7 +188,30 @@ object CropCareApiClient {
         }
 
         authenticatedRequest(
-            "POST", "/api/sensors", json, callback
+            "POST",
+            "/api/sensors",
+            json,
+            callback
+        )
+    }
+
+    // New authenticated QR pairing.
+    fun pairSensor(
+        sensor: SensorPairingInput,
+        callback: (ApiResult) -> Unit
+    ) {
+        val json = JSONObject().apply {
+            put("deviceId", sensor.deviceId)
+            put("claimCode", sensor.claimCode)
+            put("sensorName", sensor.sensorName)
+            put("zoneId", sensor.zoneId)
+        }
+
+        authenticatedRequest(
+            "POST",
+            "/api/sensors/pair",
+            json,
+            callback
         )
     }
 
@@ -208,7 +256,35 @@ object CropCareApiClient {
         )
     }
 
-    // AUTHENTICATION
+    // -------------------------------------
+    // FIREBASE AUTHENTICATION
+    // -------------------------------------
+
+    // UNIFIED SENSOR HISTORY (BATCH 4)
+    fun getSensorHistory(
+        sensorId: String,
+        cursor: String?,
+        limit: Int = 20,
+        callback: (ApiResult) -> Unit
+    ) {
+        var path = "/api/sensors/${Uri.encode(sensorId)}/readings?limit=$limit"
+        if (!cursor.isNullOrBlank()) {
+            path += "&cursor=${Uri.encode(cursor)}"
+        }
+        authenticatedRequest("GET", path, null, callback)
+    }
+
+    fun getLatestSensorReading(
+        sensorId: String,
+        callback: (ApiResult) -> Unit
+    ) {
+        authenticatedRequest(
+            "GET",
+            "/api/sensors/${Uri.encode(sensorId)}/readings/latest",
+            null,
+            callback
+        )
+    }
 
     private fun authenticatedRequest(
         method: String,
@@ -221,7 +297,12 @@ object CropCareApiClient {
         if (user == null) {
             dispatch(
                 callback,
-                ApiResult(false, 401, null, "Please log in again.")
+                ApiResult(
+                    false,
+                    401,
+                    null,
+                    "Please log in again."
+                )
             )
             return
         }
@@ -235,22 +316,30 @@ object CropCareApiClient {
                     dispatch(
                         callback,
                         ApiResult(
-                            false, 401, null,
-                            "Could not obtain Firebase ID token."
+                            false,
+                            401,
+                            null,
+                            "Could not obtain a Firebase ID token."
                         )
                     )
                     return@addOnSuccessListener
                 }
 
                 executeRequest(
-                    method, path, jsonBody, token, callback
+                    method,
+                    path,
+                    jsonBody,
+                    token,
+                    callback
                 )
             }
             .addOnFailureListener { error ->
                 dispatch(
                     callback,
                     ApiResult(
-                        false, 0, null,
+                        false,
+                        0,
+                        null,
                         "Firebase authentication error: " +
                                 (error.message ?: "Unknown error")
                     )
@@ -258,7 +347,9 @@ object CropCareApiClient {
             }
     }
 
+    // -------------------------------------
     // HTTP REQUESTS
+    // -------------------------------------
 
     private fun executeRequest(
         method: String,
@@ -298,7 +389,9 @@ object CropCareApiClient {
                     dispatch(
                         callback,
                         ApiResult(
-                            false, 0, null,
+                            false,
+                            0,
+                            null,
                             "Unsupported HTTP method: $method"
                         )
                     )
@@ -316,7 +409,9 @@ object CropCareApiClient {
                         dispatch(
                             callback,
                             ApiResult(
-                                false, 0, null,
+                                false,
+                                0,
+                                null,
                                 "Cannot reach CropCare API: " +
                                         (e.message ?: "Network error")
                             )
@@ -329,10 +424,11 @@ object CropCareApiClient {
                     ) {
                         response.use { res ->
 
-                            val raw = res.body?.string().orEmpty()
+                            val rawBody =
+                                res.body?.string().orEmpty()
 
                             val json = try {
-                                JSONObject(raw)
+                                JSONObject(rawBody)
                             } catch (_: Exception) {
                                 null
                             }
@@ -350,10 +446,10 @@ object CropCareApiClient {
                             dispatch(
                                 callback,
                                 ApiResult(
-                                    res.isSuccessful,
-                                    res.code,
-                                    json,
-                                    message
+                                    successful = res.isSuccessful,
+                                    statusCode = res.code,
+                                    data = json,
+                                    message = message
                                 )
                             )
                         }
@@ -364,7 +460,9 @@ object CropCareApiClient {
             dispatch(
                 callback,
                 ApiResult(
-                    false, 0, null,
+                    false,
+                    0,
+                    null,
                     error.message ?: "Unexpected API error."
                 )
             )

@@ -74,6 +74,22 @@
             android:textColor="#666666"
             android:textSize="12sp" />
 
+        <TextView
+            android:id="@+id/btnViewAllHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_history_pill"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:minHeight="46dp"
+            android:padding="10dp"
+            android:text="View Complete Sensor History"
+            android:textColor="#1B6936"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
         <!-- white container -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -163,6 +179,7 @@
 
                 <TextView
                     android:id="@+id/btnViewHistoryN"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="View History"
@@ -240,6 +257,7 @@
 
                 <TextView
                     android:id="@+id/btnViewHistoryP"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="View History"
@@ -317,6 +335,7 @@
 
                 <TextView
                     android:id="@+id/btnViewHistoryK"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="View History"
@@ -361,6 +380,7 @@
 
                     <TextView
                         android:id="@+id/btnViewHistoryMoisture"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View Moisture History"
@@ -411,6 +431,7 @@
 
                     <TextView
                         android:id="@+id/btnViewHistoryPh"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View pH level History"
@@ -461,6 +482,7 @@
 
                     <TextView
                         android:id="@+id/btnViewHistoryTemp"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View Temp History"
@@ -511,6 +533,7 @@
 
                     <TextView
                         android:id="@+id/btnViewHistoryEc"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View EC History"

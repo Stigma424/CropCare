@@ -1,239 +1,338 @@
+
 package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class SensorDetailActivity : AppCompatActivity() {
 
-    private lateinit var db: FirebaseFirestore
-    private lateinit var tvLastUpdated: TextView
+    private var sensorId = ""
+    private var sensorName = "Sensor"
+    private var deviceId = ""
+    private var pairingStatus = ""
 
-    private var currentSensorId: String = ""
-    private var currentDeviceId: String = ""
-    private var currentSensorName: String = "Sensor"
+    private lateinit var lastUpdated: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sensor_detail)
 
-        db = FirebaseFirestore.getInstance()
+        sensorId =
+            intent.getStringExtra("SENSOR_ID") ?: ""
 
-        currentSensorId = intent.getStringExtra("SENSOR_ID") ?: ""
-        currentDeviceId = intent.getStringExtra("DEVICE_ID") ?: ""
-        currentSensorName = intent.getStringExtra("SENSOR_NAME") ?: "Sensor"
+        sensorName =
+            intent.getStringExtra("SENSOR_NAME") ?: "Sensor"
 
-        val tvTitle = findViewById<TextView>(R.id.tvSensorDetailTitle)
-        tvLastUpdated = findViewById(R.id.tvLastUpdated)
+        deviceId =
+            intent.getStringExtra("DEVICE_ID") ?: ""
 
-        val btnDeleteSensor = findViewById<TextView>(R.id.btnDeleteSensor)
-        val btnEditSensor = findViewById<TextView>(R.id.btnEditSensor)
-        val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        val btnRefresh = findViewById<View>(R.id.btnRefreshDetail)
+        lastUpdated = findViewById(R.id.tvLastUpdated)
 
-        tvTitle.text = currentSensorName
+        findViewById<TextView>(
+            R.id.tvSensorDetailTitle
+        ).text = sensorName
 
-        loadLatestData(currentDeviceId)
-
-        btnRefresh.setOnClickListener {
-            loadSensorInfoAndData()
-            Toast.makeText(this, "Refreshed", Toast.LENGTH_SHORT).show()
+        findViewById<ImageButton>(
+            R.id.btnBack
+        ).setOnClickListener {
+            finish()
         }
 
-        findViewById<TextView>(R.id.btnViewHistoryN).setOnClickListener { openHistory(currentDeviceId, "nitrogen", "Nitrogen", "mg/kg") }
-        findViewById<TextView>(R.id.btnViewHistoryP).setOnClickListener { openHistory(currentDeviceId, "phosphorus", "Phosphorus", "mg/kg") }
-        findViewById<TextView>(R.id.btnViewHistoryK).setOnClickListener { openHistory(currentDeviceId, "potassium", "Potassium", "mg/kg") }
-        findViewById<TextView>(R.id.btnViewHistoryMoisture).setOnClickListener { openHistory(currentDeviceId, "moisture", "Moisture", "%") }
-        findViewById<TextView>(R.id.btnViewHistoryPh).setOnClickListener { openHistory(currentDeviceId, "ph", "pH Level", "") }
-        findViewById<TextView>(R.id.btnViewHistoryTemp).setOnClickListener { openHistory(currentDeviceId, "temperature", "Soil Temperature", "°C") }
-        findViewById<TextView>(R.id.btnViewHistoryEc).setOnClickListener { openHistory(currentDeviceId, "ec", "Electrical Conductivity", "") }
-
-        btnEditSensor.setOnClickListener {
-            val intent = Intent(this, EditSensorActivity::class.java)
-            intent.putExtra("SENSOR_ID", currentSensorId)
-            intent.putExtra("DEVICE_ID", currentDeviceId)
-            intent.putExtra("SENSOR_NAME", currentSensorName)
-            startActivity(intent)
+        findViewById<android.view.View>(
+            R.id.btnRefreshDetail
+        ).setOnClickListener {
+            loadMonitoring()
         }
 
-        btnDeleteSensor.setOnClickListener {
-            if (currentSensorId.isNotEmpty()) {
-                db.collection("sensors").document(currentSensorId).delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Sensor deleted", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-            } else {
-                finish()
+        findViewById<TextView>(
+            R.id.btnViewAllHistory
+        ).setOnClickListener {
+
+            if (sensorId.isBlank()) {
+                return@setOnClickListener
             }
+
+            startActivity(
+                Intent(
+                    this,
+                    SensorHistoryActivity::class.java
+                ).apply {
+                    putExtra("SENSOR_ID", sensorId)
+                    putExtra("SENSOR_NAME", sensorName)
+                }
+            )
         }
 
-        btnBack.setOnClickListener { finish() }
+        findViewById<TextView>(
+            R.id.btnEditSensor
+        ).setOnClickListener {
+
+            startActivity(
+                Intent(
+                    this,
+                    EditSensorActivity::class.java
+                ).apply {
+                    putExtra("SENSOR_ID", sensorId)
+                    putExtra("DEVICE_ID", deviceId)
+                    putExtra("SENSOR_NAME", sensorName)
+                }
+            )
+        }
+
+        findViewById<TextView>(
+            R.id.btnDeleteSensor
+        ).setOnClickListener {
+
+            if (
+                pairingStatus == "qr_claimed" ||
+                pairingStatus == "verified"
+            ) {
+                show(
+                    "QR-paired devices must be unpaired first. " +
+                            "Unpair is on hold."
+                )
+                return@setOnClickListener
+            }
+
+            AlertDialog.Builder(this)
+                .setTitle("Remove sensor registration?")
+                .setMessage(
+                    "Historical soil readings will not be deleted."
+                )
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Remove") { _, _ ->
+
+                    CropCareApiClient.deleteSensor(
+                        sensorId
+                    ) { result ->
+
+                        if (result.successful) {
+                            finish()
+                        } else {
+                            show(result.message)
+                        }
+                    }
+                }
+                .show()
+        }
+
+        clear("Waiting for monitoring data...")
     }
 
     override fun onResume() {
         super.onResume()
-        loadSensorInfoAndData()
+        loadMonitoring()
     }
 
-    private fun loadSensorInfoAndData() {
-        if (currentSensorId.isNotEmpty()) {
-            db.collection("sensors").document(currentSensorId).get()
-                .addOnSuccessListener { doc ->
-                    if (doc.exists()) {
-                        currentDeviceId = doc.getString("deviceId") ?: currentDeviceId
-                        currentSensorName = doc.getString("sensorName") ?: currentSensorName
-                        findViewById<TextView>(R.id.tvSensorDetailTitle).text = currentSensorName
-                    }
-                    loadLatestData(currentDeviceId)
-                }
-                .addOnFailureListener {
-                    loadLatestData(currentDeviceId)
-                }
-        } else {
-            loadLatestData(currentDeviceId)
-        }
-    }
-
-    private fun loadLatestData(deviceId: String) {
-        val trimmedId = deviceId.trim()
-        if (trimmedId.isEmpty()) {
-            resetUiToEmpty("Sensor ID is empty or not found")
+    private fun loadMonitoring() {
+        if (sensorId.isBlank()) {
+            clear("Missing sensor ID.")
             return
         }
 
-        db.collection("soil_data")
-            .whereEqualTo("deviceId", trimmedId)
-            .get()
-            .addOnSuccessListener { docs ->
-                if (docs.isEmpty) {
-                    resetUiToEmpty("No readings found for Sensor ID: $trimmedId")
-                    return@addOnSuccessListener
-                }
+        lastUpdated.text =
+            "Loading latest sensor measurement..."
 
-                val latestDoc = docs.documents.maxByOrNull { parseAnyDate(it)?.time ?: 0L }
+        SensorMonitoringApi.get(sensorId) { response, error ->
 
-                if (latestDoc == null) {
-                    resetUiToEmpty("No valid readings for Sensor ID: $trimmedId")
-                    return@addOnSuccessListener
-                }
+            if (isFinishing || isDestroyed) {
+                return@get
+            }
 
-                val nVal = latestDoc.getDouble("nitrogen") ?: 0.0
-                val pVal = latestDoc.getDouble("phosphorus") ?: 0.0
-                val kVal = latestDoc.getDouble("potassium") ?: 0.0
-                val mVal = latestDoc.getDouble("moisture") ?: 0.0
-                val phVal = latestDoc.getDouble("ph") ?: 0.0
-                val tVal = latestDoc.getDouble("temperature") ?: 0.0
-                val ecVal = latestDoc.getDouble("ec") ?: 0.0
+            if (response == null) {
+                clear(error ?: "Monitoring unavailable.")
+                return@get
+            }
 
-                findViewById<TextView>(R.id.tvSensorN).text = String.format(Locale.US, "%.0f mg/kg", nVal)
-                findViewById<TextView>(R.id.tvStatusN).text = SoilUtils.getStatus("N", nVal)
+            sensorName =
+                response.optString("sensorName", sensorName)
 
-                findViewById<TextView>(R.id.tvSensorP).text = String.format(Locale.US, "%.0f mg/kg", pVal)
-                findViewById<TextView>(R.id.tvStatusP).text = SoilUtils.getStatus("P", pVal)
+            deviceId =
+                response.optString("deviceId", deviceId)
 
-                findViewById<TextView>(R.id.tvSensorK).text = String.format(Locale.US, "%.0f mg/kg", kVal)
-                findViewById<TextView>(R.id.tvStatusK).text = SoilUtils.getStatus("K", kVal)
+            pairingStatus =
+                response.optString("pairingStatus", "")
 
-                findViewById<TextView>(R.id.tvSensorMoisture).text = String.format(Locale.US, "%.0f%%", mVal)
-                findViewById<TextView>(R.id.tvStatusMoisture).text = SoilUtils.getStatus("MOISTURE", mVal)
+            findViewById<TextView>(
+                R.id.tvSensorDetailTitle
+            ).text = sensorName
 
-                findViewById<TextView>(R.id.tvSensorPh).text = String.format(Locale.US, "%.1f", phVal)
-                findViewById<TextView>(R.id.tvStatusPh).text = SoilUtils.getStatus("PH", phVal)
+            val status =
+                response.optString("status", "unknown_time")
 
-                findViewById<TextView>(R.id.tvSensorTemp).text = String.format(Locale.US, "%.0f°C", tVal)
-                findViewById<TextView>(R.id.tvStatusTemp).text = SoilUtils.getStatus("TEMP", tVal)
+            val reading =
+                response.optJSONObject("reading")
 
-                findViewById<TextView>(R.id.tvSensorEc).text = String.format(Locale.US, "%.0f", ecVal)
-                findViewById<TextView>(R.id.tvStatusEc).text = SoilUtils.getStatus("EC", ecVal)
-
-                val timeFormat = SimpleDateFormat("MMM dd, yyyy - hh:mm:ss a", Locale.US)
-                val dateObj = parseAnyDate(latestDoc) ?: Date()
-                tvLastUpdated.text = "Last updated: ${timeFormat.format(dateObj)}"
-
-                // Check and trigger notifications if sensor values are low/high
-                NotificationHelper.checkAndTriggerSoilAlerts(
-                    context = this,
-                    zoneName = "Sensor $trimmedId",
-                    n = nVal,
-                    p = pVal,
-                    k = kVal,
-                    moisture = mVal,
-                    ph = phVal,
-                    recommendationSummary = ""
+            if (reading == null) {
+                clear(
+                    "Awaiting first reading. " +
+                            "Sensor registered but not yet reporting."
                 )
+                return@get
             }
-            .addOnFailureListener { e ->
-                resetUiToEmpty("Failed to load data: ${e.message}")
+
+            val timestampMs =
+                response.optLong("lastReadingAtMs", 0L)
+
+            val label = when (status) {
+                "recent" -> "Recent reading"
+                "stale" -> "No recent readings"
+                "unknown_time" -> "Timestamp unavailable"
+                else -> "Sensor reading"
             }
-    }
 
-    private fun resetUiToEmpty(message: String) {
-        findViewById<TextView>(R.id.tvSensorN).text = "0 mg/kg"
-        findViewById<TextView>(R.id.tvStatusN).text = "No Data"
-
-        findViewById<TextView>(R.id.tvSensorP).text = "0 mg/kg"
-        findViewById<TextView>(R.id.tvStatusP).text = "No Data"
-
-        findViewById<TextView>(R.id.tvSensorK).text = "0 mg/kg"
-        findViewById<TextView>(R.id.tvStatusK).text = "No Data"
-
-        findViewById<TextView>(R.id.tvSensorMoisture).text = "0%"
-        findViewById<TextView>(R.id.tvStatusMoisture).text = "No Data"
-
-        findViewById<TextView>(R.id.tvSensorPh).text = "0.0"
-        findViewById<TextView>(R.id.tvStatusPh).text = "No Data"
-
-        findViewById<TextView>(R.id.tvSensorTemp).text = "0°C"
-        findViewById<TextView>(R.id.tvStatusTemp).text = "No Data"
-
-        findViewById<TextView>(R.id.tvSensorEc).text = "0"
-        findViewById<TextView>(R.id.tvStatusEc).text = "No Data"
-
-        tvLastUpdated.text = message
-    }
-
-    private fun parseAnyDate(doc: DocumentSnapshot): Date? {
-        val rawValue = doc.get("timestamp") ?: doc.get("lastScanTimestamp")
-
-        return when (rawValue) {
-            is Timestamp -> rawValue.toDate()
-            is Long -> Date(rawValue)
-            is Double -> Date(rawValue.toLong())
-            is String -> {
-                val formats = arrayOf(
-                    "yyyy-MM-dd HH:mm:ss",
-                    "MMMM dd, yyyy 'at' h:mm:ss a z",
-                    "MMMM dd, yyyy - hh:mm:ss a"
-                )
-                formats.firstNotNullOfOrNull { fmt ->
-                    try { SimpleDateFormat(fmt, Locale.US).parse(rawValue) } catch (_: Exception) { null }
+            val date =
+                if (timestampMs > 0) {
+                    SimpleDateFormat(
+                        "MMM dd, yyyy - hh:mm:ss a",
+                        Locale.US
+                    ).format(Date(timestampMs))
+                } else {
+                    "Unknown date"
                 }
-            }
-            else -> null
+
+            lastUpdated.text = "$label · $date"
+
+            field(
+                R.id.tvSensorN,
+                R.id.tvStatusN,
+                reading,
+                "nitrogen",
+                "%.0f mg/kg"
+            )
+
+            field(
+                R.id.tvSensorP,
+                R.id.tvStatusP,
+                reading,
+                "phosphorus",
+                "%.0f mg/kg"
+            )
+
+            field(
+                R.id.tvSensorK,
+                R.id.tvStatusK,
+                reading,
+                "potassium",
+                "%.0f mg/kg"
+            )
+
+            field(
+                R.id.tvSensorMoisture,
+                R.id.tvStatusMoisture,
+                reading,
+                "moisture",
+                "%.1f%%"
+            )
+
+            field(
+                R.id.tvSensorPh,
+                R.id.tvStatusPh,
+                reading,
+                "ph",
+                "%.1f"
+            )
+
+            field(
+                R.id.tvSensorTemp,
+                R.id.tvStatusTemp,
+                reading,
+                "temperature",
+                "%.1f°C"
+            )
+
+            field(
+                R.id.tvSensorEc,
+                R.id.tvStatusEc,
+                reading,
+                "ec",
+                "%.1f"
+            )
         }
     }
 
-    private fun openHistory(deviceId: String, metricKey: String, metricTitle: String, unit: String) {
-        if (deviceId.trim().isEmpty()) {
-            Toast.makeText(this, "Cannot view history for empty Sensor ID", Toast.LENGTH_SHORT).show()
-            return
+    private fun field(
+        valueId: Int,
+        statusId: Int,
+        reading: JSONObject,
+        key: String,
+        format: String
+    ) {
+        val number =
+            if (reading.isNull(key)) {
+                null
+            } else {
+                reading.optDouble(
+                    key,
+                    Double.NaN
+                ).takeIf {
+                    it.isFinite()
+                }
+            }
+
+        findViewById<TextView>(valueId).text =
+            if (number == null) {
+                "—"
+            } else {
+                String.format(Locale.US, format, number)
+            }
+
+        // Display recorded measurements without
+        // making unvalidated fertilizer assessments.
+        findViewById<TextView>(statusId).text =
+            if (number == null) {
+                "No Data"
+            } else {
+                "Recorded"
+            }
+    }
+
+    private fun clear(message: String) {
+        lastUpdated.text = message
+
+        val values = intArrayOf(
+            R.id.tvSensorN,
+            R.id.tvSensorP,
+            R.id.tvSensorK,
+            R.id.tvSensorMoisture,
+            R.id.tvSensorPh,
+            R.id.tvSensorTemp,
+            R.id.tvSensorEc
+        )
+
+        val statuses = intArrayOf(
+            R.id.tvStatusN,
+            R.id.tvStatusP,
+            R.id.tvStatusK,
+            R.id.tvStatusMoisture,
+            R.id.tvStatusPh,
+            R.id.tvStatusTemp,
+            R.id.tvStatusEc
+        )
+
+        values.forEach {
+            findViewById<TextView>(it).text = "—"
         }
-        val intent = Intent(this, SensorHistoryActivity::class.java)
-        intent.putExtra("DEVICE_ID", deviceId)
-        intent.putExtra("METRIC_KEY", metricKey)
-        intent.putExtra("METRIC_TITLE", metricTitle)
-        intent.putExtra("UNIT", unit)
-        startActivity(intent)
+
+        statuses.forEach {
+            findViewById<TextView>(it).text = "No Data"
+        }
+    }
+
+    private fun show(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }

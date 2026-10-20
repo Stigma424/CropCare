@@ -11,31 +11,28 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
-import java.util.Date
 
 class SensorStatusActivity : AppCompatActivity() {
 
-    private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
-    private val sensorList = mutableListOf<SensorModel>()
+    private val items = mutableListOf<SensorModel>()
+
     private lateinit var adapter: SensorAdapter
 
-    private var zoneId = ""
-    private var zoneName = "Zone"
-
     private val handler = Handler(Looper.getMainLooper())
-    private var requestGeneration = 0
 
-    private val refreshRunnable = object : Runnable {
+    private var generation = 0
+    private var zoneId = ""
+
+    private val refresher = object : Runnable {
         override fun run() {
-            fetchSensors()
-            handler.postDelayed(this, 60000L)
+            loadSensors()
+            handler.postDelayed(this, 60_000L)
         }
     }
 
@@ -45,326 +42,205 @@ class SensorStatusActivity : AppCompatActivity() {
 
         zoneId = intent.getStringExtra("ZONE_ID") ?: ""
 
-        val rvSensors =
+        val list =
             findViewById<RecyclerView>(R.id.rvSensors)
 
-        val btnAddSensor =
-            findViewById<ImageButton>(R.id.btnAddSensor)
-
-        val btnDeleteAll =
-            findViewById<Button>(R.id.btnDeleteAll)
-
-        val btnBack =
-            findViewById<ImageButton>(R.id.btnBack)
-
-        rvSensors.layoutManager =
+        list.layoutManager =
             LinearLayoutManager(this)
 
         adapter = SensorAdapter(
-            sensorList,
+            items,
+
             onDeleteClick = { sensor ->
-                deleteSensor(sensor)
+
+                if (
+                    sensor.pairingStatus == "qr_claimed" ||
+                    sensor.pairingStatus == "verified"
+                ) {
+                    show(
+                        "Unpairing QR sensors is on hold. " +
+                                "Do not delete their registration."
+                    )
+                } else {
+                    CropCareApiClient.deleteSensor(
+                        sensor.sensorId
+                    ) { result ->
+
+                        if (result.successful) {
+                            loadSensors()
+                        } else {
+                            show(result.message)
+                        }
+                    }
+                }
             },
+
             onViewDetailsClick = { sensor ->
-                val intent = Intent(
-                    this,
-                    SensorDetailActivity::class.java
+
+                startActivity(
+                    Intent(
+                        this,
+                        SensorDetailActivity::class.java
+                    ).apply {
+                        putExtra("SENSOR_ID", sensor.sensorId)
+                        putExtra("DEVICE_ID", sensor.deviceId)
+                        putExtra("SENSOR_NAME", sensor.sensorName)
+                    }
                 )
-
-                intent.putExtra("SENSOR_ID", sensor.sensorId)
-                intent.putExtra("DEVICE_ID", sensor.deviceId)
-                intent.putExtra("SENSOR_NAME", sensor.sensorName)
-
-                startActivity(intent)
             }
         )
 
-        rvSensors.adapter = adapter
+        list.adapter = adapter
 
-        btnAddSensor.setOnClickListener {
+        findViewById<ImageButton>(
+            R.id.btnAddSensor
+        ).setOnClickListener {
+
             startActivity(
-                Intent(this, AddSensorActivity::class.java)
-                    .putExtra("ZONE_ID", zoneId)
+                Intent(
+                    this,
+                    AddSensorActivity::class.java
+                ).putExtra("ZONE_ID", zoneId)
             )
         }
 
-        btnDeleteAll.setOnClickListener {
-            deleteAllSensors()
-        }
-
-        btnBack.setOnClickListener {
+        findViewById<ImageButton>(
+            R.id.btnBack
+        ).setOnClickListener {
             finish()
         }
 
-        if (zoneId.isBlank()) {
-            showMessage("Missing zone ID.")
-            finish()
-            return
+        // Deleting all sensors could orphan
+        // QR claims in device_registry.
+        // Leave it disabled until unpair is ready.
+        findViewById<Button>(
+            R.id.btnDeleteAll
+        ).apply {
+            isEnabled = false
+            text = "Unpair feature pending"
         }
-
-        db.collection("zones")
-            .document(zoneId)
-            .get()
-            .addOnSuccessListener { document ->
-                zoneName =
-                    document.getString("zoneName") ?: "Zone"
-            }
     }
 
     override fun onResume() {
         super.onResume()
 
-        handler.removeCallbacks(refreshRunnable)
-        handler.post(refreshRunnable)
+        handler.removeCallbacks(refresher)
+        handler.post(refresher)
     }
 
     override fun onPause() {
         super.onPause()
 
-        handler.removeCallbacks(refreshRunnable)
-
-        // Ignore results from an earlier screen visit.
-        requestGeneration++
+        generation++
+        handler.removeCallbacks(refresher)
     }
 
-    private fun fetchSensors() {
-        val userId = auth.currentUser?.uid ?: return
+    private fun loadSensors() {
+        val uid = auth.currentUser?.uid ?: return
 
         if (zoneId.isBlank()) {
             return
         }
 
-        val generation = ++requestGeneration
+        val myGeneration = ++generation
 
         db.collection("sensors")
             .whereEqualTo("zoneId", zoneId)
-            .whereEqualTo("userId", userId)
+            .whereEqualTo("userId", uid)
             .get(Source.SERVER)
-            .addOnSuccessListener { docs ->
+            .addOnSuccessListener { snapshot ->
 
-                if (!isCurrentRequest(generation)) {
+                if (
+                    myGeneration != generation ||
+                    isFinishing ||
+                    isDestroyed
+                ) {
                     return@addOnSuccessListener
                 }
 
-                if (docs.isEmpty) {
-                    sensorList.clear()
+                val docs = snapshot.documents
+
+                if (docs.isEmpty()) {
+                    items.clear()
                     adapter.notifyDataSetChanged()
                     return@addOnSuccessListener
                 }
 
-                val documents = docs.documents
+                val output =
+                    arrayOfNulls<SensorModel>(docs.size)
 
-                val results =
-                    arrayOfNulls<SensorModel>(documents.size)
+                var pending = docs.size
 
-                var remaining = documents.size
+                docs.forEachIndexed { index, doc ->
 
-                fun complete(
-                    index: Int,
-                    sensor: SensorModel
-                ) {
-                    if (!isCurrentRequest(generation)) {
-                        return
-                    }
+                    val id = doc.id
 
-                    results[index] = sensor
-                    remaining--
-
-                    if (remaining == 0) {
-                        sensorList.clear()
-                        sensorList.addAll(
-                            results.filterNotNull()
-                        )
-
-                        adapter.notifyDataSetChanged()
-                    }
-                }
-
-                documents.forEachIndexed { index, doc ->
-
-                    val sensorId = doc.id
                     val deviceId =
                         doc.getString("deviceId") ?: ""
 
-                    val sensorName =
-                        doc.getString("sensorName") ?: ""
+                    val name =
+                        doc.getString("sensorName") ?: "Sensor"
 
-                    val pairingStatus =
+                    val pairing =
                         doc.getString("pairingStatus") ?: ""
 
-                    fun finishWithReading(
-                        latestDate: Date?,
-                        queryFailed: Boolean = false
-                    ) {
-                        val lastReadingTime =
-                            latestDate?.time ?: 0L
+                    SensorMonitoringApi.get(
+                        id
+                    ) { result, error ->
 
-                        val now = System.currentTimeMillis()
-
-                        val ageMillis = now - lastReadingTime
-
-                        val isOnline =
-                            lastReadingTime > 0L &&
-                                    ageMillis in 0L..120000L
-
-                        // Newly registered sensors have no data.
-                        // That is NOT the same as going offline.
-                        //
-                        // Do not generate offline warnings for
-                        // unverified sensors or query failures.
                         if (
-                            lastReadingTime > 0L &&
-                            !isOnline &&
-                            !queryFailed &&
-                            pairingStatus != "unverified"
+                            myGeneration != generation ||
+                            isFinishing ||
+                            isDestroyed
                         ) {
-                            NotificationHelper
-                                .checkAndTriggerOfflineSensorAlert(
-                                    this@SensorStatusActivity,
-                                    zoneName,
-                                    sensorName
-                                )
+                            return@get
                         }
 
-                        complete(
-                            index,
-                            SensorModel(
-                                sensorId = sensorId,
-                                deviceId = deviceId,
-                                sensorName = sensorName,
-                                zoneId = zoneId,
-                                userId = userId,
-                                lastScanTimestamp =
-                                    lastReadingTime,
-                                isOnline = isOnline,
-                                pairingStatus = pairingStatus,
-                                readingStatusUnavailable =
-                                    queryFailed
-                            )
+                        val status =
+                            result?.optString("status")
+                                ?: "unavailable"
+
+                        val lastReadingMs =
+                            result?.optLong(
+                                "lastReadingAtMs",
+                                0L
+                            ) ?: 0L
+
+                        output[index] = SensorModel(
+                            sensorId = id,
+                            deviceId = deviceId,
+                            sensorName = name,
+                            zoneId = zoneId,
+                            userId = uid,
+                            lastScanTimestamp = lastReadingMs,
+                            isOnline = status == "recent",
+                            pairingStatus = pairing,
+                            readingStatusUnavailable =
+                                error != null ||
+                                        status == "unavailable"
                         )
-                    }
 
-                    if (deviceId.isBlank()) {
-                        finishWithReading(null)
-                        return@forEachIndexed
-                    }
+                        pending--
 
-                    db.collection("soil_data")
-                        .whereEqualTo("deviceId", deviceId)
-                        .get(Source.SERVER)
-                        .addOnSuccessListener { readings ->
-
-                            if (!isCurrentRequest(generation)) {
-                                return@addOnSuccessListener
-                            }
-
-                            val latestDate =
-                                readings.documents
-                                    .mapNotNull {
-                                        parseReadingDate(it)
-                                    }
-                                    .maxByOrNull { it.time }
-
-                            finishWithReading(latestDate)
-                        }
-                        .addOnFailureListener {
-
-                            if (!isCurrentRequest(generation)) {
-                                return@addOnFailureListener
-                            }
-
-                            // A query failure is not proof
-                            // that the device is offline.
-                            finishWithReading(
-                                latestDate = null,
-                                queryFailed = true
+                        if (pending == 0) {
+                            items.clear()
+                            items.addAll(
+                                output.filterNotNull()
                             )
+
+                            adapter.notifyDataSetChanged()
                         }
+                    }
                 }
             }
             .addOnFailureListener { error ->
-
-                if (!isCurrentRequest(generation)) {
-                    return@addOnFailureListener
-                }
-
-                showMessage(
+                show(
                     "Could not load sensors: ${error.message}"
                 )
             }
     }
 
-    private fun isCurrentRequest(generation: Int): Boolean {
-        return generation == requestGeneration &&
-                !isFinishing &&
-                !isDestroyed
-    }
-
-    private fun parseReadingDate(
-        doc: DocumentSnapshot
-    ): Date? {
-        val raw = doc.get("timestamp")
-            ?: doc.get("lastScanTimestamp")
-
-        return when (raw) {
-            is Timestamp -> raw.toDate()
-            is Long -> Date(raw)
-            is Int -> Date(raw.toLong())
-            is Double -> Date(raw.toLong())
-            else -> null
-        }
-    }
-
-    private fun deleteSensor(sensor: SensorModel) {
-        // Use the API endpoint implemented in the
-        // previous batch.
-        CropCareApiClient.deleteSensor(
-            sensor.sensorId
-        ) { result ->
-
-            if (result.successful) {
-                showMessage("Sensor registration deleted.")
-                fetchSensors()
-
-            } else {
-                showMessage(
-                    "Delete failed: ${result.message}"
-                )
-            }
-        }
-    }
-
-    private fun deleteAllSensors() {
-        if (sensorList.isEmpty()) {
-            showMessage("No sensors to delete.")
-            return
-        }
-
-        // Keep batch deletion through the authenticated
-        // Firestore client for now, using owner-only rules.
-        // A dedicated bulk-delete API will replace this.
-        val batch = db.batch()
-
-        sensorList.forEach { sensor ->
-            val reference = db.collection("sensors")
-                .document(sensor.sensorId)
-
-            batch.delete(reference)
-        }
-
-        batch.commit()
-            .addOnSuccessListener {
-                showMessage("All sensors deleted.")
-                fetchSensors()
-            }
-            .addOnFailureListener { error ->
-                showMessage(
-                    "Delete failed: ${error.message}"
-                )
-            }
-    }
-
-    private fun showMessage(message: String) {
+    private fun show(message: String) {
         Toast.makeText(
             this,
             message,

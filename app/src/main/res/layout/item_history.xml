@@ -3,27 +3,222 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:layout_marginBottom="8dp"
-    android:background="@android:color/white"
-    android:elevation="1dp">
+    android:paddingBottom="12dp">
 
     <TextView
-        android:id="@+id/tvHistoryTime"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvHistoryDate"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="12:00 AM"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#333333" />
+        android:paddingTop="9dp"
+        android:paddingBottom="8dp"
+        android:text="TODAY · OCTOBER 20, 2026"
+        android:textColor="#76998B"
+        android:textSize="11sp"
+        android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvHistoryValue"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nitrogen = 60mg/kg"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:layout_marginTop="2dp" />
+        android:background="@drawable/bg_history_card"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="14dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="22dp"
+                android:background="#2F8C4D" />
+
+            <TextView
+                android:id="@+id/tvHistoryTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="9dp"
+                android:layout_weight="1"
+                android:text="12:00 PM"
+                android:textColor="#1D2A20"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvHistoryStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_history_pill"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="RECORDED"
+                android:textColor="#287C40"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="N · Nitrogen"
+                    android:textColor="#E44749"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvHistoryN"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="—"
+                    android:textColor="#172A1D"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Space android:layout_width="6dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="P · Phosphorus"
+                    android:textColor="#2C9447"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvHistoryP"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="—"
+                    android:textColor="#172A1D"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Space android:layout_width="6dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="K · Potassium"
+                    android:textColor="#2485D6"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvHistoryK"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="—"
+                    android:textColor="#172A1D"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="9dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="MOISTURE" android:textColor="#7C998E" android:textSize="10sp" />
+                <TextView android:id="@+id/tvHistoryMoisture" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="—" android:textSize="15sp"
+                    android:textStyle="bold" android:textColor="#213528" />
+            </LinearLayout>
+
+            <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="9dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="pH LEVEL" android:textColor="#7C998E" android:textSize="10sp" />
+                <TextView android:id="@+id/tvHistoryPh" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="—" android:textSize="15sp"
+                    android:textStyle="bold" android:textColor="#213528" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="9dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="TEMPERATURE" android:textColor="#7C998E" android:textSize="10sp" />
+                <TextView android:id="@+id/tvHistoryTemp" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="—" android:textSize="15sp"
+                    android:textStyle="bold" android:textColor="#213528" />
+            </LinearLayout>
+
+            <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_history_tile"
+                android:orientation="vertical"
+                android:padding="9dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="ELECTRICAL CONDUCTIVITY" android:textColor="#7C998E" android:textSize="10sp" />
+                <TextView android:id="@+id/tvHistoryEc" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="—" android:textSize="15sp"
+                    android:textStyle="bold" android:textColor="#213528" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
