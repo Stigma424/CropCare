@@ -1,122 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2F2F2"
-    android:fillViewport="true">
+    android:background="@drawable/bg_cropcare_login"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:gravity="center_horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="40dp">
 
-        <!-- register title -->
+        <!-- Registration heading -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Register"
-            android:textSize="28sp"
+            android:textSize="25sp"
             android:textStyle="bold"
-            android:textColor="#146C2E"
-            android:layout_marginBottom="4dp" />
+            android:letterSpacing="0.12"
+            android:textColor="#176B2C"
+            android:gravity="center"/>
 
-        <!-- subtitle -->
+        <!-- Subtitle -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create your Account"
-            android:textSize="14sp"
-            android:textColor="#757575"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginTop="10dp"
+            android:text="Create your Account to get started"
+            android:textSize="10sp"
+            android:textColor="#858D85"
+            android:gravity="center"/>
 
-        <!-- first name -->
+        <!-- Two green progress indicators -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="24dp">
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:background="@drawable/bg_register_dot"/>
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="1dp"
+                android:layout_gravity="center_vertical"
+                android:background="#B4D6BA"/>
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:background="@drawable/bg_register_dot"/>
+        </LinearLayout>
+
+        <!-- First Name -->
         <EditText
             android:id="@+id/etFirstName"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:hint="First Name"
             android:inputType="textPersonName"
-            android:textSize="14sp"
-            android:textColor="#000000"
-            android:textColorHint="#757575"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:textColor="#222222"
+            android:textColorHint="#A0A0A0"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/bg_input_field"
-            android:layout_marginBottom="12dp" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp"
+            android:layout_marginBottom="10dp"/>
 
-        <!-- last name -->
+        <!-- Last Name -->
         <EditText
             android:id="@+id/etLastName"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:hint="Last Name"
             android:inputType="textPersonName"
-            android:textSize="14sp"
-            android:textColor="#000000"
-            android:textColorHint="#757575"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:textColor="#222222"
+            android:textColorHint="#A0A0A0"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/bg_input_field"
-            android:layout_marginBottom="12dp" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp"
+            android:layout_marginBottom="10dp"/>
 
-        <!-- address -->
+        <!-- Address -->
         <EditText
             android:id="@+id/etAddress"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:hint="Address"
             android:inputType="textPostalAddress"
-            android:textSize="14sp"
-            android:textColor="#000000"
-            android:textColorHint="#757575"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:textColor="#222222"
+            android:textColorHint="#A0A0A0"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/bg_input_field"
-            android:layout_marginBottom="12dp" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp"
+            android:layout_marginBottom="10dp"/>
 
-        <!-- username -->
+        <!-- Username -->
         <EditText
             android:id="@+id/etUsername"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:hint="Username"
             android:inputType="text"
-            android:textSize="14sp"
-            android:textColor="#000000"
-            android:textColorHint="#757575"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:textColor="#222222"
+            android:textColorHint="#A0A0A0"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/bg_input_field"
-            android:layout_marginBottom="12dp" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp"
+            android:layout_marginBottom="10dp"/>
 
-        <!-- email -->
+        <!-- Email -->
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:hint="Email"
             android:inputType="textEmailAddress"
-            android:textSize="14sp"
-            android:textColor="#000000"
-            android:textColorHint="#757575"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:textColor="#222222"
+            android:textColorHint="#A0A0A0"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/bg_input_field"
-            android:layout_marginBottom="12dp" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp"
+            android:layout_marginBottom="10dp"/>
 
-        <!-- password -->
+        <!-- Password -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp">
 
             <EditText
                 android:id="@+id/etPassword"
@@ -124,29 +169,34 @@
                 android:layout_height="match_parent"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:textColorHint="#757575"
+                android:singleLine="true"
+                android:textSize="12sp"
+                android:textColor="#222222"
+                android:textColorHint="#A0A0A0"
                 android:gravity="center_vertical"
-                android:paddingStart="16dp"
+                android:paddingStart="12dp"
                 android:paddingEnd="48dp"
-                android:background="@drawable/bg_input_field" />
+                android:background="@android:color/transparent"/>
 
             <ImageView
                 android:id="@+id/ivTogglePassword1"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="16dp"
-                android:src="@android:drawable/ic_menu_view"
-                app:tint="#000000" />
+                android:padding="11dp"
+                android:src="@drawable/eye_reveal"
+                app:tint="#222222"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Show password"/>
         </FrameLayout>
 
-        <!-- confirm password  -->
+        <!-- Confirm Password -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginBottom="24dp">
+            android:background="@drawable/bg_register_input"
+            android:elevation="2dp">
 
             <EditText
                 android:id="@+id/etConfirmPassword"
@@ -154,51 +204,75 @@
                 android:layout_height="match_parent"
                 android:hint="Confirm Password"
                 android:inputType="textPassword"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:textColorHint="#757575"
+                android:singleLine="true"
+                android:textSize="12sp"
+                android:textColor="#222222"
+                android:textColorHint="#A0A0A0"
                 android:gravity="center_vertical"
-                android:paddingStart="16dp"
+                android:paddingStart="12dp"
                 android:paddingEnd="48dp"
-                android:background="@drawable/bg_input_field" />
+                android:background="@android:color/transparent"/>
 
             <ImageView
                 android:id="@+id/ivTogglePassword2"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="16dp"
-                android:src="@android:drawable/ic_menu_view"
-                app:tint="#000000" />
+                android:padding="11dp"
+                android:src="@drawable/eye_reveal"
+                app:tint="#222222"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Show confirm password"/>
         </FrameLayout>
 
-        <!-- create account button -->
+        <!-- Create Account -->
         <TextView
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_login_button"
+            android:gravity="center"
             android:text="CREATE ACCOUNT"
             android:textColor="#FFFFFF"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:background="@drawable/bg_login_button"
+            android:letterSpacing="0.10"
+            android:elevation="4dp"
             android:clickable="true"
-            android:focusable="true"
-            android:layout_marginBottom="16dp" />
+            android:focusable="true"/>
 
-        <!-- back to sign in -->
-        <TextView
-            android:id="@+id/btnBack"
+        <!-- Back to Sign In -->
+        <LinearLayout
+            android:id="@+id/layoutBackToSignIn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="BACK TO SIGN IN"
-            android:textColor="#146C2E"
-            android:textStyle="bold"
-            android:textSize="14sp"
-            android:padding="8dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_arrow_back_register"
+                app:tint="#176B2C"
+                android:contentDescription="Back"/>
+
+            <TextView
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="BACK TO SIGN IN"
+                android:textColor="#176B2C"
+                android:textSize="12sp"
+                android:letterSpacing="0.04"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

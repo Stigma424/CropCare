@@ -1,47 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:background="#FFFFFF">
+    android:background="@drawable/bg_cropcare_login">
 
-    <RelativeLayout
+    <!-- HEADER SECTION -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp">
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="34dp"
+        android:paddingBottom="12dp">
 
-        <ImageButton
-            android:id="@+id/btnBackHistory"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert" />
+        <!-- BACK BUTTON AND TITLE -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp">
 
-        <TextView
-            android:id="@+id/tvHistoryHeader"
-            android:layout_width="wrap_content"
+            <ImageButton
+                android:id="@+id/btnBackHistory"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_history_back"
+                android:src="@android:drawable/ic_menu_revert"
+                android:scaleType="centerInside"
+                android:padding="10dp"
+                app:tint="#25352B"
+                android:contentDescription="Go back"/>
+
+            <TextView
+                android:id="@+id/tvHistoryHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Sensor 1 history"
+                android:textColor="#176B2C"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+        </RelativeLayout>
+
+        <!-- SUBTITLE -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="History"
-            android:textColor="#1E4D2B"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp">
 
-    <TextView
-        android:id="@+id/tvMetricTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nitrogen"
-        android:textColor="#1E4D2B"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+            <View
+                android:layout_width="5dp"
+                android:layout_height="5dp"
+                android:background="@drawable/bg_history_online_dot"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:text="Last 7 days of readings"
+                android:textColor="#8A9FA0"
+                android:textSize="11sp"/>
+
+        </LinearLayout>
+
+        <!-- METRIC TITLE AND REFRESH -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                android:id="@+id/tvMetricTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sensor History"
+                android:textColor="#7D9D9D"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"/>
+
+            <!-- Visual refresh label only -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⟳ refresh"
+                android:textColor="#176B2C"
+                android:textSize="11sp"
+                android:background="@drawable/bg_history_refresh"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- HISTORY RECORDS -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"/>
 
 </LinearLayout>
