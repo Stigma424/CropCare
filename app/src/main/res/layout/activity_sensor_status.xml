@@ -39,7 +39,8 @@
             android:src="@android:drawable/ic_input_add" />
     </RelativeLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <TextView android:id="@+id/tvSensorListState" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:text="Loading sensors…" />
+<androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSensors"
         android:layout_width="match_parent"
         android:layout_height="0dp"

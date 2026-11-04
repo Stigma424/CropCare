@@ -44,7 +44,7 @@ class SensorHistoryAdapter(
 
         holder.time.text = if (item.recordedAtMs > 0L) {
             SimpleDateFormat("h:mm a", Locale.getDefault())
-                .format(Date(item.recordedAtMs))
+                .apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(Date(item.recordedAtMs))
         } else "Time unavailable"
 
         // 'RECORDED' describes a saved historical reading.
@@ -75,25 +75,25 @@ class SensorHistoryAdapter(
     private fun dayKey(milliseconds: Long): String =
         if (milliseconds <= 0L) "unknown" else
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .format(Date(milliseconds))
+                .apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(Date(milliseconds))
 
     private fun dateTitle(milliseconds: Long): String {
         if (milliseconds <= 0L) return "UNKNOWN DATE"
 
         val date = Date(milliseconds)
-        val today = Calendar.getInstance()
-        val yesterday = Calendar.getInstance().apply {
+        val today = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila"))
+        val yesterday = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila")).apply {
             add(Calendar.DAY_OF_YEAR, -1)
         }
-        val recordDate = Calendar.getInstance().apply { time = date }
+        val recordDate = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila")).apply { time = date }
         val label = when {
             sameDay(today, recordDate) -> "TODAY"
             sameDay(yesterday, recordDate) -> "YESTERDAY"
             else -> SimpleDateFormat("EEEE", Locale.US)
-                .format(date).uppercase(Locale.US)
+                .apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(date).uppercase(Locale.US)
         }
         val monthDay = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
-            .format(date).uppercase(Locale.US)
+            .apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(date).uppercase(Locale.US)
         return "$label · $monthDay"
     }
 

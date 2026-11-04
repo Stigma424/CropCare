@@ -26,6 +26,8 @@ class MyFirebaseMessagingService :
         message: RemoteMessage
     ) {
         super.onMessageReceived(message)
+        if (com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null) return
+        if (!PushDeliveryCache.accept(message.messageId)) return
 
         val enabled = getSharedPreferences(
             "CropCarePrefs",
@@ -51,12 +53,13 @@ class MyFirebaseMessagingService :
 
         // The API already saved this notification
         // into Firestore history. Do not save it twice.
-        showNotification(title, body)
+        showNotification(title, body, message.messageId)
     }
 
     private fun showNotification(
         title: String,
-        body: String
+        body: String,
+        deliveryId: String?
     ) {
         if (
             Build.VERSION.SDK_INT >= 33 &&
@@ -119,12 +122,6 @@ class MyFirebaseMessagingService :
             .setContentIntent(pendingIntent)
             .build()
 
-        manager.notify(
-            (
-                    System.currentTimeMillis() %
-                            Int.MAX_VALUE
-                    ).toInt(),
-            notification
-        )
+        manager.notify(deliveryId ?: java.util.UUID.randomUUID().toString(), 0, notification)
     }
 }

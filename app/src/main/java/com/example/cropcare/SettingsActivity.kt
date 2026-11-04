@@ -16,14 +16,14 @@ import com.google.firebase.messaging.FirebaseMessaging
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private var profileRequest: ApiRequestHandle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+
 
         val prefs = getSharedPreferences("CropCarePrefs", MODE_PRIVATE)
 
@@ -79,7 +79,6 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        loadUserProfile()
     }
 
     override fun onResume() {
@@ -92,29 +91,16 @@ class SettingsActivity : AppCompatActivity() {
         val tvProfileName = findViewById<TextView?>(R.id.tvProfileName)
         val tvProfileEmail = findViewById<TextView?>(R.id.tvProfileEmail)
 
-        db.collection("users").document(currentUser.uid).get()
-            .addOnSuccessListener { doc ->
-                if (doc.exists()) {
-                    val fName = doc.getString("firstName") ?: ""
-                    val mName = doc.getString("middleName") ?: ""
-                    val lName = doc.getString("lastName") ?: ""
-                    val fullParts = listOf(fName, mName, lName).filter { it.isNotEmpty() }
-                    val fullName = if (fullParts.isNotEmpty()) fullParts.joinToString(" ") else (currentUser.displayName ?: "User")
-
-                    val username = doc.getString("username")
-                    val email = doc.getString("email") ?: currentUser.email ?: ""
-                    val displaySub = if (!username.isNullOrEmpty()) username else email
-
-                    tvProfileName?.text = fullName
-                    tvProfileEmail?.text = displaySub
-                } else {
-                    tvProfileName?.text = currentUser.displayName ?: "User"
-                    tvProfileEmail?.text = currentUser.email ?: ""
-                }
+        profileRequest?.cancel()
+        profileRequest = CropCareHttpClient.request("GET", "/api/account/me") { result ->
+            val doc = result.data
+            val names = listOf("firstName", "middleName", "lastName").mapNotNull { key ->
+                doc?.optString(key)?.takeIf { it.isNotBlank() && it != "null" }
             }
-            .addOnFailureListener {
-                tvProfileName?.text = currentUser.displayName ?: "User"
-                tvProfileEmail?.text = currentUser.email ?: ""
-            }
+            tvProfileName?.text = names.joinToString(" ").ifBlank { currentUser.displayName ?: "Farmer" }
+            tvProfileEmail?.text = doc?.optString("username")?.takeIf { it.isNotBlank() && it != "null" }
+                ?: if (result.successful) currentUser.email.orEmpty() else "Profile unavailable · reopen to retry"
+        }
     }
+    override fun onStop() { profileRequest?.cancel(); super.onStop() }
 }

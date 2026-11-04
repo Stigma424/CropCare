@@ -65,6 +65,7 @@ class SensorAdapter(
             sensor.readingStatusUnavailable ->
                 "Last reading: Unavailable"
 
+            sensor.readingStatus == "unknown_time" -> "Last reading: timestamp unavailable"
             sensor.lastScanTimestamp > 0L ->
                 "Last reading: " +
                         dateFormat.format(
@@ -89,6 +90,10 @@ class SensorAdapter(
                 )
             }
 
+            sensor.readingStatus == "unknown_time" -> {
+                holder.tvStatus.text = "Timestamp unavailable"
+                holder.tvStatus.setTextColor(0xFF757575.toInt())
+            }
             sensor.lastScanTimestamp <= 0L -> {
                 holder.tvStatus.text =
                     "Awaiting First Reading"
@@ -108,7 +113,7 @@ class SensorAdapter(
             }
 
             sensor.isOnline -> {
-                holder.tvStatus.text = "Active"
+                holder.tvStatus.text = "Recent reading"
 
                 holder.tvStatus.setTextColor(
                     0xFF4CAF50.toInt()

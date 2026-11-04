@@ -59,6 +59,7 @@
 
         </LinearLayout>
 
+<Button android:id="@+id/btnEditZone" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Edit zone name and area" />
         <TextView
             android:id="@+id/tvLastUpdated"
             android:layout_width="match_parent"

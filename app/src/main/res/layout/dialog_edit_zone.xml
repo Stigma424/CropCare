@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+    <EditText android:id="@+id/etEditZoneName" android:layout_width="match_parent" android:layout_height="56dp" android:hint="Zone name" android:maxLength="80" android:inputType="textCapWords" />
+    <EditText android:id="@+id/etEditZoneArea" android:layout_width="match_parent" android:layout_height="56dp" android:hint="Area (square meters)" android:inputType="numberDecimal" />
+</LinearLayout>

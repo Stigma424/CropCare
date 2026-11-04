@@ -1,44 +1,37 @@
-
 package com.example.cropcare
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class ForgotPasswordActivity : AppCompatActivity() {
-
+    private var request: ApiRequestHandle? = null
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_forgot_password)
-
-        val etEmail =
-            findViewById<EditText>(R.id.etForgotEmail)
-
-        val btnSubmit =
-            findViewById<Button>(R.id.btnSubmitForgot)
-
-        val btnBack =
-            findViewById<ImageView>(R.id.btnBack)
-
-        // The previous recovery workflow did not verify
-        // email codes or update Firebase Authentication.
-        // Disable it until the secure email-code API is ready.
-        etEmail.isEnabled = false
-
-        btnSubmit.text = "Email Recovery Coming Soon"
-        btnSubmit.isEnabled = false
-
-        btnBack.setOnClickListener {
-            finish()
+        super.onCreate(savedInstanceState); setContentView(R.layout.activity_forgot_password)
+        RecoverySession.clear()
+        val email = findViewById<EditText>(R.id.etForgotEmail)
+        val submit = findViewById<Button>(R.id.btnSubmitForgot)
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        submit.setOnClickListener {
+            val value = email.text.toString().trim()
+            if (value.length > 254 || !Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
+                email.error = "Enter a valid email address"; return@setOnClickListener
+            }
+            submit.isEnabled = false
+            request = CropCareFarmerApi.requestCode(value) { result ->
+                submit.isEnabled = true
+                Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
+                if (result.successful) {
+                    RecoverySession.start(value)
+                    startActivity(Intent(this, EmailVerificationActivity::class.java)); finish()
+                }
+            }
         }
-
-        Toast.makeText(
-            this,
-            "Email-code password recovery is temporarily unavailable.",
-            Toast.LENGTH_LONG
-        ).show()
     }
+    override fun onDestroy() { request?.cancel(); super.onDestroy() }
 }

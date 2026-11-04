@@ -46,6 +46,7 @@ class ApiConnectionActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!BuildConfig.DEBUG) { finish(); return }
 
         createScreen()
         startConnectionTest()

@@ -10,5 +10,6 @@ data class SensorModel(
     val lastScanTimestamp: Long = 0L,
     val isOnline: Boolean = false,
     val pairingStatus: String = "",
-    val readingStatusUnavailable: Boolean = false
+    val readingStatusUnavailable: Boolean = false,
+    val readingStatus: String = "awaiting_first_reading"
 )

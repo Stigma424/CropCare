@@ -21,7 +21,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please verify you email inbox and input the request code below."
+        android:text="Enter the six-digit code sent to your email. Codes expire after five minutes."
         android:textSize="14sp"
         android:textColor="#757575"
         android:lineSpacingExtra="4dp"
@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:hint="Enter the code here"
-        android:inputType="text"
+        android:inputType="number" android:maxLength="6" android:saveEnabled="false"
         android:textSize="14sp"
         android:textColor="#000000"
         android:textColorHint="#757575"

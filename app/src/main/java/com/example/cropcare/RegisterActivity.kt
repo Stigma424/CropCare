@@ -2,108 +2,73 @@ package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 
 class RegisterActivity : AppCompatActivity() {
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-
+    private val auth = FirebaseAuth.getInstance()
+    private var request: ApiRequestHandle? = null
+    private lateinit var submit: TextView
+    private fun field(id: Int) = findViewById<EditText>(id).text.toString()
+    private fun show(message: String) { if (!isFinishing && !isDestroyed) {
+        submit.isEnabled = true; Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    } }
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
-
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-
-        val etFirstName = findViewById<EditText>(R.id.etFirstName)
-        val etLastName = findViewById<EditText>(R.id.etLastName)
-        val etAddress = findViewById<EditText>(R.id.etAddress)
-        val etUsername = findViewById<EditText>(R.id.etUsername)
-        val etEmail = findViewById<EditText>(R.id.etEmail)
-        val etPassword = findViewById<EditText>(R.id.etPassword)
-        val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
-        val btnRegister = findViewById<TextView>(R.id.btnRegister)
-        val btnBack = findViewById<TextView>(R.id.btnBack)
-
-        btnRegister.setOnClickListener {
-            val firstName = etFirstName.text.toString().trim()
-            val lastName = etLastName.text.toString().trim()
-            val address = etAddress.text.toString().trim()
-            val username = etUsername.text.toString().trim()
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-            val confirmPassword = etConfirmPassword.text.toString().trim()
-
-            // 1. Inputs validation
-            if (firstName.isEmpty() || lastName.isEmpty() || address.isEmpty() ||
-                username.isEmpty() || email.isEmpty() ||
-                password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+        super.onCreate(savedInstanceState); setContentView(R.layout.activity_register)
+        submit = findViewById(R.id.btnRegister)
+        listOf(R.id.etPassword, R.id.etConfirmPassword).forEach { findViewById<EditText>(it).isSaveEnabled = false }
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
+        submit.setOnClickListener {
+            val first = field(R.id.etFirstName).trim(); val last = field(R.id.etLastName).trim()
+            val address = field(R.id.etAddress).trim(); val username = field(R.id.etUsername).trim()
+            val email = field(R.id.etEmail).trim(); val password = field(R.id.etPassword)
+            if (first.length !in 1..80 || last.length !in 1..80 || address.length !in 1..250 ||
+                !FarmerValidation.username(username) || email.length > 254 || !Patterns.EMAIL_ADDRESS.matcher(email).matches() ||
+                !FarmerValidation.password(password) || password != field(R.id.etConfirmPassword)) {
+                show("Enter valid names, address, username (3–30 letters, digits, . _ -), email and matching passwords (8–128 characters).")
                 return@setOnClickListener
             }
-
-            if (password != confirmPassword) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (password.length < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // 2. Direct Registration (Referral code step removed)
-            performFirebaseRegistration(
-                email, password, firstName, lastName, address, username
-            )
-        }
-
-        btnBack.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
-    }
-
-    private fun performFirebaseRegistration(
-        email: String, pass: String, fName: String, lName: String,
-        addr: String, uname: String
-    ) {
-        auth.createUserWithEmailAndPassword(email, pass)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid ?: ""
-
-                    // Save User Details in Firestore using userId as Document Key
-                    val userMap = hashMapOf(
-                        "userId" to userId,
-                        "firstName" to fName,
-                        "lastName" to lName,
-                        "address" to addr,
-                        "username" to uname,
-                        "email" to email,
-                        "password" to pass,
-                        "createdAt" to System.currentTimeMillis()
-                    )
-
-                    db.collection("users").document(userId)
-                        .set(userMap)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this, LoginActivity::class.java))
-                            finish()
+            submit.isEnabled = false
+            fun finishProfile() {
+                if (isFinishing || isDestroyed) return
+                request = CropCareHttpClient.request("GET", "/api/account/me") { profile ->
+                    if (onboardingDecision(profile, auth.currentUser?.uid) == OnboardingDecision.COMPLETE) {
+                        if (profile.data?.optString("userId") == auth.currentUser?.uid) complete()
+                        else show("Could not confirm your profile. Please try again.")
+                    } else if (onboardingDecision(profile, auth.currentUser?.uid) == OnboardingDecision.CREATE_PROFILE) {
+                        request = CropCareFarmerApi.onboarding(first, last, address, username) { result ->
+                            if (result.successful) complete()
+                            else if (result.statusCode == 409) {
+                                request = CropCareHttpClient.request("GET", "/api/account/me") { check ->
+                                    if (onboardingDecision(check, auth.currentUser?.uid) == OnboardingDecision.COMPLETE) complete()
+                                    else show(result.message + " Your Auth account is retained; retry with the same email/password and an available username.")
+                                }
+                            } else show(result.message + " Retry with the same email/password to finish your profile.")
                         }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Failed to save user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(this, "Auth Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    } else show(profile.message)
                 }
             }
+            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { created ->
+                if (created.isSuccessful) finishProfile()
+                else if (created.exception is FirebaseAuthUserCollisionException) {
+                    auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { signedIn ->
+                        if (signedIn.isSuccessful) finishProfile() else show("Unable to create or resume this account. Check your credentials.")
+                    }
+                } else show("Could not create your account. Check your connection and account details.")
+            }
+        }
     }
+    private fun complete() {
+        if (isFinishing || isDestroyed) return
+        auth.signOut(); RecoverySession.clear()
+        Toast.makeText(this, "Profile ready. Sign in with your username and password.", Toast.LENGTH_LONG).show()
+        startActivity(Intent(this, LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+        finish()
+    }
+    override fun onDestroy() { request?.cancel(); super.onDestroy() }
 }

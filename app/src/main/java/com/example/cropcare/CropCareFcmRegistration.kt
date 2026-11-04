@@ -44,4 +44,16 @@ object CropCareFcmRegistration {
                 )
             }
     }
-}
+    fun detach(callback: (Boolean) -> Unit) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return callback(true)
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            val ref = FirebaseFirestore.getInstance().collection("users").document(user.uid)
+            FirebaseFirestore.getInstance().runTransaction { tx ->
+                val doc = tx.get(ref)
+                if (doc.exists() && doc.getString("fcmToken") == token) {
+                    tx.update(ref, "fcmToken", com.google.firebase.firestore.FieldValue.delete())
+                }
+                true
+            }.addOnSuccessListener { callback(true) }.addOnFailureListener { callback(false) }
+        }.addOnFailureListener { callback(false) }
+    }}

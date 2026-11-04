@@ -80,7 +80,17 @@
         android:visibility="gone" />
 
     <!-- RecyclerView is itself scrollable; do not nest in a ScrollView. -->
-    <androidx.recyclerview.widget.RecyclerView
+    <Button android:id="@+id/btnToggleHistoryTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Chart and date filter" />
+    <LinearLayout android:id="@+id/historyTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+        <Spinner android:id="@+id/spinnerHistoryMetric" android:layout_width="match_parent" android:layout_height="48dp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <Button android:id="@+id/btnHistoryDate" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Select date" />
+            <Button android:id="@+id/btnClearHistoryDate" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Clear date" />
+        </LinearLayout>
+        <com.example.cropcare.SoilHistoryChartView android:id="@+id/chartHistory" android:layout_width="match_parent" android:layout_height="160dp" />
+    </LinearLayout>
+    <TextView android:id="@+id/tvHistoryCoverage" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:text="Chart/filter cover loaded readings only · Asia/Manila" />
+<androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
         android:layout_width="match_parent"
         android:layout_height="0dp"

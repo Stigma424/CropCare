@@ -15,6 +15,10 @@ import java.util.Locale
 
 class SensorDetailActivity : AppCompatActivity() {
 
+    private var monitoringRequest: ApiRequestHandle? = null
+    private var removeRequest: ApiRequestHandle? = null
+    private var removing = false
+    private var generation = 0
     private var sensorId = ""
     private var sensorName = "Sensor"
     private var deviceId = ""
@@ -92,30 +96,23 @@ class SensorDetailActivity : AppCompatActivity() {
             R.id.btnDeleteSensor
         ).setOnClickListener {
 
-            if (
-                pairingStatus == "qr_claimed" ||
-                pairingStatus == "verified"
-            ) {
-                show(
-                    "QR-paired devices must be unpaired first. " +
-                            "Unpair is on hold."
-                )
-                return@setOnClickListener
-            }
+            if (removing || sensorId.isBlank()) return@setOnClickListener
 
             AlertDialog.Builder(this)
-                .setTitle("Remove sensor registration?")
+                .setTitle("Unpair sensor?")
                 .setMessage(
-                    "Historical soil readings will not be deleted."
+                    "The API releases any authorized QR claim. Historical soil readings will not be deleted."
                 )
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Remove") { _, _ ->
 
-                    CropCareApiClient.deleteSensor(
-                        sensorId
-                    ) { result ->
+                    if (removing) return@setPositiveButton
+                    removing = true
+                    removeRequest = CropCareHttpClient.request("DELETE", "/api/sensors/${android.net.Uri.encode(sensorId)}") { result ->
+                        removing = false
 
                         if (result.successful) {
+                            show(if (result.data?.optBoolean("qrReusable") == true) "Unpaired. The original QR can be reused." else "Registration removed. No linked QR claim was changed.")
                             finish()
                         } else {
                             show(result.message)
@@ -125,7 +122,13 @@ class SensorDetailActivity : AppCompatActivity() {
                 .show()
         }
 
-        clear("Waiting for monitoring data...")
+        listOf(R.id.btnViewHistoryN, R.id.btnViewHistoryP, R.id.btnViewHistoryK, R.id.btnViewHistoryMoisture,
+            R.id.btnViewHistoryPh, R.id.btnViewHistoryTemp, R.id.btnViewHistoryEc).forEachIndexed { index, id ->
+            findViewById<android.view.View>(id).setOnClickListener {
+                if (sensorId.isNotBlank()) startActivity(Intent(this, SensorHistoryActivity::class.java)
+                    .putExtra("SENSOR_ID", sensorId).putExtra("SENSOR_NAME", sensorName).putExtra("METRIC_INDEX", index))
+            }
+        }        clear("Waiting for monitoring data...")
     }
 
     override fun onResume() {
@@ -142,7 +145,10 @@ class SensorDetailActivity : AppCompatActivity() {
         lastUpdated.text =
             "Loading latest sensor measurement..."
 
-        SensorMonitoringApi.get(sensorId) { response, error ->
+        monitoringRequest?.cancel()
+        val current = ++generation
+        monitoringRequest = SensorMonitoringApi.get(sensorId) { response, error ->
+            if (current != generation) return@get
 
             if (isFinishing || isDestroyed) {
                 return@get
@@ -195,7 +201,7 @@ class SensorDetailActivity : AppCompatActivity() {
                     SimpleDateFormat(
                         "MMM dd, yyyy - hh:mm:ss a",
                         Locale.US
-                    ).format(Date(timestampMs))
+                    ).apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(Date(timestampMs))
                 } else {
                     "Unknown date"
                 }
@@ -260,6 +266,9 @@ class SensorDetailActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        generation++; monitoringRequest?.cancel(); removeRequest?.cancel(); removing = false; super.onStop()
+    }
     private fun field(
         valueId: Int,
         statusId: Int,

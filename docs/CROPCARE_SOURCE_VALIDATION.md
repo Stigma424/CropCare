@@ -1,0 +1,79 @@
+# Source validation report
+
+Date: 2026-11-04 (Asia/Manila).
+
+- Static PowerShell source checks passed: XML syntax, local resource references, Kotlin view IDs, lexical delimiter balance, no direct registration profile/password write, and main-manifest cleartext denial.
+- `git diff --check` passed.
+- `CornRecommendationEngine.kt` and `SoilUtils.kt` have no diff.
+- Gradle assembleDebug was attempted after each implementation batch. Final assembleDebug/testDebugUnitTest/lintDebug/assembleRelease invocation also stopped before compilation: JAVA_HOME is unset and java is not on PATH. No Gradle tests or lint ran; no APK was produced by this repair.
+- No JDK, Android SDK or ADB was found in the inspected standard/user locations. Nothing was installed and no machine paths were committed.
+- No physical-device, SMTP, FCM delivery, payment-review, real QR or ESP32 tests ran.
+- Static checks do not establish Kotlin compilation, correct runtime navigation or service acceptance. The added tests and device checklist remain to be run with the required environment.
+- No commit, push, deletion, API/web edit, rules deployment or live data migration was performed.
+
+## Android files changed or added
+- `app/build.gradle.kts`
+- `app/src/androidTest/java/com/example/cropcare/FarmerNavigationTest.kt`
+- `app/src/debug/AndroidManifest.xml`
+- `app/src/main/AndroidManifest.xml`
+- `app/src/main/java/com/example/cropcare/AddZoneActivity.kt`
+- `app/src/main/java/com/example/cropcare/ApiConnectionActivity.kt`
+- `app/src/main/java/com/example/cropcare/ChangePasswordActivity.kt`
+- `app/src/main/java/com/example/cropcare/ConfirmLogoutActivity.kt`
+- `app/src/main/java/com/example/cropcare/CropCareApiClient.kt`
+- `app/src/main/java/com/example/cropcare/CropCareFarmerApi.kt`
+- `app/src/main/java/com/example/cropcare/CropCareFcmRegistration.kt`
+- `app/src/main/java/com/example/cropcare/CropCareHttpClient.kt`
+- `app/src/main/java/com/example/cropcare/CropCareWireClient.kt`
+- `app/src/main/java/com/example/cropcare/DashboardActivity.kt`
+- `app/src/main/java/com/example/cropcare/EmailVerificationActivity.kt`
+- `app/src/main/java/com/example/cropcare/FarmerApiModels.kt`
+- `app/src/main/java/com/example/cropcare/ForgotPasswordActivity.kt`
+- `app/src/main/java/com/example/cropcare/HistoryFilter.kt`
+- `app/src/main/java/com/example/cropcare/LoginActivity.kt`
+- `app/src/main/java/com/example/cropcare/MainActivity.kt`
+- `app/src/main/java/com/example/cropcare/MyFirebaseMessagingService.kt`
+- `app/src/main/java/com/example/cropcare/NotificationsActivity.kt`
+- `app/src/main/java/com/example/cropcare/OnboardingDecision.kt`
+- `app/src/main/java/com/example/cropcare/PushDeliveryCache.kt`
+- `app/src/main/java/com/example/cropcare/RecoverySession.kt`
+- `app/src/main/java/com/example/cropcare/RegisterActivity.kt`
+- `app/src/main/java/com/example/cropcare/ResetPasswordActivity.kt`
+- `app/src/main/java/com/example/cropcare/SensorAdapter.kt`
+- `app/src/main/java/com/example/cropcare/SensorDetailActivity.kt`
+- `app/src/main/java/com/example/cropcare/SensorHistoryActivity.kt`
+- `app/src/main/java/com/example/cropcare/SensorHistoryAdapter.kt`
+- `app/src/main/java/com/example/cropcare/SensorModel.kt`
+- `app/src/main/java/com/example/cropcare/SensorMonitoringApi.kt`
+- `app/src/main/java/com/example/cropcare/SensorStatusActivity.kt`
+- `app/src/main/java/com/example/cropcare/SettingsActivity.kt`
+- `app/src/main/java/com/example/cropcare/SoilHistoryChartView.kt`
+- `app/src/main/java/com/example/cropcare/SubscriptionActivity.kt`
+- `app/src/main/java/com/example/cropcare/ZoneAdapter.kt`
+- `app/src/main/java/com/example/cropcare/ZoneManagementActivity.kt`
+- `app/src/main/java/com/example/cropcare/ZoneMonitoringModels.kt`
+- `app/src/main/java/com/example/cropcare/ZoneMonitoringRepository.kt`
+- `app/src/main/res/layout/activity_change_password.xml`
+- `app/src/main/res/layout/activity_email_verification.xml`
+- `app/src/main/res/layout/activity_login.xml`
+- `app/src/main/res/layout/activity_notifications.xml`
+- `app/src/main/res/layout/activity_register.xml`
+- `app/src/main/res/layout/activity_reset_password.xml`
+- `app/src/main/res/layout/activity_sensor_detail.xml`
+- `app/src/main/res/layout/activity_sensor_history.xml`
+- `app/src/main/res/layout/activity_sensor_status.xml`
+- `app/src/main/res/layout/activity_subscription.xml`
+- `app/src/main/res/layout/activity_zone_management.xml`
+- `app/src/main/res/layout/dialog_edit_zone.xml`
+- `app/src/main/res/navigation/nav_graph.xml`
+- `app/src/test/java/com/example/cropcare/CropCareHttpClientTest.kt`
+- `app/src/test/java/com/example/cropcare/HistoryFilteringTest.kt`
+- `app/src/test/java/com/example/cropcare/NotificationFlowTest.kt`
+- `app/src/test/java/com/example/cropcare/RecoveryFlowTest.kt`
+- `app/src/test/java/com/example/cropcare/RegistrationFlowTest.kt`
+- `app/src/test/java/com/example/cropcare/SensorUnpairingTest.kt`
+- `app/src/test/java/com/example/cropcare/SubscriptionStateTest.kt`
+- `app/src/test/java/com/example/cropcare/ZoneMonitoringRepositoryTest.kt`
+- `docs/CROPCARE_MOBILE_REPAIR_PLAN.md`
+- `docs/CROPCARE_MOBILE_TEST_CHECKLIST.md`
+- `docs/CROPCARE_SECURITY_MIGRATION.md`

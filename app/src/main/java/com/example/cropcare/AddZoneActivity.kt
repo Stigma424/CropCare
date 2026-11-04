@@ -49,13 +49,13 @@ class AddZoneActivity : AppCompatActivity() {
     }
 
     private fun openDatePicker() {
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila"))
 
         val picker = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
 
-                val selectedCalendar = Calendar.getInstance().apply {
+                val selectedCalendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila")).apply {
                     set(year, month, dayOfMonth, 0, 0, 0)
                     set(Calendar.MILLISECOND, 0)
                 }
@@ -106,6 +106,7 @@ class AddZoneActivity : AppCompatActivity() {
             return
         }
 
+        if (selectedDateMillis <= 0 || selectedDateMillis >= 4_102_444_800_000L) { showMessage("Choose a planting date between 1970 and 2099."); return }
         val request = CropCareApiClient.ZoneInput(
             zoneName = zoneName,
             zoneAreaSqm = zoneArea,

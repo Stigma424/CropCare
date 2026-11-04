@@ -43,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
                 R.id.etLoginPassword
             )
 
+        password.isSaveEnabled = false
         btnLogin = findViewById(R.id.btnLogin)
 
         btnLogin.setOnClickListener {

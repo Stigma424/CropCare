@@ -1,250 +1,76 @@
-
 package com.example.cropcare
 
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Source
 
 class SensorStatusActivity : AppCompatActivity() {
-
-    private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
-
     private val items = mutableListOf<SensorModel>()
-
     private lateinit var adapter: SensorAdapter
-
-    private val handler = Handler(Looper.getMainLooper())
-
-    private var generation = 0
     private var zoneId = ""
-
-    private val refresher = object : Runnable {
-        override fun run() {
-            loadSensors()
-            handler.postDelayed(this, 60_000L)
-        }
+    private var request: MonitoringRequest? = null
+    private var removal: ApiRequestHandle? = null
+    private var removing = false
+    private val handler = Handler(Looper.getMainLooper())
+    private val refresh = object : Runnable {
+        override fun run() { if (!removing) load(); handler.postDelayed(this, 60_000) }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sensor_status)
-
-        zoneId = intent.getStringExtra("ZONE_ID") ?: ""
-
-        val list =
-            findViewById<RecyclerView>(R.id.rvSensors)
-
-        list.layoutManager =
-            LinearLayoutManager(this)
-
-        adapter = SensorAdapter(
-            items,
-
-            onDeleteClick = { sensor ->
-
-                if (
-                    sensor.pairingStatus == "qr_claimed" ||
-                    sensor.pairingStatus == "verified"
-                ) {
-                    show(
-                        "Unpairing QR sensors is on hold. " +
-                                "Do not delete their registration."
-                    )
-                } else {
-                    CropCareApiClient.deleteSensor(
-                        sensor.sensorId
-                    ) { result ->
-
-                        if (result.successful) {
-                            loadSensors()
-                        } else {
-                            show(result.message)
-                        }
-                    }
+        super.onCreate(savedInstanceState); setContentView(R.layout.activity_sensor_status)
+        zoneId = intent.getStringExtra("ZONE_ID").orEmpty()
+        adapter = SensorAdapter(items, { sensor -> confirmRemove(sensor) }, { sensor ->
+            startActivity(Intent(this, SensorDetailActivity::class.java).putExtra("SENSOR_ID", sensor.sensorId)
+                .putExtra("DEVICE_ID", sensor.deviceId).putExtra("SENSOR_NAME", sensor.sensorName))
+        })
+        findViewById<RecyclerView>(R.id.rvSensors).apply {
+            layoutManager = LinearLayoutManager(this@SensorStatusActivity); adapter = this@SensorStatusActivity.adapter
+        }
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnAddSensor).setOnClickListener {
+            startActivity(Intent(this, AddSensorActivity::class.java).putExtra("ZONE_ID", zoneId))
+        }
+        findViewById<Button>(R.id.btnDeleteAll).apply { isEnabled = false; text = "Bulk removal unavailable" }
+        findViewById<View>(R.id.tvSensorListState).setOnClickListener { if (!removing) load() }
+        if (zoneId.isBlank()) { Toast.makeText(this, "Missing farm zone.", Toast.LENGTH_LONG).show(); finish() }
+    }
+    private fun confirmRemove(sensor: SensorModel) {
+        if (removing) return
+        AlertDialog.Builder(this).setTitle("Unpair ${sensor.sensorName}?")
+            .setMessage("The API will release any authorized QR claim. Historical soil readings are retained.")
+            .setNegativeButton("Cancel", null).setPositiveButton("Unpair") { _, _ ->
+                if (removing) return@setPositiveButton
+                removing = true; request?.cancel()
+                removal = CropCareHttpClient.request("DELETE", "/api/sensors/${android.net.Uri.encode(sensor.sensorId)}") { result ->
+                    removing = false
+                    Toast.makeText(this, if (result.successful) {
+                        if (result.data?.optBoolean("qrReusable") == true) "Sensor unpaired. Its original QR can be reused."
+                        else "Registration removed. No linked QR claim was changed."
+                    } else result.message, Toast.LENGTH_LONG).show()
+                    load()
                 }
-            },
-
-            onViewDetailsClick = { sensor ->
-
-                startActivity(
-                    Intent(
-                        this,
-                        SensorDetailActivity::class.java
-                    ).apply {
-                        putExtra("SENSOR_ID", sensor.sensorId)
-                        putExtra("DEVICE_ID", sensor.deviceId)
-                        putExtra("SENSOR_NAME", sensor.sensorName)
-                    }
-                )
+            }.show()
+    }
+    private fun load() {
+        request?.cancel()
+        val state = findViewById<TextView>(R.id.tvSensorListState)
+        state.text = "Loading sensors…"
+        request = ZoneMonitoringRepository.sensors(zoneId) { snapshots, error ->
+            if (snapshots == null) state.text = (error ?: "Sensors unavailable") + " · tap to retry"
+            else {
+                items.clear(); items.addAll(snapshots.map { it.sensor }); adapter.notifyDataSetChanged()
+                state.text = if (items.isEmpty()) "No sensors registered. Use + to pair a sensor." else "${items.size} sensors · tap to refresh"
             }
-        )
-
-        list.adapter = adapter
-
-        findViewById<ImageButton>(
-            R.id.btnAddSensor
-        ).setOnClickListener {
-
-            startActivity(
-                Intent(
-                    this,
-                    AddSensorActivity::class.java
-                ).putExtra("ZONE_ID", zoneId)
-            )
-        }
-
-        findViewById<ImageButton>(
-            R.id.btnBack
-        ).setOnClickListener {
-            finish()
-        }
-
-        // Deleting all sensors could orphan
-        // QR claims in device_registry.
-        // Leave it disabled until unpair is ready.
-        findViewById<Button>(
-            R.id.btnDeleteAll
-        ).apply {
-            isEnabled = false
-            text = "Unpair feature pending"
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-
-        handler.removeCallbacks(refresher)
-        handler.post(refresher)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        generation++
-        handler.removeCallbacks(refresher)
-    }
-
-    private fun loadSensors() {
-        val uid = auth.currentUser?.uid ?: return
-
-        if (zoneId.isBlank()) {
-            return
-        }
-
-        val myGeneration = ++generation
-
-        db.collection("sensors")
-            .whereEqualTo("zoneId", zoneId)
-            .whereEqualTo("userId", uid)
-            .get(Source.SERVER)
-            .addOnSuccessListener { snapshot ->
-
-                if (
-                    myGeneration != generation ||
-                    isFinishing ||
-                    isDestroyed
-                ) {
-                    return@addOnSuccessListener
-                }
-
-                val docs = snapshot.documents
-
-                if (docs.isEmpty()) {
-                    items.clear()
-                    adapter.notifyDataSetChanged()
-                    return@addOnSuccessListener
-                }
-
-                val output =
-                    arrayOfNulls<SensorModel>(docs.size)
-
-                var pending = docs.size
-
-                docs.forEachIndexed { index, doc ->
-
-                    val id = doc.id
-
-                    val deviceId =
-                        doc.getString("deviceId") ?: ""
-
-                    val name =
-                        doc.getString("sensorName") ?: "Sensor"
-
-                    val pairing =
-                        doc.getString("pairingStatus") ?: ""
-
-                    SensorMonitoringApi.get(
-                        id
-                    ) { result, error ->
-
-                        if (
-                            myGeneration != generation ||
-                            isFinishing ||
-                            isDestroyed
-                        ) {
-                            return@get
-                        }
-
-                        val status =
-                            result?.optString("status")
-                                ?: "unavailable"
-
-                        val lastReadingMs =
-                            result?.optLong(
-                                "lastReadingAtMs",
-                                0L
-                            ) ?: 0L
-
-                        output[index] = SensorModel(
-                            sensorId = id,
-                            deviceId = deviceId,
-                            sensorName = name,
-                            zoneId = zoneId,
-                            userId = uid,
-                            lastScanTimestamp = lastReadingMs,
-                            isOnline = status == "recent",
-                            pairingStatus = pairing,
-                            readingStatusUnavailable =
-                                error != null ||
-                                        status == "unavailable"
-                        )
-
-                        pending--
-
-                        if (pending == 0) {
-                            items.clear()
-                            items.addAll(
-                                output.filterNotNull()
-                            )
-
-                            adapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-            }
-            .addOnFailureListener { error ->
-                show(
-                    "Could not load sensors: ${error.message}"
-                )
-            }
-    }
-
-    private fun show(message: String) {
-        Toast.makeText(
-            this,
-            message,
-            Toast.LENGTH_LONG
-        ).show()
-    }
+    override fun onStart() { super.onStart(); handler.post(refresh) }
+    override fun onStop() { handler.removeCallbacks(refresh); request?.cancel(); removal?.cancel(); removing = false; super.onStop() }
 }
