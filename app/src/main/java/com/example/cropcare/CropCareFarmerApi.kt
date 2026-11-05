@@ -21,4 +21,6 @@ object CropCareFarmerApi {
     fun markRead(id: String, cb: (FarmerApiResult) -> Unit) = CropCareHttpClient.request("POST", "/api/notifications/${Uri.encode(id)}/read", callback = cb)
     fun deleteNotification(id: String?, cb: (FarmerApiResult) -> Unit) = CropCareHttpClient.request("DELETE",
         "/api/notifications" + (id?.let { "/${Uri.encode(it)}" } ?: ""), callback = cb)
+    fun assessment(zoneId: String, program: String = "HYB-1", callback: (FarmerApiResult) -> Unit) =
+        CropCareHttpClient.request("GET", "/api/zones/${Uri.encode(zoneId)}/assessment?programId=${Uri.encode(program)}", callback = callback)
 }

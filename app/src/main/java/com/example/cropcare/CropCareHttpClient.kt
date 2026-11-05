@@ -31,18 +31,17 @@ object CropCareHttpClient {
     private val main = Handler(Looper.getMainLooper())
     private val client = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS).callTimeout(25, TimeUnit.SECONDS).build()
-    val baseUrl: String get() = if (Build.FINGERPRINT.startsWith("generic") ||
-        Build.FINGERPRINT.contains("emulator") || Build.MODEL.contains("sdk_gphone") ||
-        Build.MODEL.contains("Emulator")) "http://10.0.2.2:5056" else "http://127.0.0.1:5056"
-
+    val baseUrl: String get() = BuildConfig.API_BASE_URL.takeIf { it.isNotBlank() } ?: if (Build.FINGERPRINT.startsWith("generic") ||
+        Build.FINGERPRINT.contains("emulator") || Build.MODEL.contains("sdk_gphone") || Build.MODEL.contains("Emulator")) "http://10.0.2.2:5056" else "http://127.0.0.1:5056"
     fun request(method: String, path: String, body: JSONObject? = null,
         authenticated: Boolean = true, callback: (FarmerApiResult) -> Unit): ApiRequestHandle {
+        val owner = if (authenticated) FirebaseAuth.getInstance().currentUser?.uid else null
         val handle = ApiRequestHandle()
-        fun deliver(result: FarmerApiResult) { main.post { if (handle.active()) callback(result) } }
+        fun deliver(result: FarmerApiResult) { main.post { if (handle.active() && (!authenticated || FirebaseAuth.getInstance().currentUser?.uid == owner)) callback(result) } }
         fun send(token: String?) {
             if (!handle.active()) return
             try {
-                if (!BuildConfig.DEBUG) {
+                if (!BuildConfig.DEBUG && !baseUrl.startsWith("https://")) {
                     deliver(FarmerApiResult(false, 0, null, "A trusted HTTPS API must be configured for release builds."))
                     return
                 }

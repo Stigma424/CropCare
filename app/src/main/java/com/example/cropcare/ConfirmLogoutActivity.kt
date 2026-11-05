@@ -25,6 +25,7 @@ class ConfirmLogoutActivity : AppCompatActivity() {
             if (isFinishing || isDestroyed) return@detach
             if (!detached) android.widget.Toast.makeText(this, "Signed out, but push-token removal failed. This device may still receive account alerts until token registration is updated.", android.widget.Toast.LENGTH_LONG).show()
             RecoverySession.clear()
+            (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager).cancelAll()
             auth.signOut()
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

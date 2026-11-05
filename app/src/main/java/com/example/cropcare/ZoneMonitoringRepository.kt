@@ -33,7 +33,7 @@ object ZoneMonitoringRepository {
                 }
                 scope.add(listSensors(null) { sensors, error ->
                     if (sensors == null) callback(null, error) else monitor(scope, sensors) { snapshots ->
-                        callback(zones.map { zone -> ZoneMonitoringSnapshot(zone, snapshots.filter { it.sensor.zoneId == zone.zoneId }) }, null)
+                        assessments(scope, zones.map { zone -> ZoneMonitoringSnapshot(zone, snapshots.filter { it.sensor.zoneId == zone.zoneId }) }) { callback(it, null) }
                     }
                 })
             }
@@ -55,7 +55,29 @@ object ZoneMonitoringRepository {
         })
         return scope
     }
-    private fun monitor(scope: MonitoringRequest, sensors: List<SensorModel>, done: (List<SensorMonitoringSnapshot>) -> Unit) {
+    private fun assessments(scope: MonitoringRequest, zones: List<ZoneMonitoringSnapshot>, done: (List<ZoneMonitoringSnapshot>) -> Unit) {
+        if (zones.isEmpty()) { done(zones); return }
+        scope.add(CropCareFarmerApi.subscription { membership ->
+            if (!scope.active) return@subscription
+            val status = membership.data?.optString("status")?.lowercase()
+            if (!membership.successful || status != "pro" || membership.data?.optBoolean("isSubscribed") != true) {
+                val note = if (membership.successful && status in listOf("free", "pending", "rejected")) "Pro assessment required" else "Membership unavailable"
+                done(zones.map { it.copy(assessmentError = note) }); return@subscription
+            }
+            val results = zones.toTypedArray(); var next = 0; var completed = 0
+            fun launch() {
+                if (!scope.active || next >= zones.size) return
+                val index = next++
+                scope.add(CropCareFarmerApi.assessment(zones[index].zone.zoneId) { response ->
+                    if (!scope.active) return@assessment
+                    val assessment = response.data?.takeIf { response.successful }?.let { runCatching { FarmerAssessment.parse(it) }.getOrNull() }
+                    results[index] = zones[index].copy(assessment = assessment, assessmentError = if (assessment == null) "Server assessment unavailable" else null)
+                    completed++; if (completed == zones.size) done(results.toList()) else launch()
+                })
+            }
+            repeat(minOf(3, zones.size)) { launch() }
+        })
+    }    private fun monitor(scope: MonitoringRequest, sensors: List<SensorModel>, done: (List<SensorMonitoringSnapshot>) -> Unit) {
         if (!scope.active) return
         if (sensors.isEmpty()) { done(emptyList()); return }
         val result = arrayOfNulls<SensorMonitoringSnapshot>(sensors.size)

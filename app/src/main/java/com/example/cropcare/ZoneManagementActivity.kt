@@ -58,7 +58,10 @@ class ZoneManagementActivity : AppCompatActivity() {
     private lateinit var btnHarvest: Button
     private lateinit var btnDeleteZone: Button
 
-    private var activeRecommendation: RecommendationResult? = null
+    private var activeAssessment: FarmerAssessment? = null
+    private var assessmentRequest: ApiRequestHandle? = null
+    private var assessmentProgram = "HYB-1"
+    private var detailText: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,7 +173,9 @@ class ZoneManagementActivity : AppCompatActivity() {
         monitoringRequest?.cancel()
         refreshGeneration++
         subscriptionRequest?.cancel()
+        val subscriptionGeneration = refreshGeneration
         subscriptionRequest = CropCareFarmerApi.subscription { result ->
+            if (subscriptionGeneration != refreshGeneration || uid != auth.currentUser?.uid) return@subscription
             isSubscribed = result.successful && result.data?.optBoolean("isSubscribed") == true
             loadZoneFromApi()
         }
@@ -211,6 +216,7 @@ class ZoneManagementActivity : AppCompatActivity() {
 
             updateCornAge()
             fetchZoneAverages()
+            fetchAssessment()
         }
     }
 
@@ -393,7 +399,7 @@ class ZoneManagementActivity : AppCompatActivity() {
                     findViewById<TextView>(valueIds[index]).text = value?.let { String.format(Locale.US, "%.1f %s", it, units[index]) } ?: "—"
                     findViewById<TextView>(statusIds[index]).text = if (value == null) "No Data" else "Recorded"
                 }
-                tvRecommendationText.text = "Complete measurements are needed before calculating recommendations."
+                if (activeAssessment == null) tvRecommendationText.text = "Waiting for the server assessment; no local recommendation is calculated."
             }
             tvLastUpdated.append("\n" + snapshot.notice)
         }
@@ -422,7 +428,7 @@ class ZoneManagementActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        refreshGeneration++; monitoringRequest?.cancel(); subscriptionRequest?.cancel(); super.onStop()
+        refreshGeneration++; monitoringRequest?.cancel(); subscriptionRequest?.cancel(); assessmentRequest?.cancel(); super.onStop()
     }
     private fun showNoReadings() {
         tvAvgN.text = "—"
@@ -442,12 +448,11 @@ class ZoneManagementActivity : AppCompatActivity() {
         tvStatusEc.text = "No Data"
 
         tvLastUpdated.text = "Last updated: No data"
-        tvSoilHealth.text = "Soil Health: No readings yet"
-        tvRecommendationText.text =
-            "Waiting for actual soil readings."
+        if (activeAssessment == null) tvSoilHealth.text = "Server assessment unavailable"
+        if (activeAssessment == null) tvRecommendationText.text = "Server assessment pending."
 
-        activeRecommendation = null
-        btnSeeMoreRec.isEnabled = false
+        // Monitoring errors never replace a server assessment with a local calculation.
+        btnSeeMoreRec.isEnabled = activeAssessment != null
     }
 
     private fun updateUiWithAverages(
@@ -487,118 +492,56 @@ class ZoneManagementActivity : AppCompatActivity() {
         tvStatusEc.text =
             getParameterStatus("EC", ec)
 
-        val score = calculateOverallSoilHealth(
-            n, p, k, m, ph
-        )
-
-        tvSoilHealth.text = "Soil Health: $score"
-
-        tvLastUpdated.text = if (latestDate != null) {
-            val formatter = SimpleDateFormat(
-                "MMM dd, yyyy - hh:mm:ss a",
-                Locale.US
-            )
-            "Last updated: ${formatter.format(latestDate)}"
-        } else {
-            "Last updated: Unknown"
-        }
-
-        // Existing recommendation system is unchanged.
-        val days = if (dateOfPlanting > 0L) {
-            TimeUnit.MILLISECONDS.toDays(
-                (System.currentTimeMillis() -
-                        dateOfPlanting).coerceAtLeast(0L)
-            )
-        } else {
-            0L
-        }
-
-        activeRecommendation =
-            CornRecommendationEngine.generateRecommendation(
-                n = n,
-                p = p,
-                k = k,
-                ph = ph,
-                moisture = m,
-                cornAgeDays = days,
-                isHarvested = isHarvested,
-                zoneAreaSqm = zoneAreaSqm,
-                isSubscribed = isSubscribed
-            )
-
-        tvRecommendationText.text =
-            activeRecommendation?.summaryText
-                ?: "No recommendation available."
-
-        btnSeeMoreRec.isEnabled =
-            activeRecommendation != null
-
-        NotificationHelper.checkAndTriggerSoilAlerts(
-            context = this,
-            zoneName = tvManageZoneName.text.toString(),
-            n = n,
-            p = p,
-            k = k,
-            moisture = m,
-            ph = ph,
-            recommendationSummary =
-                activeRecommendation?.summaryText ?: ""
-        )
+        tvLastUpdated.text = latestDate?.let { "Recorded: " + SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(it) } ?: "Reading time unavailable"
+        if (activeAssessment == null) tvSoilHealth.text = "Server assessment loading or unavailable"
     }
 
-    private fun showDetailedRecommendationDialog() {
-        val recommendation = activeRecommendation ?: return
-
-        val builder = AlertDialog.Builder(this)
-            .setTitle(recommendation.stageName)
-            .setMessage(recommendation.detailedAdvice)
-            .setPositiveButton("OK", null)
-
-        if (recommendation.isPremiumLocked) {
-            builder.setNeutralButton("Subscribe to Pro") { _, _ ->
-                startActivity(
-                    Intent(this, SubscriptionActivity::class.java)
-                )
+    private fun fetchAssessment() {
+        assessmentRequest?.cancel()
+        val generation = refreshGeneration
+        val owner = auth.currentUser?.uid
+        activeAssessment = null; btnSeeMoreRec.isEnabled = false
+        tvRecommendationText.text = "Loading server advisory…"
+        tvSoilHealth.text = "Assessment loading…"
+        detailText?.text = "Loading server advisory…"
+        assessmentRequest = CropCareFarmerApi.assessment(currentZoneId, assessmentProgram) { result ->
+            if (generation != refreshGeneration || owner != auth.currentUser?.uid || isFinishing || isDestroyed) return@assessment
+            val assessment = result.data?.takeIf { result.successful }?.let { runCatching { FarmerAssessment.parse(it) }.getOrNull() }
+            activeAssessment = assessment
+            btnSeeMoreRec.isEnabled = assessment != null
+            if (assessment != null) {
+                tvSoilHealth.text = "Provisional score: " + (assessment.score?.let { "$it/100" } ?: "Unavailable")
+                tvRecommendationText.text = assessment.summary
+                detailText?.text = assessment.details()
+            } else {
+                val message = when(result.statusCode) { 403 -> "An approved Pro subscription is required for detailed recommendations."; 401 -> "Session expired. Sign in again."; else -> if (result.successful) "API assessment update required" else result.message }
+                tvSoilHealth.text = "Assessment unavailable"
+                tvRecommendationText.text = message; detailText?.text = message
             }
         }
-
-        builder.show()
     }
-
-    private fun getParameterStatus(
-        type: String,
-        value: Double
-    ): String {
-
-
-        return try {
-            SoilUtils.getStatus(type, value)
-        } catch (_: Exception) {
-            "Unknown"
+    private fun showDetailedRecommendationDialog() {
+        val assessment = activeAssessment ?: return
+        val column = android.widget.LinearLayout(this).apply { orientation = android.widget.LinearLayout.VERTICAL; setPadding(24, 16, 24, 16) }
+        val spinner = android.widget.Spinner(this)
+        spinner.adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("HYB-1 · published reference", "HYB-2 · published reference"))
+        spinner.setSelection(if (assessmentProgram == "HYB-2") 1 else 0)
+        val text = TextView(this).apply { this.text = assessment.details(); setTextIsSelectable(true); setPadding(0, 16, 0, 16) }
+        detailText = text
+        column.addView(spinner); column.addView(text)
+        val scroll = android.widget.ScrollView(this).apply { addView(column) }
+        val dialog = AlertDialog.Builder(this).setTitle("Rules-based advisory").setView(scroll).setPositiveButton("Close", null).create()
+        dialog.setOnDismissListener { detailText = null }
+        spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { }
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val program = if (position == 1) "HYB-2" else "HYB-1"
+                if (program != assessmentProgram) { assessmentProgram = program; fetchAssessment() }
+            }
         }
+        dialog.show()
     }
-
-    private fun calculateOverallSoilHealth(
-        n: Double,
-        p: Double,
-        k: Double,
-        m: Double,
-        ph: Double
-    ): String {
-        var score = 0
-
-        if (n >= 20) score += 20
-        if (p >= 10) score += 20
-        if (k >= 100) score += 20
-        if (m in 40.0..80.0) score += 20
-        if (ph in 5.5..7.5) score += 20
-
-        return when {
-            score >= 80 -> "Optimal ($score/100)"
-            score >= 40 -> "Fair ($score/100)"
-            else -> "Poor ($score/100)"
-        }
-    }
+    private fun getParameterStatus(type: String, value: Double): String = "Recorded"
 
     private fun showMessage(message: String) {
         Toast.makeText(

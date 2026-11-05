@@ -15,7 +15,7 @@ data class SoilMeasurement(val values: Map<String, Double?>, val recordedAtMs: L
 data class SensorMonitoringSnapshot(val sensor: SensorModel, val status: String,
     val reading: SoilMeasurement?, val error: String? = null)
 
-data class ZoneMonitoringSnapshot(val zone: ZoneModel, val sensors: List<SensorMonitoringSnapshot>) {
+data class ZoneMonitoringSnapshot(val zone: ZoneModel, val sensors: List<SensorMonitoringSnapshot>, val assessment: FarmerAssessment? = null, val assessmentError: String? = null) {
     val averages: Map<String, Double?> get() = soilKeys.associateWith { key ->
         sensors.mapNotNull { it.reading?.values?.get(key) }.takeIf { it.isNotEmpty() }?.average()
     }
@@ -30,13 +30,6 @@ data class ZoneMonitoringSnapshot(val zone: ZoneModel, val sensors: List<SensorM
         sensors.any { it.status == "stale" } -> "Includes older measurements"
         else -> "Recent recorded measurements"
     }
-    // Existing five-parameter score, without treating absent measurements as zero.
-    val score: Double? get() {
-        val a = averages
-        val n = a["nitrogen"] ?: return null; val p = a["phosphorus"] ?: return null
-        val k = a["potassium"] ?: return null; val m = a["moisture"] ?: return null
-        val ph = a["ph"] ?: return null
-        return (if (n >= 20) 20.0 else 0.0) + (if (p >= 10) 20 else 0) +
-            (if (k >= 100) 20 else 0) + (if (m in 40.0..80.0) 20 else 0) + (if (ph in 5.5..7.5) 20 else 0)
-    }
+    val score: Double? get() = assessment?.score
+    val scoreLabel: String get() = assessment?.label ?: assessmentError ?: "Assessment unavailable"
 }

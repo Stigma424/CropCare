@@ -23,11 +23,11 @@ class ZoneAdapter(private val zones: List<ZoneMonitoringSnapshot>, private val o
             val value = averages[key]
             holder.text(valueId, value?.let { String.format(Locale.US, "%.0f mg/kg", it) } ?: "—")
             val parameter = when(key) { "nitrogen" -> "N"; "phosphorus" -> "P"; else -> "K" }
-            holder.text(statusId, value?.let { SoilUtils.getStatus(parameter, it) } ?: "No Data")
+            holder.text(statusId, if (value != null) "Recorded" else "No Data")
         }
         val score = zone.score
         holder.text(R.id.tvSoilHealth, score?.let { "${it.toInt()}%" } ?: "—")
-        holder.text(R.id.tvHealthStatus, when { score == null -> "No Data"; score >= 80 -> "Optimal"; score >= 40 -> "Fair"; else -> "Poor" })
+        holder.text(R.id.tvHealthStatus, zone.scoreLabel)
         holder.text(R.id.tvDate, if (zone.newestAtMs > 0) SimpleDateFormat("MMM dd, yyyy", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("Asia/Manila")
         }.format(Date(zone.newestAtMs)) else "Time unavailable")

@@ -36,6 +36,7 @@ class DashboardActivity : AppCompatActivity() {
         if (FirebaseAuth.getInstance().currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java)); finish(); return
         }
+        CropCareFcmRegistration.register()
         profile = CropCareHttpClient.request("GET", "/api/account/me") { result ->
             findViewById<TextView>(R.id.tvWelcome).text = "Welcome, " +
                 (result.data?.optString("username")?.takeIf { it.isNotBlank() } ?: "Farmer")
@@ -54,8 +55,8 @@ class DashboardActivity : AppCompatActivity() {
                 zones.clear(); zones.addAll(result); adapter.notifyDataSetChanged()
                 findViewById<TextView>(R.id.tvActiveZonesCount).text = "${zones.count { !it.zone.isHarvested }} zones active"
                 val scores = zones.mapNotNull { it.score }
-                findViewById<TextView>(R.id.tvDashboardSoilHealth).text = if (scores.isEmpty()) "No readings yet" else
-                    String.format(Locale.US, "%.0f%%", scores.average())
+                findViewById<TextView>(R.id.tvDashboardSoilHealth).text = if (scores.isEmpty()) "Server assessment unavailable or Pro required" else
+                    String.format(Locale.US, "%.0f/100 · %d assessed zones (provisional)", scores.average(), scores.size)
             }
         }
     }

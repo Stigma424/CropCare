@@ -27,7 +27,8 @@ class MyFirebaseMessagingService :
     ) {
         super.onMessageReceived(message)
         if (com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null) return
-        if (!PushDeliveryCache.accept(message.messageId)) return
+        val owner = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val envelope = AccountPushEnvelope.parse(message.data, owner) ?: return
 
         val enabled = getSharedPreferences(
             "CropCarePrefs",
@@ -41,25 +42,14 @@ class MyFirebaseMessagingService :
             return
         }
 
-        val title =
-            message.data["title"]
-                ?: message.notification?.title
-                ?: "CropCare Sensor Alert"
-
-        val body =
-            message.data["body"]
-                ?: message.notification?.body
-                ?: "A sensor update is available."
-
-        // The API already saved this notification
-        // into Firestore history. Do not save it twice.
-        showNotification(title, body, message.messageId)
+        if (!PersistentPushDelivery.accept(this, owner, envelope.id)) return
+        showNotification(envelope.title, envelope.body, envelope.id, owner)
     }
-
     private fun showNotification(
         title: String,
         body: String,
-        deliveryId: String?
+        deliveryId: String,
+        owner: String
     ) {
         if (
             Build.VERSION.SDK_INT >= 33 &&
@@ -91,14 +81,15 @@ class MyFirebaseMessagingService :
             this,
             NotificationsActivity::class.java
         ).apply {
+            action = "com.example.cropcare.NOTIFICATION.$deliveryId"
+            putExtra("NOTIFICATION_ID", deliveryId); putExtra("RECIPIENT_UID", owner)
             flags =
                 Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
         val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
+            this, deliveryId.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
                     PendingIntent.FLAG_IMMUTABLE
@@ -118,10 +109,11 @@ class MyFirebaseMessagingService :
             .setPriority(
                 NotificationCompat.PRIORITY_HIGH
             )
+            .setOnlyAlertOnce(true)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
 
-        manager.notify(deliveryId ?: java.util.UUID.randomUUID().toString(), 0, notification)
+        manager.notify(deliveryId, 0, notification)
     }
 }
