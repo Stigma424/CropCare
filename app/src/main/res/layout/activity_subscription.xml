@@ -6,7 +6,16 @@
         <TextView android:id="@+id/tvSubscriptionStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="16dp" android:text="Checking subscription…" android:textSize="18sp" />
         <TextView android:id="@+id/tvStatusDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Loading your account status." />
         <LinearLayout android:id="@+id/layoutPayment" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="24dp" android:visibility="gone">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Already paid through verified project instructions? Submit your GCash receipt reference for manual review. Confirm payment instructions with the CropCare team before paying. Submission does not activate Pro. Never enter a PIN, OTP or password." />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scan this InstaPay QR in GCash, then submit your GCash receipt reference for manual review. Submission does not activate Pro. Never enter a PIN, OTP or password." />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="12dp"
+                android:adjustViewBounds="true"
+                android:maxHeight="560dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="InstaPay QR code for CropCare subscription payment"
+                android:src="@drawable/subscription_payment_qr" />
             <EditText android:id="@+id/etGcashRef" android:layout_width="match_parent" android:layout_height="56dp" android:hint="GCash reference (8–20 digits)" android:inputType="number" android:maxLength="20" android:saveEnabled="false" />
             <Button android:id="@+id/btnSubscribe" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Submit for manual review" android:enabled="false" />
         </LinearLayout>

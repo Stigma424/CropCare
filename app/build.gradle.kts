@@ -14,8 +14,19 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        val apiUrl = providers.gradleProperty("cropcare.api.baseUrl").orElse("").get()
-        if (apiUrl.isNotBlank()) require(java.net.URI(apiUrl).let { it.scheme in listOf("http", "https") && it.host != null && it.userInfo == null && it.query == null && it.fragment == null }) { "Invalid cropcare.api.baseUrl" }
+        val apiUrl = providers.gradleProperty("cropcare.api.baseUrl")
+            .orElse("")
+            .get()
+
+        if (apiUrl.isNotBlank()) {
+            require(
+                apiUrl.startsWith("http://") ||
+                        apiUrl.startsWith("https://")
+            ) {
+                "API base URL must start with http:// or https://"
+            }
+        }
+
         buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

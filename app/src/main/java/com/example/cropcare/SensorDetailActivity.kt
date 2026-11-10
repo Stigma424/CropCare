@@ -128,7 +128,7 @@ class SensorDetailActivity : AppCompatActivity() {
                 if (sensorId.isNotBlank()) startActivity(Intent(this, SensorHistoryActivity::class.java)
                     .putExtra("SENSOR_ID", sensorId).putExtra("SENSOR_NAME", sensorName).putExtra("METRIC_INDEX", index))
             }
-        }        clear("Waiting for monitoring data...")
+        }        //clear("Waiting for monitoring data...")
     }
 
     override fun onResume() {
