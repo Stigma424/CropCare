@@ -31,9 +31,12 @@ class ZoneAdapter(private val zones: List<ZoneMonitoringSnapshot>, private val o
         holder.text(R.id.tvDate, if (zone.newestAtMs > 0) SimpleDateFormat("MMM dd, yyyy", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("Asia/Manila")
         }.format(Date(zone.newestAtMs)) else "Time unavailable")
-        holder.text(R.id.tvTime, "")
+        holder.text(R.id.tvTime, if (zone.newestAtMs > 0) SimpleDateFormat("h:mm a", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("Asia/Manila")
+        }.format(Date(zone.newestAtMs)) else "")
         holder.text(R.id.tvAlert, zone.notice)
-        holder.itemView.findViewById<View>(R.id.tvAlert).visibility = View.VISIBLE
+        holder.itemView.findViewById<View>(R.id.tvAlert).visibility =
+            if (zone.notice.isBlank() || zone.notice == "Recent recorded measurements") View.GONE else View.VISIBLE
         holder.itemView.findViewById<View>(R.id.tvRefresh).setOnClickListener { onRefresh() }
         holder.itemView.findViewById<View>(R.id.btnViewMore).setOnClickListener { onItemClick(zone.zone.zoneId) }
     }

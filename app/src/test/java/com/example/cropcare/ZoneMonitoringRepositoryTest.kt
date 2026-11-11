@@ -11,7 +11,11 @@ class ZoneMonitoringRepositoryTest {
         val zeros = SoilMeasurement.fromJson(JSONObject().put("nitrogen", 0).put("phosphorus", 0)
             .put("potassium", 0).put("moisture", 0).put("ph", 0))
         val measured = ZoneMonitoringSnapshot(ZoneModel(), listOf(SensorMonitoringSnapshot(SensorModel(), "recent", zeros)))
-        assertEquals(0.0, measured.score!!, 0.0); assertNull(measured.averages["temperature"])
+        assertEquals(0.0, measured.averages["nitrogen"]!!, 0.0)
+        assertNull(measured.score) // Raw readings do not substitute for the server assessment.
+        assertNull(measured.averages["temperature"])
+        val assessed = measured.copy(assessment = FarmerAssessment(JSONObject().put("soilHealth", JSONObject().put("score", 0))))
+        assertEquals(0.0, assessed.score!!, 0.0)
         val partial = ZoneMonitoringSnapshot(ZoneModel(), listOf(SensorMonitoringSnapshot(SensorModel(), "recent",
             SoilMeasurement.fromJson(JSONObject().put("nitrogen", 10)))))
         assertNull(partial.score); assertEquals("Partial measurements", partial.notice)

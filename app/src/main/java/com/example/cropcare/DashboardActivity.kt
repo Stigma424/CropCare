@@ -19,6 +19,14 @@ class DashboardActivity : AppCompatActivity() {
     private var generation = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); setContentView(R.layout.activity_dashboard)
+        window.statusBarColor = android.graphics.Color.parseColor("#12521A")
+        window.navigationBarColor = android.graphics.Color.parseColor("#EAEAEA")
+        findViewById<TextView>(R.id.tvDashboardDate).text = java.text.SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.US).apply {
+            timeZone = java.util.TimeZone.getTimeZone("Asia/Manila")
+        }.format(java.util.Date())
+        findViewById<View>(R.id.btnHeaderNotifications).setOnClickListener {
+            startActivity(Intent(this, NotificationsActivity::class.java))
+        }
         findViewById<TextView>(R.id.tvDashboardSoilHealth).text = "No readings yet"
         adapter = ZoneAdapter(zones, { refresh() }) { id ->
             startActivity(Intent(this, ZoneManagementActivity::class.java).putExtra("ZONE_ID", id))
