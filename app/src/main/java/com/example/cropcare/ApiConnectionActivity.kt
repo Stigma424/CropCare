@@ -28,21 +28,7 @@ class ApiConnectionActivity : Activity() {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private val apiBaseUrl: String
-        get() {
-            val isEmulator =
-                Build.FINGERPRINT.startsWith("generic") ||
-                        Build.FINGERPRINT.contains("emulator") ||
-                        Build.MODEL.contains("sdk_gphone") ||
-                        Build.MODEL.contains("Emulator")
-
-            return if (isEmulator) {
-                // Android Studio Emulator -> Windows computer
-                "http://10.0.2.2:5056"
-            } else {
-                // Physical phone -> Windows computer via adb reverse
-                "http://127.0.0.1:5056"
-            }
-        }
+        get() = CropCareHttpClient.baseUrl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
