@@ -16,6 +16,16 @@ import java.util.Locale
 
 class AccountSettingsActivity : AppCompatActivity() {
 
+    private val choosePhoto = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocument()) { uri ->
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uri != null && uid != null) {
+            runCatching {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                getSharedPreferences("CropCarePhotos", MODE_PRIVATE).edit().putString(uid, uri.toString()).apply()
+                findViewById<android.widget.ImageView>(R.id.ivUserPhoto).setImageURI(uri)
+            }.onFailure { Toast.makeText(this, "Could not open this image. Choose another photo.", Toast.LENGTH_LONG).show() }
+        }
+    }
     private lateinit var tvFirstName: TextView
     private lateinit var tvMiddleName: TextView
     private lateinit var tvLastName: TextView
@@ -28,6 +38,12 @@ class AccountSettingsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_account_settings)
 
+        findViewById<View>(R.id.btnChoosePhoto).setOnClickListener { choosePhoto.launch(arrayOf("image/*")) }
+        FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
+            getSharedPreferences("CropCarePhotos", MODE_PRIVATE).getString(uid, null)?.let { saved ->
+                runCatching { findViewById<android.widget.ImageView>(R.id.ivUserPhoto).setImageURI(android.net.Uri.parse(saved)) }
+            }
+        }
         tvFirstName = findViewById(R.id.tvFirstName)
         tvMiddleName = findViewById(R.id.tvMiddleName)
         tvLastName = findViewById(R.id.tvLastName)
@@ -146,3 +162,4 @@ class AccountSettingsActivity : AppCompatActivity() {
             ?: "Not set"
     }
 }
+

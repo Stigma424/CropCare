@@ -38,9 +38,28 @@ class SensorStatusActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnAddSensor).setOnClickListener {
             startActivity(Intent(this, AddSensorActivity::class.java).putExtra("ZONE_ID", zoneId))
         }
-        findViewById<Button>(R.id.btnDeleteAll).apply { isEnabled = false; text = "Bulk removal unavailable" }
+        findViewById<Button>(R.id.btnDeleteAll).apply { text = "Delete All"; setOnClickListener { confirmRemoveAll() } }
         findViewById<View>(R.id.tvSensorListState).setOnClickListener { if (!removing) load() }
         if (zoneId.isBlank()) { Toast.makeText(this, "Missing farm zone.", Toast.LENGTH_LONG).show(); finish() }
+    }
+    private fun confirmRemoveAll() {
+        if (removing || items.isEmpty()) return
+        val ids = items.map { it.sensorId }.distinct()
+        AlertDialog.Builder(this).setTitle("Delete All sensors?")
+            .setMessage("Unpair all ${ids.size} sensors in this zone? Their QR codes can be paired again. Historical readings are retained.")
+            .setNegativeButton("Cancel", null).setPositiveButton("Delete All") { _, _ ->
+                removing = true; request?.cancel()
+                fun next(index: Int) {
+                    if (isFinishing || isDestroyed || !removing) return
+                    if (index == ids.size) { removing = false; Toast.makeText(this, "All sensors unpaired", Toast.LENGTH_LONG).show(); load(); return }
+                    findViewById<Button>(R.id.btnDeleteAll).text = "Unpairing ${index + 1}/${ids.size}…"
+                    removal = CropCareHttpClient.request("DELETE", "/api/sensors/${android.net.Uri.encode(ids[index])}") { result ->
+                        if (result.successful) next(index + 1)
+                        else { removing = false; Toast.makeText(this, "Unpaired $index sensors. ${result.message}", Toast.LENGTH_LONG).show(); load() }
+                    }
+                }
+                next(0)
+            }.show()
     }
     private fun confirmRemove(sensor: SensorModel) {
         if (removing) return
@@ -62,6 +81,7 @@ class SensorStatusActivity : AppCompatActivity() {
     private fun load() {
         request?.cancel()
         val state = findViewById<TextView>(R.id.tvSensorListState)
+        findViewById<Button>(R.id.btnDeleteAll).text = "Delete All"
         state.text = "Loading sensors…"
         request = ZoneMonitoringRepository.sensors(zoneId) { snapshots, error ->
             if (snapshots == null) state.text = (error ?: "Sensors unavailable") + " · tap to retry"
@@ -74,3 +94,4 @@ class SensorStatusActivity : AppCompatActivity() {
     override fun onStart() { super.onStart(); handler.post(refresh) }
     override fun onStop() { handler.removeCallbacks(refresh); request?.cancel(); removal?.cancel(); removing = false; super.onStop() }
 }
+
