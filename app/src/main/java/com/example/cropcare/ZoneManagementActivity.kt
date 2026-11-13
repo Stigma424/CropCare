@@ -61,7 +61,7 @@ class ZoneManagementActivity : AppCompatActivity() {
     private var activeAssessment: FarmerAssessment? = null
     private var assessmentRequest: ApiRequestHandle? = null
     private var assessmentProgram = "HYB-1"
-    private var detailText: TextView? = null
+    private var detailView: RecommendationView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -503,7 +503,7 @@ class ZoneManagementActivity : AppCompatActivity() {
         activeAssessment = null; btnSeeMoreRec.isEnabled = false
         tvRecommendationText.text = "Loading server advisory…"
         tvSoilHealth.text = "Assessment loading…"
-        detailText?.text = "Loading server advisory…"
+        detailView?.showMessage("Loading current recommendation…")
         assessmentRequest = CropCareFarmerApi.assessment(currentZoneId, assessmentProgram) { result ->
             if (generation != refreshGeneration || owner != auth.currentUser?.uid || isFinishing || isDestroyed) return@assessment
             val assessment = result.data?.takeIf { result.successful }?.let { runCatching { FarmerAssessment.parse(it) }.getOrNull() }
@@ -512,33 +512,23 @@ class ZoneManagementActivity : AppCompatActivity() {
             if (assessment != null) {
                 tvSoilHealth.text = "Provisional score: " + (assessment.score?.let { "$it/100" } ?: "Unavailable")
                 tvRecommendationText.text = assessment.summary
-                detailText?.text = assessment.details()
+                detailView?.render(assessment)
             } else {
                 val message = when(result.statusCode) { 403 -> "An approved Pro subscription is required for detailed recommendations."; 401 -> "Session expired. Sign in again."; else -> if (result.successful) "API assessment update required" else result.message }
                 tvSoilHealth.text = "Assessment unavailable"
-                tvRecommendationText.text = message; detailText?.text = message
+                tvRecommendationText.text = message; detailView?.showMessage(message)
             }
         }
     }
     private fun showDetailedRecommendationDialog() {
         val assessment = activeAssessment ?: return
-        val column = android.widget.LinearLayout(this).apply { orientation = android.widget.LinearLayout.VERTICAL; setPadding(24, 16, 24, 16) }
-        val spinner = android.widget.Spinner(this)
-        spinner.adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("HYB-1 · published reference", "HYB-2 · published reference"))
-        spinner.setSelection(if (assessmentProgram == "HYB-2") 1 else 0)
-        val text = TextView(this).apply { this.text = assessment.details(); setTextIsSelectable(true); setPadding(0, 16, 0, 16) }
-        detailText = text
-        column.addView(spinner); column.addView(text)
-        val scroll = android.widget.ScrollView(this).apply { addView(column) }
-        val dialog = AlertDialog.Builder(this).setTitle("Rules-based advisory").setView(scroll).setPositiveButton("Close", null).create()
-        dialog.setOnDismissListener { detailText = null }
-        spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) { }
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val program = if (position == 1) "HYB-2" else "HYB-1"
-                if (program != assessmentProgram) { assessmentProgram = program; fetchAssessment() }
-            }
-        }
+        val content = RecommendationView(this) { program ->
+            if (program != assessmentProgram) { assessmentProgram = program; fetchAssessment() }
+        }.apply { render(assessment) }
+        detailView = content
+        val scroll = android.widget.ScrollView(this).apply { addView(content) }
+        val dialog = AlertDialog.Builder(this).setTitle("Zone recommendation").setView(scroll).setPositiveButton("Close", null).create()
+        dialog.setOnDismissListener { detailView = null }
         dialog.show()
     }
     private fun getParameterStatus(type: String, value: Double): String = "Recorded"

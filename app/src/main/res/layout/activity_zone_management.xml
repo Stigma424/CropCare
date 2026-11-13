@@ -520,21 +520,21 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Add 50 kilos of urea fertilizer to promote green leafy growth"
+                    android:text="Loading current server recommendation…"
                     android:textColor="#333333"
-                    android:textSize="11sp" />
+                    android:textSize="14sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSeeMoreRec"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="76dp"
+                    android:layout_height="48dp"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:padding="0dp"
-                    android:text="+"
+                    android:text="View"
                     android:textColor="#222222"
-                    android:textSize="17sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
             </LinearLayout>
