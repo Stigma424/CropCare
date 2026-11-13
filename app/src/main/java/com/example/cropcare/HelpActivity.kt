@@ -14,6 +14,7 @@ class HelpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
+        findViewById<android.widget.TextView>(R.id.tvAboutVersion).text = "Version: ${packageManager.getPackageInfo(packageName, 0).versionName}"
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()

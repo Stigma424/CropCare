@@ -42,6 +42,11 @@ class NotificationsActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@NotificationsActivity); adapter = this@NotificationsActivity.adapter
         }
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnTestPush).setOnClickListener {
+            CropCareHttpClient.request("POST", "/api/notifications/test") { result ->
+                Toast.makeText(this, if(result.successful) "Test queued. Check your phone notification tray." else result.message, Toast.LENGTH_LONG).show()
+            }
+        }
         clear.setOnClickListener { if (!busy) confirmDelete(null) }
         empty.setOnClickListener { if (!busy) { CropCareFcmRegistration.register(); load() } }
         findViewById<View>(R.id.btnRefreshNotifications).setOnClickListener { if (!busy) { CropCareFcmRegistration.register(); load() } }
@@ -118,3 +123,4 @@ class NotificationAdapter(private val items: List<NotificationModel>, private va
         holder.itemView.setOnClickListener { open(item) }
     }
 }
+

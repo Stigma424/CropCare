@@ -23,7 +23,8 @@ class ZoneAdapter(private val zones: List<ZoneMonitoringSnapshot>, private val o
             val value = averages[key]
             holder.text(valueId, value?.let { String.format(Locale.US, "%.1f mg/kg", it) } ?: "—")
             val parameter = when(key) { "nitrogen" -> "N"; "phosphorus" -> "P"; else -> "K" }
-            holder.text(statusId, if (value != null) "Recorded" else "No Data")
+            holder.text(statusId, ReadingStatus.label(key, value))
+            ReadingStatus.style(holder.itemView.findViewById(statusId))
         }
         val score = zone.score
         holder.text(R.id.tvSoilHealth, score?.let { "${it.toInt()}%" } ?: "—")
@@ -41,3 +42,5 @@ class ZoneAdapter(private val zones: List<ZoneMonitoringSnapshot>, private val o
         holder.itemView.findViewById<View>(R.id.btnViewMore).setOnClickListener { onItemClick(zone.zone.zoneId) }
     }
 }
+
+

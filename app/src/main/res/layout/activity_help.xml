@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="24dp">
-  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Help &amp; About CropCare" android:textSize="24sp" android:textStyle="bold" android:layout_marginBottom="16dp" android:fontFamily="@font/montserrat_family" />
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="16sp" android:lineSpacingExtra="4dp" android:fontFamily="@font/montserrat_family" />
-    <Button android:id="@+id/btnBack" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Back" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" android:textAllCaps="false" />
-  </LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#EAEAEA" android:fillViewport="true">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal" android:paddingBottom="32dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="112dp" android:gravity="center_vertical" android:padding="16dp" android:background="@drawable/cc_header">
+<Button android:id="@+id/btnBack" android:layout_width="64dp" android:layout_height="48dp" android:text="←" android:textColor="#FFFFFF" android:backgroundTint="#12521A" android:contentDescription="Back" />
+<TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Help and About" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" android:gravity="center" />
+</LinearLayout>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="CROPCARE" android:textColor="#206C2C" android:textSize="30sp" android:textStyle="bold" android:letterSpacing="0.12" android:fontFamily="@font/montserrat_family" />
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SMART FARMING" android:letterSpacing="0.25" android:textSize="11sp" android:textColor="#737373" />
+<ImageView android:layout_width="140dp" android:layout_height="140dp" android:layout_marginTop="28dp" android:src="@drawable/cc_about_logo" android:contentDescription="CropCare corn logo" android:scaleType="fitCenter" />
+<TextView android:id="@+id/tvAboutVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#2B6A31" android:textSize="18sp" android:fontFamily="@font/montserrat_family" android:layout_marginTop="8dp" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="32dp" android:padding="24dp" android:background="@drawable/cc_card" android:elevation="4dp" android:orientation="vertical">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="CropCare is an IoT-based fertilizer monitoring system." android:gravity="center" android:textSize="14sp" android:lineSpacingExtra="5dp" android:fontFamily="@font/montserrat_family" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Developer Team" android:textStyle="bold" android:layout_marginTop="24dp" android:fontFamily="@font/montserrat_family" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Kevin John Pama\nJohn Dhenzell Ermac\nJason Chris Lim\nJob Edward Yakit" android:lineSpacingExtra="12dp" android:layout_marginTop="12dp" android:fontFamily="@font/montserrat_family" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Getting started" android:textStyle="bold" android:layout_marginTop="24dp" android:fontFamily="@font/montserrat_family" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="1. Add your zone area and planting date.\n2. Pair your sensor and wait for a fresh reading.\n3. Open the zone to see LOW, GOOD or HIGH readings and recommended actions.\n4. Allow phone notifications and keep your sensor connected to receive alerts." android:lineSpacingExtra="6dp" android:layout_marginTop="12dp" android:fontFamily="@font/montserrat_family" />
+</LinearLayout>
+</LinearLayout>
 </ScrollView>

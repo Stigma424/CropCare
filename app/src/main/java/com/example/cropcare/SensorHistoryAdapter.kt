@@ -49,8 +49,9 @@ class SensorHistoryAdapter(
 
         // 'RECORDED' describes a saved historical reading.
         // A past timestamp is not proof the sensor is online now.
-        holder.status.text = "RECORDED"
+        holder.status.text = listOf("nitrogen" to item.nitrogen, "phosphorus" to item.phosphorus, "potassium" to item.potassium, "moisture" to item.moisture, "ph" to item.ph, "temperature" to item.temperature, "ec" to item.ec).map { ReadingStatus.label(it.first, it.second) }.distinct().let { states -> if (states.all { it == "GOOD" }) "GOOD" else states.filter { it != "GOOD" }.joinToString(" · ") }
 
+        ReadingStatus.style(holder.status)
         holder.nitrogen.text = metric(item.nitrogen, "mg/kg", 1)
         holder.phosphorus.text = metric(item.phosphorus, "mg/kg", 1)
         holder.potassium.text = metric(item.potassium, "mg/kg", 1)
@@ -101,3 +102,5 @@ class SensorHistoryAdapter(
         a.get(Calendar.YEAR) == b.get(Calendar.YEAR) &&
                 a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR)
 }
+
+

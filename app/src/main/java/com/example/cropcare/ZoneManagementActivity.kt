@@ -66,6 +66,7 @@ class ZoneManagementActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_zone_management)
+        ReadingStatus.watch(findViewById(android.R.id.content))
 
         currentZoneId = intent.getStringExtra("ZONE_ID") ?: ""
 
@@ -398,7 +399,7 @@ class ZoneManagementActivity : AppCompatActivity() {
                 soilKeys.forEachIndexed { index, key ->
                     val value = a[key]
                     findViewById<TextView>(valueIds[index]).text = value?.let { String.format(Locale.US, "%.1f %s", it, units[index]) } ?: "—"
-                    findViewById<TextView>(statusIds[index]).text = if (value == null) "No Data" else "Recorded"
+                    findViewById<TextView>(statusIds[index]).text = ReadingStatus.label(key, value)
                 }
                 if (activeAssessment == null) tvRecommendationText.text = "Waiting for the server assessment; no local recommendation is calculated."
             }
@@ -533,7 +534,7 @@ class ZoneManagementActivity : AppCompatActivity() {
         dialog.show()
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(android.graphics.Color.rgb(29, 78, 43))
     }
-    private fun getParameterStatus(type: String, value: Double): String = "Recorded"
+    private fun getParameterStatus(type: String, value: Double): String = ReadingStatus.label(type, value)
 
     private fun showMessage(message: String) {
         Toast.makeText(
@@ -543,3 +544,5 @@ class ZoneManagementActivity : AppCompatActivity() {
         ).show()
     }
 }
+
+

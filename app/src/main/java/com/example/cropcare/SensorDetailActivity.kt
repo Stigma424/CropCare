@@ -29,6 +29,7 @@ class SensorDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sensor_detail)
+        ReadingStatus.watch(findViewById(android.R.id.content))
 
         sensorId =
             intent.getStringExtra("SENSOR_ID") ?: ""
@@ -301,7 +302,7 @@ class SensorDetailActivity : AppCompatActivity() {
             if (number == null) {
                 "No Data"
             } else {
-                "Recorded"
+                ReadingStatus.label(key, number)
             }
     }
 
@@ -345,3 +346,5 @@ class SensorDetailActivity : AppCompatActivity() {
         ).show()
     }
 }
+
+

@@ -57,14 +57,16 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         removeAllViews(); val json = assessment.json; val primary = json.optJSONObject("primaryAction")
         val hero = panel(Color.rgb(237, 246, 232)); addText(hero, "YOUR NEXT STEP", 11, true)
         addText(hero, primary?.optString("title").orEmpty(), 22, true)
+        addText(hero, "What to do", 13, true)
         addText(hero, primary?.optString("whatToDo").orEmpty(), 16)
+        addText(hero, "Why: " + primary?.optString("why").orEmpty(), 13)
         val valid = json.optJSONObject("soilHealth")?.optInt("validSensors") ?: 0
         val installed = json.optJSONObject("sensorAllocation")?.optInt("installed") ?: 0
         addText(hero, "Soil score: ${assessment.score?.let { String.format(Locale.US, "%.1f/100", it) } ?: "Not ready"}", 18, true)
         addText(hero, "$valid of $installed sensors usable · ${assessment.label}")
         if (json.optBoolean("partialCoverage")) addText(hero, "Some readings cannot be used. This does not describe every part of your zone.", 13)
         val time = SimpleDateFormat("MMM d, h:mm a", Locale.US).apply { timeZone = TimeZone.getTimeZone("Asia/Manila") }.format(Date(assessment.evaluatedAtMs))
-        addText(hero, "Updated $time · Rules-based guidance. Confirm field conditions before acting.", 11); addView(hero)
+        addText(hero, "Updated $time · Based on your zone assessment.", 11); addView(hero)
         val other = json.optJSONArray("recommendations")
         val otherActions = (0 until (other?.length() ?: 0)).mapNotNull { other?.optJSONObject(it) }.filter { it.optString("code") != primary?.optString("code") }
         if (otherActions.isNotEmpty()) section("Other checks (${otherActions.size})") { body ->
@@ -76,12 +78,12 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
                 addText(body, row.optString("message")); addText(body, "Device record: ${row.optString("sensorId")}", 11)
             }
         }
-        section("Fertilizer reference · reference only") { body ->
+        section("What to apply and how much") { body ->
             val plan = json.optJSONObject("referenceFertilizerPlan"); val entries = plan?.optJSONArray("entries")
-            addText(body, "Published program ${assessment.program}. Amounts are not calculated from your sensor readings.")
-            if (entries == null || entries.length() == 0) addText(body, "Quantities withheld. Do not substitute an earlier result.", 14, true)
+            addText(body, "Corn program ${assessment.program} · Amounts scaled to your zone area. Account for fertilizer already applied before using this plan.")
+            if (entries == null || entries.length() == 0) addText(body, "Complete your zone area and planting details and resolve the priority issue above to calculate an application plan.", 14, true)
             rows(entries) { row, _ -> addText(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})", 15, true); addText(body, "${row.optDouble("kgForPlot")} kg for this plot · ${row.optString("applicationTiming")}") }
-            addText(body, plan?.optString("warning").orEmpty(), 12)
+            addText(body, "How to apply: Follow the product label and the application timing shown for each product. Check soil moisture before application and account for fertilizer already applied this cycle.", 13)
             addText(body, "DAE means days after emergence, not planting. Prior applications are unknown.", 12)
         }
         section("Sources and limitations") { body ->
@@ -89,8 +91,8 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
             val limits = json.optJSONArray("limitations"); for(i in 0 until (limits?.length() ?: 0)) addText(body, limits?.optString(i).orEmpty(), 12)
             addText(body, "${json.optString("rulesetVersion")} · ${json.optString("datasetVersion")}", 11)
         }
-        section("Reference program options") { body ->
-            addText(body, "Published hybrid-corn reference", 13)
+        section("Corn program options") { body ->
+            addText(body, "Hybrid-corn yield target", 13)
             val spinner = Spinner(context); spinner.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, listOf("HYB-1 · 5–8 t/ha", "HYB-2 · 8–12 t/ha"))
             spinner.setSelection(if (assessment.program == "HYB-2") 1 else 0)
             spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
@@ -102,3 +104,5 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         }
     }
 }
+
+
