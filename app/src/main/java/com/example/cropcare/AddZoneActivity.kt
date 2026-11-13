@@ -39,6 +39,15 @@ class AddZoneActivity : AppCompatActivity() {
             openDatePicker()
         }
 
+        findViewById<android.widget.TextView>(R.id.tvPageDate).text = java.text.SimpleDateFormat("EEEE, MMMM d, yyyy", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Manila") }.format(java.util.Date())
+        findViewById<android.widget.CalendarView>(R.id.plantingCalendar).apply {
+            maxDate = System.currentTimeMillis()
+            setOnDateChangeListener { _, year, month, day ->
+                selectedDateMillis = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila")).apply { set(year, month, day, 0, 0, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
+                etPlantingDate.setText("$day/${month + 1}/$year")
+            }
+        }
+        listOf(R.id.navHome to DashboardActivity::class.java, R.id.navNotif to NotificationsActivity::class.java, R.id.navSettings to SettingsActivity::class.java).forEach { (id, target) -> findViewById<android.view.View>(id).setOnClickListener { startActivity(android.content.Intent(this, target)); finish() } }
         btnAddZoneSubmit.setOnClickListener {
             submitZone()
         }

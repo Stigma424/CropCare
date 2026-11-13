@@ -42,11 +42,6 @@ class NotificationsActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@NotificationsActivity); adapter = this@NotificationsActivity.adapter
         }
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
-        findViewById<View>(R.id.btnTestPush).setOnClickListener {
-            CropCareHttpClient.request("POST", "/api/notifications/test") { result ->
-                Toast.makeText(this, if(result.successful) "Test queued. Check your phone notification tray." else if (result.statusCode == 405 || result.statusCode == 404) "The deployed API needs the latest notification-test update. Refresh cannot resolve this server version mismatch." else result.message, Toast.LENGTH_LONG).show()
-            }
-        }
         clear.setOnClickListener { if (!busy) confirmDelete(null) }
         empty.setOnClickListener { if (!busy) { empty.text = "Refreshing phone registration…"; CropCareFcmRegistration.register { status -> if (running) { Toast.makeText(this, status, Toast.LENGTH_LONG).show(); load() } } } }
         findViewById<View>(R.id.btnRefreshNotifications).setOnClickListener { if (!busy) { empty.text = "Refreshing phone registration…"; CropCareFcmRegistration.register { status -> if (running) { Toast.makeText(this, status, Toast.LENGTH_LONG).show(); load() } } } }
