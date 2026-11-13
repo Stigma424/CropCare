@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 
 class ForgotPasswordActivity : AppCompatActivity() {
     private var request: ApiRequestHandle? = null
@@ -27,6 +28,18 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 submit.isEnabled = true
                 Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
                 if (result.successful) {
+                    if (result.data?.optString("deliveryMode") == "firebase_link") {
+                        AlertDialog.Builder(this)
+                            .setTitle("Check your email")
+                            .setMessage(result.message)
+                            .setPositiveButton("Back to sign in") { _, _ ->
+                                startActivity(Intent(this, LoginActivity::class.java).apply {
+                                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                })
+                                finish()
+                            }.show()
+                        return@requestCode
+                    }
                     RecoverySession.start(value)
                     startActivity(Intent(this, EmailVerificationActivity::class.java)); finish()
                 }
