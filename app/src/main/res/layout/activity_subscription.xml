@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-        <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_revert" android:contentDescription="Back" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Subscription" android:textSize="24sp" android:textStyle="bold" />
-        <TextView android:id="@+id/tvSubscriptionStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="16dp" android:text="Checking subscription…" android:textSize="18sp" />
-        <TextView android:id="@+id/tvStatusDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Loading your account status." />
-        <LinearLayout android:id="@+id/layoutPayment" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="24dp" android:visibility="gone">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scan this InstaPay QR in GCash, then submit your GCash receipt reference for manual review. Submission does not activate Pro. Never enter a PIN, OTP or password." />
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="12dp"
-                android:adjustViewBounds="true"
-                android:maxHeight="560dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="InstaPay QR code for CropCare subscription payment"
-                android:src="@drawable/subscription_payment_qr" />
-            <EditText android:id="@+id/etGcashRef" android:layout_width="match_parent" android:layout_height="56dp" android:hint="GCash reference (8–20 digits)" android:inputType="number" android:maxLength="20" android:saveEnabled="false" />
-            <Button android:id="@+id/btnSubscribe" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Submit for manual review" android:enabled="false" />
-        </LinearLayout>
-        <Button android:id="@+id/btnCancelSubscription" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cancellation unavailable" android:visibility="gone" />
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+    <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_revert" android:contentDescription="Back" android:padding="13dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Subscription" android:textSize="24sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
+    <TextView android:id="@+id/tvSubscriptionStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="16dp" android:text="Checking subscription…" android:textSize="18sp" android:fontFamily="@font/montserrat_family" />
+    <TextView android:id="@+id/tvStatusDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Loading your account status." android:fontFamily="@font/montserrat_family" />
+    <LinearLayout android:id="@+id/layoutPayment" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="24dp" android:visibility="gone">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scan this InstaPay QR in GCash, then submit your GCash receipt reference for manual review. Submission does not activate Pro. Never enter a PIN, OTP or password." android:fontFamily="@font/montserrat_family" />
+      <ImageView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="12dp" android:adjustViewBounds="true" android:maxHeight="560dp" android:scaleType="fitCenter" android:contentDescription="InstaPay QR code for CropCare subscription payment" android:src="@drawable/subscription_payment_qr" />
+      <EditText android:id="@+id/etGcashRef" android:layout_width="match_parent" android:layout_height="56dp" android:hint="GCash reference (8–20 digits)" android:inputType="number" android:maxLength="20" android:saveEnabled="false" android:fontFamily="@font/montserrat_family" android:background="@drawable/cc_input" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <Button android:id="@+id/btnSubscribe" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Submit for manual review" android:enabled="false" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" android:textAllCaps="false" />
     </LinearLayout>
+    <Button android:id="@+id/btnCancelSubscription" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cancellation unavailable" android:visibility="gone" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" android:textAllCaps="false" />
+  </LinearLayout>
 </ScrollView>

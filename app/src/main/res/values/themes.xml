@@ -1,9 +1,40 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.CropCare" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.CropCare" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/cc_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/cc_soft_green</item>
+        <item name="colorOnPrimaryContainer">@color/cc_primary_dark</item>
+        <item name="colorSecondary">@color/cc_primary</item>
+        <item name="colorSurface">@color/cc_surface</item>
+        <item name="colorOnSurface">@color/cc_text</item>
+        <item name="colorOutline">@color/cc_outline</item>
+        <item name="android:colorBackground">@color/cc_canvas</item>
+        <item name="android:fontFamily">@font/montserrat_family</item>
+        <item name="fontFamily">@font/montserrat_family</item>
+        <item name="materialButtonStyle">@style/Widget.CropCare.Button</item>
+        <item name="editTextStyle">@style/Widget.CropCare.EditText</item>
+        <item name="android:statusBarColor">@color/cc_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/cc_canvas</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
     </style>
 
     <style name="Theme.CropCare" parent="Base.Theme.CropCare" />
+    <style name="Widget.CropCare.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:fontFamily">@font/montserrat_family</item>
+    </style>
+    <style name="Widget.CropCare.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/cc_input</item>
+        <item name="android:textColor">@color/cc_text</item>
+        <item name="android:textColorHint">@color/cc_muted</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
 </resources>

@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="cc_primary">#176B35</color>
+    <color name="cc_primary_dark">#17472A</color>
+    <color name="cc_canvas">#F3F6F1</color>
+    <color name="cc_surface">#FFFFFF</color>
+    <color name="cc_soft_green">#E8F3E2</color>
+    <color name="cc_text">#203C2B</color>
+    <color name="cc_muted">#6D7E70</color>
+    <color name="cc_outline">#D8E3D4</color>
+    <color name="cc_accent">#F1CD55</color>
 </resources>

@@ -19,8 +19,8 @@ class DashboardActivity : AppCompatActivity() {
     private var generation = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); setContentView(R.layout.activity_dashboard)
-        window.statusBarColor = android.graphics.Color.parseColor("#12521A")
-        window.navigationBarColor = android.graphics.Color.parseColor("#EAEAEA")
+        window.statusBarColor = android.graphics.Color.parseColor("#176B35")
+        window.navigationBarColor = android.graphics.Color.parseColor("#F3F6F1")
         findViewById<TextView>(R.id.tvDashboardDate).text = java.text.SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("Asia/Manila")
         }.format(java.util.Date())
@@ -48,6 +48,8 @@ class DashboardActivity : AppCompatActivity() {
         profile = CropCareHttpClient.request("GET", "/api/account/me") { result ->
             findViewById<TextView>(R.id.tvWelcome).text = "Welcome, " +
                 (result.data?.optString("username")?.takeIf { it.isNotBlank() } ?: "Farmer")
+            findViewById<TextView>(R.id.tvAvatarInitials).text = result.data?.optString("firstName")
+                ?.firstOrNull()?.uppercaseChar()?.toString() ?: "C"
         }
         refresh()
     }
@@ -63,8 +65,9 @@ class DashboardActivity : AppCompatActivity() {
                 zones.clear(); zones.addAll(result); adapter.notifyDataSetChanged()
                 findViewById<TextView>(R.id.tvActiveZonesCount).text = "${zones.count { !it.zone.isHarvested }} zones active"
                 val scores = zones.mapNotNull { it.score }
-                findViewById<TextView>(R.id.tvDashboardSoilHealth).text = if (scores.isEmpty()) "Server assessment unavailable or Pro required" else
-                    String.format(Locale.US, "%.0f/100 · %d assessed zones (provisional)", scores.average(), scores.size)
+                findViewById<SoilScoreView>(R.id.soilScoreRing).setScore(scores.takeIf { it.isNotEmpty() }?.average())
+                findViewById<TextView>(R.id.tvDashboardSoilHealth).text = if (scores.isEmpty()) "Awaiting an available server assessment" else
+                    "${scores.size} assessed zone${if (scores.size == 1) "" else "s"} · provisional"
             }
         }
     }

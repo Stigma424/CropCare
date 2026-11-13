@@ -1,75 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#F2F2F2"
-    android:gravity="center_vertical"
-    android:orientation="vertical"
-    android:padding="32dp">
-
-    <!-- verification title -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Verification"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#146C2E"
-        android:layout_marginBottom="8dp" />
-
-    <!-- subtitle -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Enter the six-digit code sent to your email. Codes expire after five minutes."
-        android:textSize="14sp"
-        android:textColor="#757575"
-        android:lineSpacingExtra="4dp"
-        android:layout_marginBottom="32dp" />
-
-    <!-- code input -->
-    <EditText
-        android:id="@+id/etCode"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:hint="Enter the code here"
-        android:inputType="number" android:maxLength="6" android:saveEnabled="false"
-        android:textSize="14sp"
-        android:textColor="#000000"
-        android:textColorHint="#757575"
-        android:gravity="center_vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:background="@drawable/bg_input_field"
-        android:layout_marginBottom="40dp" />
-
-    <!-- submit button -->
-    <TextView
-        android:id="@+id/btnSubmit"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="SUBMIT"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:background="@drawable/bg_login_button"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_marginBottom="24dp" />
-
-    <!-- cancel link -->
-    <TextView
-        android:id="@+id/btnCancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CANCEL"
-        android:textColor="#146C2E"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        android:layout_gravity="center_horizontal"
-        android:padding="8dp"
-        android:clickable="true"
-        android:focusable="true" />
-
-</LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/cc_auth_background" android:fillViewport="true">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp" android:gravity="top">
+    <TextView android:textSize="27sp" android:textStyle="bold" android:textColor="@color/cc_primary_dark" android:layout_marginBottom="8dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Check your email" android:fontFamily="@font/montserrat_family" />
+    <TextView android:textColor="@color/cc_muted" android:lineSpacingExtra="4dp" android:layout_marginBottom="24dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enter the six-digit code sent to your registered email address." android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_card" android:padding="22dp">
+      <TextView android:textSize="12sp" android:textStyle="bold" android:layout_marginBottom="8dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Recovery code" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+      <EditText android:id="@+id/etCode" android:layout_width="match_parent" android:layout_height="56dp" android:background="@drawable/cc_input" android:paddingHorizontal="16dp" android:textSize="24sp" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:hint="000000" android:inputType="number" android:layout_marginBottom="12dp" android:gravity="center" android:letterSpacing="0.3" android:maxLength="6" android:saveEnabled="false" android:fontFamily="@font/montserrat_family" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <TextView android:textColor="@color/cc_muted" android:lineSpacingExtra="4dp" android:layout_marginBottom="16dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Codes expire after 5 minutes. Check your spam folder if the email is missing." android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+      <TextView android:id="@+id/btnSubmit" android:layout_width="match_parent" android:layout_height="52dp" android:gravity="center" android:text="Verify code" android:textSize="14sp" android:textStyle="bold" android:textAllCaps="false" android:textColor="@color/white" android:background="@drawable/bg_login_button" android:clickable="true" android:focusable="true" android:layout_marginTop="8dp" android:layout_marginBottom="8dp" android:fontFamily="@font/montserrat_family" />
+      <TextView android:id="@+id/btnCancel" android:layout_width="match_parent" android:layout_height="52dp" android:gravity="center" android:text="Back" android:textSize="14sp" android:textStyle="bold" android:textAllCaps="false" android:textColor="@color/cc_primary" android:background="@drawable/cc_soft_button" android:clickable="true" android:focusable="true" android:layout_marginTop="8dp" android:layout_marginBottom="8dp" android:fontFamily="@font/montserrat_family" />
+    </LinearLayout>
+  </LinearLayout>
+</ScrollView>

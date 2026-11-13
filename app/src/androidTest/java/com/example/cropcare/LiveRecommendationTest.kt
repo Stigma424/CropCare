@@ -50,6 +50,7 @@ class LiveRecommendationTest {
     }
     private fun screenshot(name: String) {
         instrumentation.waitForIdleSync()
+        instrumentation.uiAutomation.waitForIdle(500, 5000)
         val image = instrumentation.uiAutomation.takeScreenshot()
         assertNotNull(image)
         File(instrumentation.targetContext.getExternalFilesDir(null), name).outputStream().use {
@@ -90,6 +91,7 @@ class LiveRecommendationTest {
             if (ready) break
             SystemClock.sleep(250)
         }
+        screenshot("figma-zone.png")
         onView(withId(R.id.btnSeeMoreRec)).perform(scrollTo(), click())
         awaitText("YOUR NEXT STEP")
         screenshot("recommendation-live-summary.png")
@@ -98,5 +100,24 @@ class LiveRecommendationTest {
         onView(withText(startsWith("Other checks"))).perform(scrollTo(), click())
         onView(withText(startsWith("Sensor readings and quality"))).perform(scrollTo(), click())
         onView(withText(startsWith("Sensor 1"))).check(matches(isDisplayed()))
+        onView(withText("Close")).perform(click())
+        instrumentation.startActivitySync(Intent(context, DashboardActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        val dashboard = awaitActivity("DashboardActivity")
+        val dashboardDeadline = SystemClock.elapsedRealtime() + 45000
+        var zonesLoaded = false
+        while (SystemClock.elapsedRealtime() < dashboardDeadline && !zonesLoaded) {
+            instrumentation.runOnMainSync {
+                zonesLoaded = dashboard.findViewById<android.widget.TextView>(R.id.tvActiveZonesCount)
+                    .text.toString().contains("zones active")
+            }
+            if (!zonesLoaded) SystemClock.sleep(250)
+        }
+        assertTrue("Dashboard did not load the live zones", zonesLoaded)
+        screenshot("figma-dashboard.png")
+        onView(withId(R.id.navSettings)).perform(click())
+        awaitActivity("SettingsActivity")
+        onView(withId(R.id.btnEditProfileHeader)).check(matches(isDisplayed()))
+        screenshot("figma-settings.png")
     }
 }

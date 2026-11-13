@@ -32,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        PasswordVisibility.bind(this, R.id.etLoginPassword, R.id.ivTogglePassword)
 
         val username =
             findViewById<EditText>(

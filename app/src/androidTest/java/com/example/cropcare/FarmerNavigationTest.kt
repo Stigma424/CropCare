@@ -22,7 +22,10 @@ class FarmerNavigationTest {
             val inflater = android.view.LayoutInflater.from(themed)
             listOf(R.layout.activity_login, R.layout.activity_register, R.layout.activity_email_verification,
                 R.layout.activity_reset_password, R.layout.activity_subscription, R.layout.activity_sensor_history,
-                R.layout.activity_zone_management, R.layout.dialog_edit_zone).forEach { layout ->
+                R.layout.activity_zone_management, R.layout.dialog_edit_zone,
+                R.layout.activity_dashboard, R.layout.activity_settings,
+                R.layout.activity_sensor_status, R.layout.item_zone_card,
+                R.layout.item_sensor).forEach { layout ->
                 assertNotNull(inflater.inflate(layout, null))
             }
         }

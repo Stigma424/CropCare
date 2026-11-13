@@ -20,6 +20,8 @@ class RegisterActivity : AppCompatActivity() {
     } }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); setContentView(R.layout.activity_register)
+        PasswordVisibility.bind(this, R.id.etPassword, R.id.ivTogglePassword1)
+        PasswordVisibility.bind(this, R.id.etConfirmPassword, R.id.ivTogglePassword2)
         submit = findViewById(R.id.btnRegister)
         listOf(R.id.etPassword, R.id.etConfirmPassword).forEach { findViewById<EditText>(it).isSaveEnabled = false }
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }

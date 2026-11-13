@@ -1,181 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#EEEEEE">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- Header -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="vertical"
-            android:background="@drawable/rounded_corners"
-            android:backgroundTint="#2E6B35"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="12dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/btnBack"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/backbutton"
-                    android:contentDescription="Back"
-                    android:clickable="true"
-                    android:focusable="true"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Edit Profile"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"/>
-
-                <View
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"/>
-
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Profile form -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="22dp"
-            android:layout_marginEnd="22dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp"
-            android:orientation="vertical"
-            android:paddingStart="26dp"
-            android:paddingEnd="26dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="16dp"
-            android:background="@drawable/bg_card"
-            android:elevation="5dp">
-
-            <!-- First Name -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="First Name"
-                android:textColor="#333333"
-                android:textSize="14sp"/>
-
-            <EditText
-                android:id="@+id/etEditFirstName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="First Name"
-                android:inputType="textPersonName"
-                android:maxLength="80"/>
-
-            <!-- Middle Name -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Middle Name"
-                android:textColor="#333333"
-                android:textSize="14sp"/>
-
-            <EditText
-                android:id="@+id/etEditMiddleName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Middle Name (Optional)"
-                android:inputType="textPersonName"
-                android:maxLength="80"/>
-
-            <!-- Last Name -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Last Name"
-                android:textColor="#333333"
-                android:textSize="14sp"/>
-
-            <EditText
-                android:id="@+id/etEditLastName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Last Name"
-                android:inputType="textPersonName"
-                android:maxLength="80"/>
-
-            <!-- Phone Number -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Phone Number"
-                android:textColor="#333333"
-                android:textSize="14sp"/>
-
-            <EditText
-                android:id="@+id/etEditPhone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Phone Number (Optional)"
-                android:inputType="phone"
-                android:maxLength="30"/>
-
-            <!-- Physical Address -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Address"
-                android:textColor="#333333"
-                android:textSize="14sp"/>
-
-            <EditText
-                android:id="@+id/etEditAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="House/Street, Barangay, City"
-                android:inputType="textPostalAddress"
-                android:maxLength="250"/>
-
-            <!-- Save Button -->
-            <Button
-                android:id="@+id/btnSaveProfile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp"
-                android:text="Save Changes"
-                android:textAllCaps="false"/>
-
-            <!-- Back Button -->
-            <Button
-                android:id="@+id/btnBackForm"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Back"
-                android:textAllCaps="false"/>
-
-        </LinearLayout>
-
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@color/cc_canvas">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <!-- Header -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="100dp" android:orientation="vertical" android:background="@drawable/rounded_corners" android:backgroundTint="@color/cc_primary" android:paddingStart="24dp" android:paddingEnd="24dp" android:paddingTop="20dp" android:paddingBottom="12dp">
+      <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <ImageView android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_back" android:contentDescription="Back" android:clickable="true" android:focusable="true" android:padding="13dp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Edit Profile" android:textColor="@android:color/white" android:textSize="20sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
+        <View android:layout_width="30dp" android:layout_height="30dp" />
+      </LinearLayout>
     </LinearLayout>
-
+    <!-- Profile form -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="22dp" android:layout_marginEnd="22dp" android:layout_marginTop="20dp" android:layout_marginBottom="24dp" android:orientation="vertical" android:paddingStart="26dp" android:paddingEnd="26dp" android:paddingTop="20dp" android:paddingBottom="16dp" android:background="@drawable/bg_card" android:elevation="5dp">
+      <!-- First Name -->
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="First Name" android:textColor="@color/cc_text" android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+      <EditText android:id="@+id/etEditFirstName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="First Name" android:inputType="textPersonName" android:maxLength="80" android:fontFamily="@font/montserrat_family" android:background="@drawable/cc_input" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <!-- Middle Name -->
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Middle Name" android:textColor="@color/cc_text" android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+      <EditText android:id="@+id/etEditMiddleName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Middle Name (Optional)" android:inputType="textPersonName" android:maxLength="80" android:fontFamily="@font/montserrat_family" android:background="@drawable/cc_input" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <!-- Last Name -->
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Last Name" android:textColor="@color/cc_text" android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+      <EditText android:id="@+id/etEditLastName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Last Name" android:inputType="textPersonName" android:maxLength="80" android:fontFamily="@font/montserrat_family" android:background="@drawable/cc_input" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <!-- Phone Number -->
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Phone Number" android:textColor="@color/cc_text" android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+      <EditText android:id="@+id/etEditPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Phone Number (Optional)" android:inputType="phone" android:maxLength="30" android:fontFamily="@font/montserrat_family" android:background="@drawable/cc_input" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <!-- Physical Address -->
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Address" android:textColor="@color/cc_text" android:textSize="14sp" android:fontFamily="@font/montserrat_family" />
+      <EditText android:id="@+id/etEditAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="House/Street, Barangay, City" android:inputType="textPostalAddress" android:maxLength="250" android:fontFamily="@font/montserrat_family" android:background="@drawable/cc_input" android:textColor="@color/cc_text" android:textColorHint="@color/cc_muted" android:minHeight="52dp" android:paddingStart="16dp" android:paddingEnd="16dp" />
+      <!-- Save Button -->
+      <Button android:id="@+id/btnSaveProfile" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:layout_marginBottom="12dp" android:text="Save Changes" android:textAllCaps="false" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" />
+      <!-- Back Button -->
+      <Button android:id="@+id/btnBackForm" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Back" android:textAllCaps="false" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" />
+    </LinearLayout>
+  </LinearLayout>
 </ScrollView>

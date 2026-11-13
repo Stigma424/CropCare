@@ -1,120 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#F6FAF6"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/btnBackHistory"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Go back"
-            android:src="@android:drawable/ic_menu_revert" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvHistoryTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sensor history"
-                android:textColor="#1B6936"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvHistorySubtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Loading readings..."
-                android:textColor="#75877C"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btnRefreshHistory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#E5F4E7"
-            android:minHeight="44dp"
-            android:text="Refresh"
-            android:textAllCaps="false"
-            android:textColor="#1B6936" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#F6FAF6" android:orientation="vertical" android:padding="16dp">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+    <ImageButton android:id="@+id/btnBackHistory" android:layout_width="48dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Back" android:src="@android:drawable/ic_menu_revert" android:padding="13dp" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:orientation="vertical">
+      <TextView android:id="@+id/tvHistoryTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sensor history" android:textColor="#1B6936" android:textSize="20sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
+      <TextView android:id="@+id/tvHistorySubtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Loading readings..." android:textColor="#75877C" android:textSize="12sp" android:fontFamily="@font/montserrat_family" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvHistoryNotice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bg_history_notice"
-        android:padding="12dp"
-        android:text="No recent measurements"
-        android:textColor="#B42335"
-        android:textSize="13sp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvHistoryEmpty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:padding="20dp"
-        android:text="No readings received yet"
-        android:textColor="#607267"
-        android:visibility="gone" />
-
-    <!-- RecyclerView is itself scrollable; do not nest in a ScrollView. -->
-    <Button android:id="@+id/btnToggleHistoryTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Chart and date filter" />
-    <LinearLayout android:id="@+id/historyTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
-        <Spinner android:id="@+id/spinnerHistoryMetric" android:layout_width="match_parent" android:layout_height="48dp" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-            <Button android:id="@+id/btnHistoryDate" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Select date" />
-            <Button android:id="@+id/btnClearHistoryDate" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Clear date" />
-        </LinearLayout>
-        <com.example.cropcare.SoilHistoryChartView android:id="@+id/chartHistory" android:layout_width="match_parent" android:layout_height="160dp" />
+    <Button android:id="@+id/btnRefreshHistory" android:layout_width="wrap_content" android:layout_height="wrap_content" android:backgroundTint="#E5F4E7" android:minHeight="48dp" android:text="Refresh" android:textAllCaps="false" android:textColor="#1B6936" android:fontFamily="@font/montserrat_family" />
+  </LinearLayout>
+  <TextView android:id="@+id/tvHistoryNotice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_history_notice" android:padding="12dp" android:text="No recent measurements" android:textColor="#B42335" android:textSize="13sp" android:visibility="gone" android:fontFamily="@font/montserrat_family" />
+  <TextView android:id="@+id/tvHistoryEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:gravity="center" android:padding="20dp" android:text="No readings received yet" android:textColor="#607267" android:visibility="gone" android:fontFamily="@font/montserrat_family" />
+  <!-- RecyclerView is itself scrollable; do not nest in a ScrollView. -->
+  <Button android:id="@+id/btnToggleHistoryTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Chart and date filter" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" android:textAllCaps="false" />
+  <LinearLayout android:id="@+id/historyTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+    <Spinner android:id="@+id/spinnerHistoryMetric" android:layout_width="match_parent" android:layout_height="48dp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+      <Button android:id="@+id/btnHistoryDate" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Select date" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" android:textAllCaps="false" />
+      <Button android:id="@+id/btnClearHistoryDate" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Clear date" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" android:textAllCaps="false" />
     </LinearLayout>
-    <TextView android:id="@+id/tvHistoryCoverage" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:text="Chart/filter cover loaded readings only · Asia/Manila" />
-<androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvHistory"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="12dp" />
-
-    <ProgressBar
-        android:id="@+id/progressHistory"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="8dp"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/btnLoadMore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:backgroundTint="#E5F4E7"
-        android:text="Load More"
-        android:textAllCaps="false"
-        android:textColor="#1B6936"
-        android:visibility="gone" />
+    <com.example.cropcare.SoilHistoryChartView android:id="@+id/chartHistory" android:layout_width="match_parent" android:layout_height="160dp" />
+  </LinearLayout>
+  <TextView android:id="@+id/tvHistoryCoverage" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:text="Chart/filter cover loaded readings only · Asia/Manila" android:fontFamily="@font/montserrat_family" />
+  <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvHistory" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="12dp" android:layout_weight="1" android:clipToPadding="false" android:paddingBottom="12dp" />
+  <ProgressBar android:id="@+id/progressHistory" android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="center_horizontal" android:layout_margin="8dp" android:visibility="gone" />
+  <Button android:id="@+id/btnLoadMore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:backgroundTint="#E5F4E7" android:text="Load More" android:textAllCaps="false" android:textColor="#1B6936" android:visibility="gone" android:fontFamily="@font/montserrat_family" android:minHeight="48dp" />
 </LinearLayout>

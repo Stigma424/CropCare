@@ -1,71 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#EAEAEA">
-
-    <LinearLayout
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="24dp"
-        android:background="@drawable/logout_dialog_bg">
-
-        <!-- question text -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Are you sure\nyou want to logout?"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:gravity="center"
-            android:lineSpacingExtra="4dp"
-            android:layout_marginBottom="28dp" />
-
-        <!-- button container -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <!-- no button -->
-            <TextView
-                android:id="@+id/btnCancelLogout"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="No"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#1B5E20"
-                android:gravity="center"
-                android:background="@drawable/logout_no_bg"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- yes button -->
-            <TextView
-                android:id="@+id/btnConfirmLogout"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="Yes"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:gravity="center"
-                android:background="@drawable/logout_yes_bg"
-                android:layout_marginStart="8dp"
-                android:clickable="true"
-                android:focusable="true" />
-
-        </LinearLayout>
-
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/cc_canvas">
+  <LinearLayout android:layout_width="300dp" android:layout_height="wrap_content" android:layout_gravity="center" android:orientation="vertical" android:gravity="center" android:padding="24dp" android:background="@drawable/logout_dialog_bg">
+    <!-- question text -->
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Are you sure\nyou want to logout?" android:textSize="18sp" android:textStyle="bold" android:textColor="#000000" android:gravity="center" android:lineSpacingExtra="4dp" android:layout_marginBottom="28dp" android:fontFamily="@font/montserrat_family" />
+    <!-- button container -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center">
+      <!-- no button -->
+      <TextView android:id="@+id/btnCancelLogout" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="No" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/cc_primary" android:gravity="center" android:background="@drawable/logout_no_bg" android:layout_marginEnd="8dp" android:clickable="true" android:focusable="true" android:fontFamily="@font/montserrat_family" />
+      <!-- yes button -->
+      <TextView android:id="@+id/btnConfirmLogout" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="Yes" android:textSize="16sp" android:textStyle="bold" android:textColor="#FFFFFF" android:gravity="center" android:background="@drawable/logout_yes_bg" android:layout_marginStart="8dp" android:clickable="true" android:focusable="true" android:fontFamily="@font/montserrat_family" />
     </LinearLayout>
-
+  </LinearLayout>
 </FrameLayout>
