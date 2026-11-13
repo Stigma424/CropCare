@@ -13,12 +13,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+
 
     private lateinit var btnLogin: TextView
 
@@ -69,41 +69,22 @@ class LoginActivity : AppCompatActivity() {
             if (identifier.contains('@')) {
                 signIn(identifier, passwordValue)
             } else {
-                db.collection("users")
-                    .whereEqualTo(
-                        "username",
-                        identifier
-                    )
-                    .limit(1)
-                    .get()
-                    .addOnSuccessListener { docs ->
-
-                        val email =
-                            docs.documents
-                                .firstOrNull()
-                                ?.getString("email")
-
-                        if (email.isNullOrBlank()) {
-                            btnLogin.isEnabled = true
-                            show(
-                                "Invalid username or password."
-                            )
-                        } else {
-                            signIn(
-                                email,
-                                passwordValue
-                            )
+                CropCareHttpClient.request("POST", "/api/auth/login",
+                    JSONObject().put("username", identifier).put("password", passwordValue),
+                    authenticated = false) { result ->
+                    val customToken = result.data?.optString("customToken").orEmpty()
+                    if (!result.successful || customToken.isBlank()) {
+                        btnLogin.isEnabled = true
+                        show(if (result.statusCode == 401) "Invalid username or password." else result.message)
+                    } else {
+                        auth.signInWithCustomToken(customToken).addOnCompleteListener { task ->
+                            if (task.isSuccessful) completeSignIn() else {
+                                btnLogin.isEnabled = true
+                                show("Sign-in is temporarily unavailable. Please try again.")
+                            }
                         }
                     }
-                    .addOnFailureListener { error ->
-
-                        btnLogin.isEnabled = true
-
-                        show(
-                            "Could not resolve username: " +
-                                    "${error.message}"
-                        )
-                    }
+                }
             }
         }
 
@@ -152,6 +133,11 @@ class LoginActivity : AppCompatActivity() {
                 return@addOnCompleteListener
             }
 
+            completeSignIn()
+        }
+    }
+
+    private fun completeSignIn() {
             // Store the FCM token in users/{uid}.
             CropCareFcmRegistration.register()
 
@@ -168,7 +154,6 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 openDashboard()
             }
-        }
     }
 
     private fun openDashboard() {
