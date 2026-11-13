@@ -31,7 +31,8 @@ object UserPhoto {
         view.background = android.graphics.drawable.GradientDrawable().apply { shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(0xffe9f5e9.toInt()) }
         view.clipToOutline = true
         if (bitmap != null) { view.setImageBitmap(bitmap); view.visibility = View.VISIBLE; fallback?.visibility = View.INVISIBLE }
-        else if (fallback != null) { view.visibility = View.GONE; fallback.visibility = View.VISIBLE }
-        else { view.visibility = View.VISIBLE; view.setImageResource(R.drawable.cc_avatar) }
+        else if (fallback != null) { view.visibility = View.VISIBLE; fallback.visibility = View.INVISIBLE; view.setImageResource(R.drawable.cc_default_avatar) }
+        else { view.visibility = View.VISIBLE; view.setImageResource(R.drawable.cc_default_avatar) }
     }
 }
+
