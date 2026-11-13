@@ -41,6 +41,7 @@ class DashboardActivity : AppCompatActivity() {
     }
     override fun onStart() {
         super.onStart()
+        UserPhoto.bind(findViewById(R.id.ivDashboardPhoto), findViewById(R.id.tvAvatarInitials))
         if (FirebaseAuth.getInstance().currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java)); finish(); return
         }
@@ -73,3 +74,4 @@ class DashboardActivity : AppCompatActivity() {
     }
     override fun onStop() { generation++; request?.cancel(); profile?.cancel(); super.onStop() }
 }
+

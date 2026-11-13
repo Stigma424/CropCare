@@ -83,6 +83,7 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        UserPhoto.bind(findViewById(R.id.ivSettingsPhoto))
         loadUserProfile()
     }
 
@@ -104,3 +105,4 @@ class SettingsActivity : AppCompatActivity() {
     }
     override fun onStop() { profileRequest?.cancel(); super.onStop() }
 }
+

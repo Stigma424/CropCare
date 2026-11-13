@@ -22,7 +22,7 @@ class AccountSettingsActivity : AppCompatActivity() {
             runCatching {
                 contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 getSharedPreferences("CropCarePhotos", MODE_PRIVATE).edit().putString(uid, uri.toString()).apply()
-                findViewById<android.widget.ImageView>(R.id.ivUserPhoto).setImageURI(uri)
+                UserPhoto.bind(findViewById(R.id.ivUserPhoto))
             }.onFailure { Toast.makeText(this, "Could not open this image. Choose another photo.", Toast.LENGTH_LONG).show() }
         }
     }
@@ -82,6 +82,7 @@ class AccountSettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        UserPhoto.bind(findViewById(R.id.ivUserPhoto))
 
         // Refresh every time this page becomes visible,
         // including after returning from Edit Profile.
@@ -162,4 +163,5 @@ class AccountSettingsActivity : AppCompatActivity() {
             ?: "Not set"
     }
 }
+
 
