@@ -11,3 +11,5 @@ Real-device acceptance remains required: username/email login, token expiry, acc
 Recovery supports deliveryMode=firebase_link. The app shows a check-email dialog and returns to sign-in after the user opens Firebase's hosted reset link. No six-digit code is required in link mode, and account ownership is still verified through the inbox. Rebuild/install this APK before testing the new flow; old installed APKs may still enter the code screen.
 
 The recovery APK was installed successfully on the connected phone using adb install -r. Full reset/re-login remains a user/device acceptance step. The requested Figma UI at node 130:121 remains pending: detailed design context was unavailable and Figma Starter MCP calls were exhausted. Existing UI is preserved.
+
+Final product requirement: use the existing six-digit-code verification and new-password Activities. The API defaults to code mode through HTTPS Resend; link dialog is optional explicit link mode only. Resend API key is required to test real code delivery.
