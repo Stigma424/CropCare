@@ -35,11 +35,14 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         it.setTextIsSelectable(true); parent.addView(it)
     }
     private fun section(title: String, build: (LinearLayout) -> Unit) {
-        val card = panel(); val body = LinearLayout(context).apply { orientation = VERTICAL; visibility = View.GONE }
+        val card = panel().apply { setPadding(0, 0, 0, 0) }
+        val body = LinearLayout(context).apply {
+            orientation = VERTICAL; visibility = View.GONE; setPadding(dp(14), dp(10), dp(14), dp(12))
+        }
         val button = MaterialButton(context).apply {
             text = "$title  ▸"; isAllCaps = false; textSize = 14f; gravity = android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
             setTextColor(green); backgroundTintList = android.content.res.ColorStateList.valueOf(Color.rgb(243, 248, 239))
-            minHeight = dp(48); contentDescription = "Expand $title"
+            minHeight = dp(48); cornerRadius = dp(12); contentDescription = "Expand $title"
             setOnClickListener {
                 val open = body.visibility != View.VISIBLE; body.visibility = if (open) View.VISIBLE else View.GONE
                 text = "$title  ${if (open) "▾" else "▸"}"; contentDescription = "${if (open) "Collapse" else "Expand"} $title"

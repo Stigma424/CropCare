@@ -16,6 +16,12 @@ import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.auth.FirebaseAuth
+import okhttp3.OkHttpClient
+import org.json.JSONObject
+import java.util.concurrent.TimeUnit
+import org.junit.After
 
 /** Opt-in device acceptance test. Supply demo credentials as runner arguments, never source. */
 class LiveRecommendationTest {
@@ -51,6 +57,9 @@ class LiveRecommendationTest {
         }
         image.recycle()
     }
+    @After fun finalScreenshot() {
+        if (InstrumentationRegistry.getArguments().getString("liveDemo") == "true") screenshot("recommendation-live-final.png")
+    }
     @Test fun demoAccountLoadsCurrentRecommendationAndExpandableDetails() {
         val args = InstrumentationRegistry.getArguments()
         assumeTrue(args.getString("liveDemo") == "true")
@@ -58,11 +67,15 @@ class LiveRecommendationTest {
         val password = requireNotNull(args.getString("demoPassword"))
         val zone = requireNotNull(args.getString("demoZoneId"))
         val context = instrumentation.targetContext
-        instrumentation.startActivitySync(Intent(context, LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        onView(withId(R.id.etLoginUsername)).perform(replaceText(username))
-        onView(withId(R.id.etLoginPassword)).perform(replaceText(password), closeSoftKeyboard())
-        onView(withId(R.id.btnLogin)).perform(click())
-        awaitActivity("DashboardActivity")
+        // Exercise the real password -> API custom token -> Firebase session contract.
+        // Open the zone directly so notification permission is not a prerequisite for advice.
+        val request = CropCareWireClient.build(BuildConfig.API_BASE_URL + "/api/auth/login", "POST",
+            JSONObject().put("username", username).put("password", password), null)
+        val customToken = OkHttpClient().newCall(request).execute().use { response ->
+            assertTrue("Demo API login failed", response.isSuccessful)
+            JSONObject(response.body!!.string()).getString("customToken")
+        }
+        Tasks.await(FirebaseAuth.getInstance().signInWithCustomToken(customToken), 30, TimeUnit.SECONDS)
         instrumentation.startActivitySync(Intent(context, ZoneManagementActivity::class.java)
             .putExtra("ZONE_ID", zone).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         awaitActivity("ZoneManagementActivity")

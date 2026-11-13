@@ -94,6 +94,7 @@ class ZoneManagementActivity : AppCompatActivity() {
             findViewById(R.id.tvRecommendationText)
 
         btnSeeMoreRec = findViewById(R.id.btnSeeMoreRec)
+        btnSeeMoreRec.isEnabled = false
         btnNewCornPlanted = findViewById(R.id.btnNewCornPlanted)
         btnHarvest = findViewById(R.id.btnHarvest)
         btnDeleteZone = findViewById(R.id.btnDeleteZone)
@@ -530,6 +531,7 @@ class ZoneManagementActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).setTitle("Zone recommendation").setView(scroll).setPositiveButton("Close", null).create()
         dialog.setOnDismissListener { detailView = null }
         dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(android.graphics.Color.rgb(29, 78, 43))
     }
     private fun getParameterStatus(type: String, value: Double): String = "Recorded"
 

@@ -13,3 +13,5 @@ Recovery supports deliveryMode=firebase_link. The app shows a check-email dialog
 The recovery APK was installed successfully on the connected phone using adb install -r. Full reset/re-login remains a user/device acceptance step. The requested Figma UI at node 130:121 remains pending: detailed design context was unavailable and Figma Starter MCP calls were exhausted. Existing UI is preserved.
 
 Final product requirement: use the existing six-digit-code verification and new-password Activities. The API defaults to code mode through HTTPS Resend; link dialog is optional explicit link mode only. Resend API key is required to test real code delivery.
+
+Live recommendation UI: RecommendationView shows the main action first and collapses secondary checks, sensor quality, reference material and evidence. The action button remains disabled until an assessment is ready. An opt-in LiveRecommendationTest accepts demo credentials only through instrumentation arguments and tests actual API/Firebase authentication and zone advice on a connected device. No credentials are hardcoded. Direct instrumentation was used for final acceptance so the regular APK remains installed.
