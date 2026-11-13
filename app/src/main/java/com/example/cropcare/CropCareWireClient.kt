@@ -30,9 +30,10 @@ object CropCareWireClient {
         val json = (body ?: JSONObject()).toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         when (method) {
             "GET" -> builder.get(); "POST" -> builder.post(json)
-            "PATCH" -> builder.patch(json); "DELETE" -> builder.delete()
+            "PUT" -> builder.put(json); "PATCH" -> builder.patch(json); "DELETE" -> if (body == null) builder.delete() else builder.delete(json)
             else -> error("Unsupported request method")
         }
         return builder.build()
     }
 }
+

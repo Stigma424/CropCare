@@ -7,17 +7,18 @@ import org.json.JSONObject
 object CropCareFcmRegistration {
     @Volatile var status = "Registration not checked"
         private set
-    fun register() {
-        if (FirebaseAuth.getInstance().currentUser == null) return
+    fun register(done: ((String) -> Unit)? = null) {
+        if (FirebaseAuth.getInstance().currentUser == null) { status = "Sign in to register phone alerts"; done?.invoke(status); return }
         status = "Registering push notifications…"
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { save(it) }
-            .addOnFailureListener { status = "Token unavailable; tap Refresh to retry" }
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { save(it, done) }
+            .addOnFailureListener { status = "Firebase token unavailable; check Google Play services and connection"; done?.invoke(status) }
     }
-    fun save(token: String) {
+    fun save(token: String, done: ((String) -> Unit)? = null) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         if (token.isBlank()) return
         CropCareHttpClient.request("PUT", "/api/account/fcm-token", JSONObject().put("token", token)) { result ->
-            if (FirebaseAuth.getInstance().currentUser?.uid == uid) status = if (result.successful) "Push token registered" else "Push registration failed; tap Refresh to retry"
+            if (FirebaseAuth.getInstance().currentUser?.uid == uid) status = if (result.successful) "Push token registered" else "Push registration failed (${result.statusCode}): ${result.message}"
+            done?.invoke(status)
         }
     }
     fun detach(callback: (Boolean) -> Unit) {
@@ -27,3 +28,4 @@ object CropCareFcmRegistration {
         }.addOnFailureListener { callback(false) }
     }
 }
+

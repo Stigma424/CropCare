@@ -48,8 +48,8 @@ class NotificationsActivity : AppCompatActivity() {
             }
         }
         clear.setOnClickListener { if (!busy) confirmDelete(null) }
-        empty.setOnClickListener { if (!busy) { CropCareFcmRegistration.register(); load() } }
-        findViewById<View>(R.id.btnRefreshNotifications).setOnClickListener { if (!busy) { CropCareFcmRegistration.register(); load() } }
+        empty.setOnClickListener { if (!busy) { empty.text = "Refreshing phone registration…"; CropCareFcmRegistration.register { status -> if (running) { Toast.makeText(this, status, Toast.LENGTH_LONG).show(); load() } } } }
+        findViewById<View>(R.id.btnRefreshNotifications).setOnClickListener { if (!busy) { empty.text = "Refreshing phone registration…"; CropCareFcmRegistration.register { status -> if (running) { Toast.makeText(this, status, Toast.LENGTH_LONG).show(); load() } } } }
     }
     private fun confirmDelete(id: String?) {
         AlertDialog.Builder(this).setTitle(if (id == null) "Clear notification history?" else "Delete notification?")
@@ -123,4 +123,5 @@ class NotificationAdapter(private val items: List<NotificationModel>, private va
         holder.itemView.setOnClickListener { open(item) }
     }
 }
+
 
