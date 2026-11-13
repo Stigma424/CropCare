@@ -15,3 +15,5 @@ The recovery APK was installed successfully on the connected phone using adb ins
 Final product requirement: use the existing six-digit-code verification and new-password Activities. The API defaults to code mode through HTTPS Resend; link dialog is optional explicit link mode only. Resend API key is required to test real code delivery.
 
 Live recommendation UI: RecommendationView shows the main action first and collapses secondary checks, sensor quality, reference material and evidence. The action button remains disabled until an assessment is ready. An opt-in LiveRecommendationTest accepts demo credentials only through instrumentation arguments and tests actual API/Firebase authentication and zone advice on a connected device. No credentials are hardcoded. Direct instrumentation was used for final acceptance so the regular APK remains installed.
+
+Zone nutrient, moisture, temperature and EC averages retain one decimal place in the mobile presentation; small fractional readings are not rounded up to an integer. Backend scores and raw sensor records are unchanged.

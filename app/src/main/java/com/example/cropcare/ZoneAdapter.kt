@@ -21,7 +21,7 @@ class ZoneAdapter(private val zones: List<ZoneMonitoringSnapshot>, private val o
         listOf(Triple("nitrogen", R.id.tvN, R.id.tvStatusN), Triple("phosphorus", R.id.tvP, R.id.tvStatusP),
             Triple("potassium", R.id.tvK, R.id.tvStatusK)).forEach { (key, valueId, statusId) ->
             val value = averages[key]
-            holder.text(valueId, value?.let { String.format(Locale.US, "%.0f mg/kg", it) } ?: "—")
+            holder.text(valueId, value?.let { String.format(Locale.US, "%.1f mg/kg", it) } ?: "—")
             val parameter = when(key) { "nitrogen" -> "N"; "phosphorus" -> "P"; else -> "K" }
             holder.text(statusId, if (value != null) "Recorded" else "No Data")
         }

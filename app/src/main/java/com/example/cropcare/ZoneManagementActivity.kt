@@ -466,17 +466,17 @@ class ZoneManagementActivity : AppCompatActivity() {
         ec: Double,
         latestDate: Date?
     ) {
-        tvAvgN.text = String.format(Locale.US, "%.0f mg/kg", n)
+        tvAvgN.text = String.format(Locale.US, "%.1f mg/kg", n)
         tvStatusN.text = getParameterStatus("N", n)
 
-        tvAvgP.text = String.format(Locale.US, "%.0f mg/kg", p)
+        tvAvgP.text = String.format(Locale.US, "%.1f mg/kg", p)
         tvStatusP.text = getParameterStatus("P", p)
 
-        tvAvgK.text = String.format(Locale.US, "%.0f mg/kg", k)
+        tvAvgK.text = String.format(Locale.US, "%.1f mg/kg", k)
         tvStatusK.text = getParameterStatus("K", k)
 
         tvAvgMoisture.text =
-            String.format(Locale.US, "%.0f%%", m)
+            String.format(Locale.US, "%.1f%%", m)
         tvStatusMoisture.text =
             getParameterStatus("MOISTURE", m)
 
@@ -484,12 +484,12 @@ class ZoneManagementActivity : AppCompatActivity() {
         tvStatusPh.text = getParameterStatus("PH", ph)
 
         tvAvgTemp.text =
-            String.format(Locale.US, "%.0f°C", temp)
+            String.format(Locale.US, "%.1f°C", temp)
         tvStatusTemp.text =
             getParameterStatus("TEMP", temp)
 
         tvAvgEc.text =
-            String.format(Locale.US, "%.0f us/cm", ec)
+            String.format(Locale.US, "%.1f us/cm", ec)
         tvStatusEc.text =
             getParameterStatus("EC", ec)
 
