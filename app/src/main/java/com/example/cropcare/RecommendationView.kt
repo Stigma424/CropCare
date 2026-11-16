@@ -118,10 +118,20 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
                 }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
             }
         }
-        section("Sources and limitations") { body ->
-            rows(json.optJSONArray("evidenceReferences")) { row, _ -> addText(body, row.optString("title"), 14, true); addText(body, "• " + row.optString("basis"), 12); addText(body, row.optString("url"), 11) }
-            val limits = json.optJSONArray("limitations"); for(i in 0 until (limits?.length() ?: 0)) addText(body, "• " + limits?.optString(i).orEmpty(), 12)
-            addText(body, "${json.optString("rulesetVersion")} · ${json.optString("datasetVersion")}", 11)
+        section("Sources") { body ->
+            rows(json.optJSONArray("evidenceReferences")) { row, _ ->
+                val reference = when (row.optString("id")) {
+                    "DA_PHILRICE_CORN_TABLE21" -> "DA-PhilRice · Hybrid corn fertilizer program (Table 21)" to "Published product rates and application timing. Plot quantities are scaled by zone area."
+                    "CROPCARE_MOISTURE_PROTOTYPE" -> "University of Minnesota Extension · Soil-moisture monitoring" to "Guidance on moisture monitoring, soil texture and calibration."
+                    else -> null
+                }
+                if (reference != null) {
+                    addText(body, reference.first, 14, true)
+                    addText(body, "• " + reference.second, 12)
+                    addText(body, row.optString("url"), 11)
+                }
+            }
+            addText(body, "Reading classifications follow CropCare's configured monitoring bands.", 12)
         }
     }
 }
