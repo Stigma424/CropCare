@@ -43,13 +43,26 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
     private fun rows(array: JSONArray?, each: (JSONObject, Int) -> Unit) {
         for (i in 0 until (array?.length() ?: 0)) array?.optJSONObject(i)?.let { each(it, i) }
     }
+    fun renderSummary(assessment: FarmerAssessment) {
+        removeAllViews()
+        setPadding(0, dp(4), 0, 0)
+        listOf("What to apply" to assessment.whatToApply, "How to apply" to assessment.howToApply,
+            "When to apply" to assessment.whenToApply, "How much to apply" to assessment.howMuchToApply).forEach { (title, text) ->
+            val card = panel(Color.rgb(237, 246, 232))
+            addText(card, title, 16, true)
+            addText(card, "• $text", 14)
+            addView(card)
+        }
+        val status = panel(Color.rgb(255, 247, 223))
+        addText(status, "Application status", 14, true)
+        addText(status, "• " + assessment.applicationNote, 13)
+        addView(status)
+    }
     fun render(assessment: FarmerAssessment) {
         removeAllViews(); val json = assessment.json; val primary = json.optJSONObject("primaryAction")
         val hero = panel(Color.rgb(237, 246, 232)); addText(hero, "YOUR NEXT STEP", 11, true)
-        addText(hero, primary?.optString("title").orEmpty(), 22, true)
-        addText(hero, "What to do", 13, true)
-        addText(hero, primary?.optString("whatToDo").orEmpty(), 16)
-        addText(hero, "Why: " + primary?.optString("why").orEmpty(), 13)
+        addText(hero, if (assessment.hasPlan) "Your corn application plan" else "Your crop-cycle check", 22, true)
+        addText(hero, "Products, amounts and timing for your zone", 14)
         addView(hero)
         listOf("What to apply" to assessment.whatToApply, "How to apply" to assessment.howToApply,
             "When to apply" to assessment.whenToApply, "How much to apply" to assessment.howMuchToApply).forEach { (title, text) ->
@@ -57,6 +70,12 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
             addText(card, title, 17, true)
             addText(card, "• $text", 15).setTextColor(if (assessment.canReviewApplication) green else Color.rgb(116, 83, 25))
             addView(card)
+        }
+        section("Before application") { body -> addText(body, "• " + assessment.applicationNote) }
+        section("Priority field action") { body ->
+            addText(body, primary?.optString("title").orEmpty(), 16, true)
+            addText(body, "• " + primary?.optString("whatToDo").orEmpty())
+            addText(body, "• Why: " + primary?.optString("why").orEmpty(), 12)
         }
         val scoreCard = panel()
         val valid = json.optJSONObject("soilHealth")?.optInt("validSensors") ?: 0
@@ -81,7 +100,7 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
             }
         }
         section("Full application plan") { body ->
-            val plan = json.optJSONObject("referenceFertilizerPlan"); val entries = plan?.optJSONArray("entries")
+            val plan = assessment.displayPlan; val entries = plan?.optJSONArray("entries")
             addText(body, "Corn program ${assessment.program} · Published amounts scaled to your zone area, not a measured soil-deficit dose. Complete field and crop-stage checks before application.")
             if (entries == null || entries.length() == 0) addText(body, "Complete your zone area and planting details and resolve the priority issue above to calculate an application plan.", 14, true)
             rows(entries) { row, _ -> addText(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})", 15, true); addText(body, "• Amount: ${String.format(Locale.US, "%.2f", row.optDouble("kgForPlot"))} kg for this plot\n• When: ${row.optString("applicationTiming")}") }

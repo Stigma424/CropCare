@@ -8,21 +8,27 @@ data class FarmerAssessment(val json: JSONObject) {
     val actions: List<JSONObject> get() = json.optJSONArray("recommendations").let { a ->
         (0 until (a?.length() ?: 0)).mapNotNull { a?.optJSONObject(it) }
     }
-    val planEntries: List<JSONObject> get() = json.optJSONObject("referenceFertilizerPlan")?.optJSONArray("entries").let { a ->
+    val displayPlan: JSONObject? get() = json.optJSONObject("programFertilizerPlan") ?: json.optJSONObject("referenceFertilizerPlan")
+    val planEntries: List<JSONObject> get() = displayPlan?.optJSONArray("entries").let { a ->
         (0 until (a?.length() ?: 0)).mapNotNull { a?.optJSONObject(it) }
     }
-    val canReviewApplication: Boolean get() = planEntries.isNotEmpty() && actions.any { it.optString("code") == "NUTRIENT_REVIEW" } &&
-        actions.none { it.optString("code") in setOf("CHECK_SENSOR", "CHECK_REGISTRATION", "AWAIT_READINGS", "LOW_MOISTURE", "HIGH_MOISTURE", "LOW_PH", "HIGH_PH", "EC_REVIEW", "TEMPERATURE_REVIEW", "PLANTING_DATE_REQUIRED", "POST_HARVEST") }
-    val whatToApply: String get() = if (canReviewApplication) planEntries.joinToString("; ") { "${it.optString("product")} (${it.optString("fertilizerGrade")})" }
-        else "Hold new fertilizer applications. " + json.optJSONObject("primaryAction")?.optString("whatToDo").orEmpty()
-    val howToApply: String get() = if (canReviewApplication) "Follow each product label. Check root-zone moisture and account for fertilizer already applied this cycle."
-        else "Complete the priority action above, then refresh the assessment before choosing fertilizer."
-    val whenToApply: String get() = if (canReviewApplication) planEntries.joinToString("; ") { "${it.optString("product")}: ${it.optString("applicationTiming")}" } + ". Confirm emergence and actual crop stage first."
-        else "Check the field now; reassess after the priority check and a fresh usable reading."
-    val howMuchToApply: String get() = if (canReviewApplication) planEntries.joinToString("; ") { "${it.optString("product")}: ${String.format(java.util.Locale.US, "%.2f", it.optDouble("kgForPlot"))} kg for this plot" } + ". Area-scaled program quantities; account for previous applications."
-        else "No new fertilizer amount is advised for this assessment."
+    private val blockingCodes = setOf("CHECK_SENSOR", "CHECK_REGISTRATION", "AWAIT_READINGS", "LOW_MOISTURE", "HIGH_MOISTURE", "LOW_PH", "HIGH_PH", "EC_REVIEW", "TEMPERATURE_REVIEW", "PLANTING_DATE_REQUIRED", "POST_HARVEST")
+    val hasPlan: Boolean get() = planEntries.isNotEmpty()
+    val canReviewApplication: Boolean get() = hasPlan && actions.any { it.optString("code") == "NUTRIENT_REVIEW" } && actions.none { it.optString("code") in blockingCodes }
+    val applicationNote: String get() = if (!hasPlan) json.optJSONObject("primaryAction")?.optString("whatToDo").orEmpty()
+        else if (actions.any { it.optString("code") in blockingCodes }) "Before applying: " + actions.filter { it.optString("code") in blockingCodes }.joinToString(" ") { it.optString("whatToDo") }
+        else if (canReviewApplication) "Nutrient readings are low. Use this crop schedule after confirming the crop stage and earlier applications."
+        else "Keep this crop schedule for the appropriate stage. Current readings do not establish a need for an extra fertilizer dose."
+    val whatToApply: String get() = if (hasPlan) planEntries.joinToString("; ") { "${it.optString("product")} (${it.optString("fertilizerGrade")})" }
+        else "A fertilizer schedule is not available for this crop cycle. " + json.optJSONObject("primaryAction")?.optString("whatToDo").orEmpty()
+    val howToApply: String get() = if (hasPlan) "Use 14-14-14 as the basal application and urea as the side-dress at the listed stage. Follow each product label and check root-zone moisture."
+        else "Complete the priority action, then refresh this assessment."
+    val whenToApply: String get() = if (hasPlan) planEntries.joinToString("; ") { "${it.optString("product")}: ${it.optString("applicationTiming")}" } + ". DAE means days after emergence; confirm actual crop stage."
+        else "Refresh after the crop-cycle details or priority issue are resolved."
+    val howMuchToApply: String get() = if (hasPlan) planEntries.joinToString("; ") { "${it.optString("product")}: ${String.format(java.util.Locale.US, "%.2f", it.optDouble("kgForPlot"))} kg for this plot" } + ". Planned program totals; account for fertilizer already applied."
+        else "Complete the current crop-cycle setup to display its calculated program quantities."
     val summary: String get() = listOf("What to apply" to whatToApply, "How to apply" to howToApply, "When to apply" to whenToApply, "How much to apply" to howMuchToApply)
-        .joinToString("\n\n") { (title, text) -> "• $title\n$text" }
+        .joinToString("\n\n") { (title, text) -> "• $title\n$text" } + "\n\n• Application status\n" + applicationNote
     val program: String get() = json.optString("programId", "HYB-1")
     val evaluatedAtMs: Long get() = json.optLong("evaluatedAtMs")
     fun details(): String = buildString {

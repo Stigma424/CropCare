@@ -2,6 +2,7 @@
 package com.example.cropcare
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -19,6 +20,7 @@ class AddSensorActivity : AppCompatActivity() {
     private lateinit var tvQrStatus: TextView
     private lateinit var btnScanQr: Button
     private lateinit var btnSave: Button
+    private lateinit var pairingDetails: View
 
     private var zoneId = ""
 
@@ -37,6 +39,8 @@ class AddSensorActivity : AppCompatActivity() {
         tvQrStatus = findViewById(R.id.tvQrStatus)
         btnScanQr = findViewById(R.id.btnScanQr)
         btnSave = findViewById(R.id.btnSave)
+        pairingDetails = findViewById(R.id.pairingDetails)
+        pairingDetails.visibility = View.GONE
 
         val btnCancel =
             findViewById<Button>(R.id.btnCancel)
@@ -77,6 +81,7 @@ class AddSensorActivity : AppCompatActivity() {
         etSensorId.setText("")
         btnSave.isEnabled = false
         tvQrStatus.text = "Opening QR scanner..."
+        pairingDetails.visibility = View.GONE
 
         val options = GmsBarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
@@ -161,6 +166,7 @@ class AddSensorActivity : AppCompatActivity() {
             "QR scanned. Ready to pair this device."
 
         btnSave.isEnabled = true
+        pairingDetails.visibility = View.VISIBLE
     }
 
     private fun rejectQr() {
@@ -169,6 +175,7 @@ class AddSensorActivity : AppCompatActivity() {
 
         etSensorId.setText("")
         btnSave.isEnabled = false
+        pairingDetails.visibility = View.GONE
 
         tvQrStatus.text = "Invalid CropCare QR code."
 

@@ -503,6 +503,8 @@ class ZoneManagementActivity : AppCompatActivity() {
         val generation = refreshGeneration
         val owner = auth.currentUser?.uid
         activeAssessment = null; btnSeeMoreRec.isEnabled = false
+        findViewById<android.widget.LinearLayout>(R.id.recommendationSummaryCards).apply { removeAllViews(); visibility = android.view.View.GONE }
+        tvRecommendationText.visibility = android.view.View.VISIBLE
         tvRecommendationText.text = "Loading server advisory…"
         tvSoilHealth.text = "Assessment loading…"
         detailView?.showMessage("Loading current recommendation…")
@@ -513,7 +515,11 @@ class ZoneManagementActivity : AppCompatActivity() {
             btnSeeMoreRec.isEnabled = assessment != null
             if (assessment != null) {
                 tvSoilHealth.text = "Soil health score: " + (assessment.score?.let { "$it/100" } ?: "Unavailable")
-                tvRecommendationText.text = assessment.summary
+                tvRecommendationText.visibility = android.view.View.GONE
+                findViewById<android.widget.LinearLayout>(R.id.recommendationSummaryCards).apply {
+                    removeAllViews(); visibility = android.view.View.VISIBLE
+                    addView(RecommendationView(this@ZoneManagementActivity) { }.apply { renderSummary(assessment) })
+                }
                 detailView?.render(assessment)
             } else {
                 val message = when(result.statusCode) { 403 -> "An approved Pro subscription is required for detailed recommendations."; 401 -> "Session expired. Sign in again."; else -> if (result.successful) "API assessment update required" else result.message }
