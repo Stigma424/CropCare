@@ -535,7 +535,7 @@ class ZoneManagementActivity : AppCompatActivity() {
         }.apply { render(assessment) }
         detailView = content
         val scroll = android.widget.ScrollView(this).apply { addView(content) }
-        val dialog = AlertDialog.Builder(this).setTitle("Zone recommendation").setView(scroll).setPositiveButton("Close", null).create()
+        val dialog = AlertDialog.Builder(this).setTitle("Recommendation").setView(scroll).setPositiveButton("Close", null).create()
         dialog.setOnDismissListener { detailView = null }
         dialog.show()
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(android.graphics.Color.rgb(29, 78, 43))

@@ -88,7 +88,7 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         addText(scoreCard, "Updated $time · Based on your zone assessment.", 11); addView(scoreCard)
         val other = json.optJSONArray("recommendations")
         val otherActions = (0 until (other?.length() ?: 0)).mapNotNull { other?.optJSONObject(it) }.filter { it.optString("code") != primary?.optString("code") }
-        if (otherActions.isNotEmpty()) section("Other checks (${otherActions.size})") { body ->
+        if (otherActions.isNotEmpty()) section("Things to consider (${otherActions.size})") { body ->
             otherActions.forEach { row -> addText(body, row.optString("title"), 16, true); addText(body, "• " + row.optString("whatToDo")); addText(body, "• " + row.optString("why"), 12) }
         }
         section("Sensor readings and quality") { body ->
