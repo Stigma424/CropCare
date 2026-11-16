@@ -68,7 +68,7 @@ class DashboardActivity : AppCompatActivity() {
                 val scores = zones.mapNotNull { it.score }
                 findViewById<SoilScoreView>(R.id.soilScoreRing).setScore(scores.takeIf { it.isNotEmpty() }?.average())
                 findViewById<TextView>(R.id.tvDashboardSoilHealth).text = if (scores.isEmpty()) "Awaiting an available server assessment" else
-                    "${scores.size} assessed zone${if (scores.size == 1) "" else "s"} · provisional"
+                    "${scores.size} assessed zone${if (scores.size == 1) "" else "s"} · soil health"
             }
         }
     }

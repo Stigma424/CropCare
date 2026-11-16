@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.LinearLayout
-import android.widget.Spinner
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import org.json.JSONArray
@@ -35,20 +33,12 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         it.setTextIsSelectable(true); parent.addView(it)
     }
     private fun section(title: String, build: (LinearLayout) -> Unit) {
-        val card = panel().apply { setPadding(0, 0, 0, 0) }
+        val card = panel()
+        addText(card, title, 17, true)
         val body = LinearLayout(context).apply {
-            orientation = VERTICAL; visibility = View.GONE; setPadding(dp(14), dp(10), dp(14), dp(12))
+            orientation = VERTICAL
         }
-        val button = MaterialButton(context).apply {
-            text = "$title  ▸"; isAllCaps = false; textSize = 14f; gravity = android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
-            setTextColor(green); backgroundTintList = android.content.res.ColorStateList.valueOf(Color.rgb(243, 248, 239))
-            minHeight = dp(48); cornerRadius = dp(12); contentDescription = "Expand $title"
-            setOnClickListener {
-                val open = body.visibility != View.VISIBLE; body.visibility = if (open) View.VISIBLE else View.GONE
-                text = "$title  ${if (open) "▾" else "▸"}"; contentDescription = "${if (open) "Collapse" else "Expand"} $title"
-            }
-        }
-        card.addView(button, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)); build(body); card.addView(body); addView(card)
+        build(body); card.addView(body); addView(card)
     }
     private fun rows(array: JSONArray?, each: (JSONObject, Int) -> Unit) {
         for (i in 0 until (array?.length() ?: 0)) array?.optJSONObject(i)?.let { each(it, i) }
@@ -60,47 +50,59 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         addText(hero, "What to do", 13, true)
         addText(hero, primary?.optString("whatToDo").orEmpty(), 16)
         addText(hero, "Why: " + primary?.optString("why").orEmpty(), 13)
+        addView(hero)
+        listOf("What to apply" to assessment.whatToApply, "How to apply" to assessment.howToApply,
+            "When to apply" to assessment.whenToApply, "How much to apply" to assessment.howMuchToApply).forEach { (title, text) ->
+            val card = panel(if (assessment.canReviewApplication) Color.rgb(237, 246, 232) else Color.rgb(255, 247, 223))
+            addText(card, title, 17, true)
+            addText(card, "• $text", 15).setTextColor(if (assessment.canReviewApplication) green else Color.rgb(116, 83, 25))
+            addView(card)
+        }
+        val scoreCard = panel()
         val valid = json.optJSONObject("soilHealth")?.optInt("validSensors") ?: 0
         val installed = json.optJSONObject("sensorAllocation")?.optInt("installed") ?: 0
-        addText(hero, "Soil score: ${assessment.score?.let { String.format(Locale.US, "%.1f/100", it) } ?: "Not ready"}", 18, true)
-        addText(hero, "$valid of $installed sensors usable · ${assessment.label}")
-        if (json.optBoolean("partialCoverage")) addText(hero, "Some readings cannot be used. This does not describe every part of your zone.", 13)
+        addText(scoreCard, "Soil health score: ${assessment.score?.let { String.format(Locale.US, "%.1f/100", it) } ?: "Not ready"}", 18, true)
+        addText(scoreCard, "$valid of $installed sensors usable · ${assessment.label}")
+        addText(scoreCard, "Sensor-based condition score; laboratory testing provides a fuller soil assessment.", 12)
+        if (json.optBoolean("partialCoverage")) addText(scoreCard, "• Some readings cannot be used. This does not describe every part of your zone.", 13)
         val time = SimpleDateFormat("MMM d, h:mm a", Locale.US).apply { timeZone = TimeZone.getTimeZone("Asia/Manila") }.format(Date(assessment.evaluatedAtMs))
-        addText(hero, "Updated $time · Based on your zone assessment.", 11); addView(hero)
+        addText(scoreCard, "Updated $time · Based on your zone assessment.", 11); addView(scoreCard)
         val other = json.optJSONArray("recommendations")
         val otherActions = (0 until (other?.length() ?: 0)).mapNotNull { other?.optJSONObject(it) }.filter { it.optString("code") != primary?.optString("code") }
         if (otherActions.isNotEmpty()) section("Other checks (${otherActions.size})") { body ->
-            otherActions.forEach { row -> addText(body, row.optString("title"), 16, true); addText(body, row.optString("whatToDo")); addText(body, row.optString("why"), 12) }
+            otherActions.forEach { row -> addText(body, row.optString("title"), 16, true); addText(body, "• " + row.optString("whatToDo")); addText(body, "• " + row.optString("why"), 12) }
         }
         section("Sensor readings and quality") { body ->
             rows(json.optJSONArray("sensorQuality")) { row, i ->
-                addText(body, "Sensor ${i + 1} · ${row.optString("status").replace('_', ' ')}", 15, true)
-                addText(body, row.optString("message")); addText(body, "Device record: ${row.optString("sensorId")}", 11)
+                val usable = row.optBoolean("canUseForScore")
+                addText(body, "Sensor ${i + 1} · ${if (usable) "USABLE" else "CHECK REQUIRED"}", 15, true)
+                    .setTextColor(if (usable) green else Color.rgb(164, 48, 48))
+                addText(body, "• " + row.optString("message")); addText(body, "Device record: ${row.optString("sensorId")}", 11)
             }
         }
-        section("What to apply and how much") { body ->
+        section("Full application plan") { body ->
             val plan = json.optJSONObject("referenceFertilizerPlan"); val entries = plan?.optJSONArray("entries")
-            addText(body, "Corn program ${assessment.program} · Amounts scaled to your zone area. Account for fertilizer already applied before using this plan.")
+            addText(body, "Corn program ${assessment.program} · Published amounts scaled to your zone area, not a measured soil-deficit dose. Complete field and crop-stage checks before application.")
             if (entries == null || entries.length() == 0) addText(body, "Complete your zone area and planting details and resolve the priority issue above to calculate an application plan.", 14, true)
-            rows(entries) { row, _ -> addText(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})", 15, true); addText(body, "${row.optDouble("kgForPlot")} kg for this plot · ${row.optString("applicationTiming")}") }
+            rows(entries) { row, _ -> addText(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})", 15, true); addText(body, "• Amount: ${String.format(Locale.US, "%.2f", row.optDouble("kgForPlot"))} kg for this plot\n• When: ${row.optString("applicationTiming")}") }
             addText(body, "How to apply: Follow the product label and the application timing shown for each product. Check soil moisture before application and account for fertilizer already applied this cycle.", 13)
             addText(body, "DAE means days after emergence, not planting. Prior applications are unknown.", 12)
         }
-        section("Sources and limitations") { body ->
-            rows(json.optJSONArray("evidenceReferences")) { row, _ -> addText(body, row.optString("title"), 14, true); addText(body, row.optString("basis"), 12); addText(body, row.optString("url"), 11) }
-            val limits = json.optJSONArray("limitations"); for(i in 0 until (limits?.length() ?: 0)) addText(body, limits?.optString(i).orEmpty(), 12)
-            addText(body, "${json.optString("rulesetVersion")} · ${json.optString("datasetVersion")}", 11)
-        }
         section("Corn program options") { body ->
-            addText(body, "Hybrid-corn yield target", 13)
-            val spinner = Spinner(context); spinner.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, listOf("HYB-1 · 5–8 t/ha", "HYB-2 · 8–12 t/ha"))
-            spinner.setSelection(if (assessment.program == "HYB-2") 1 else 0)
-            spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
-                override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    val program = if (position == 1) "HYB-2" else "HYB-1"; if (program != assessment.program) onProgramChanged(program)
-                }
-            }; body.addView(spinner, LayoutParams(LayoutParams.MATCH_PARENT, dp(52)))
+            addText(body, "Published hybrid-corn yield target. This is a target, not a predicted yield.", 13)
+            listOf("HYB-1" to "5–8 t/ha", "HYB-2" to "8–12 t/ha").forEach { (id, target) ->
+                body.addView(MaterialButton(context).apply {
+                    text = "${if (id == assessment.program) "✓ " else ""}$id · $target"; isAllCaps = false
+                    minHeight = dp(52); cornerRadius = dp(12)
+                    isCheckable = true; isChecked = id == assessment.program
+                    setOnClickListener { if (id != assessment.program) onProgramChanged(id) }
+                }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+            }
+        }
+        section("Sources and limitations") { body ->
+            rows(json.optJSONArray("evidenceReferences")) { row, _ -> addText(body, row.optString("title"), 14, true); addText(body, "• " + row.optString("basis"), 12); addText(body, row.optString("url"), 11) }
+            val limits = json.optJSONArray("limitations"); for(i in 0 until (limits?.length() ?: 0)) addText(body, "• " + limits?.optString(i).orEmpty(), 12)
+            addText(body, "${json.optString("rulesetVersion")} · ${json.optString("datasetVersion")}", 11)
         }
     }
 }

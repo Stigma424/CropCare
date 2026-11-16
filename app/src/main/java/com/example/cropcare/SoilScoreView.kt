@@ -18,7 +18,7 @@ class SoilScoreView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var score: Double? = null
     fun setScore(value: Double?) {
         score = value?.takeIf { it.isFinite() && it in 0.0..100.0 }
-        contentDescription = score?.let { "Provisional soil score ${String.format(Locale.US,"%.1f",it)} out of 100" } ?: "Soil score unavailable"
+        contentDescription = score?.let { "Soil health score ${String.format(Locale.US,"%.1f",it)} out of 100" } ?: "Soil score unavailable"
         invalidate()
     }
     override fun onDraw(canvas: Canvas) {

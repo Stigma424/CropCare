@@ -61,7 +61,7 @@ class LiveRecommendationTest {
     @After fun finalScreenshot() {
         if (InstrumentationRegistry.getArguments().getString("liveDemo") == "true") screenshot("recommendation-live-final.png")
     }
-    @Test fun demoAccountLoadsCurrentRecommendationAndExpandableDetails() {
+    @Test fun demoAccountLoadsCurrentRecommendationCards() {
         val args = InstrumentationRegistry.getArguments()
         assumeTrue(args.getString("liveDemo") == "true")
         val username = requireNotNull(args.getString("demoUsername"))
@@ -95,11 +95,11 @@ class LiveRecommendationTest {
         onView(withId(R.id.btnSeeMoreRec)).perform(scrollTo(), click())
         awaitText("YOUR NEXT STEP")
         screenshot("recommendation-live-summary.png")
-        onView(withText(startsWith("Other checks"))).perform(scrollTo(), click())
+        onView(withText("What to apply")).perform(scrollTo()).check(matches(isDisplayed()))
+        onView(withText("How much to apply")).perform(scrollTo()).check(matches(isDisplayed()))
         screenshot("recommendation-live-expanded.png")
-        onView(withText(startsWith("Other checks"))).perform(scrollTo(), click())
-        onView(withText(startsWith("Sensor readings and quality"))).perform(scrollTo(), click())
-        onView(withText(startsWith("Sensor 1"))).check(matches(isDisplayed()))
+        onView(withText(startsWith("Sensor readings and quality"))).perform(scrollTo())
+        onView(withText(startsWith("Sensor 1"))).perform(scrollTo()).check(matches(isDisplayed()))
         onView(withText("Close")).perform(click())
         instrumentation.startActivitySync(Intent(context, DashboardActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

@@ -512,7 +512,7 @@ class ZoneManagementActivity : AppCompatActivity() {
             activeAssessment = assessment
             btnSeeMoreRec.isEnabled = assessment != null
             if (assessment != null) {
-                tvSoilHealth.text = "Provisional score: " + (assessment.score?.let { "$it/100" } ?: "Unavailable")
+                tvSoilHealth.text = "Soil health score: " + (assessment.score?.let { "$it/100" } ?: "Unavailable")
                 tvRecommendationText.text = assessment.summary
                 detailView?.render(assessment)
             } else {
