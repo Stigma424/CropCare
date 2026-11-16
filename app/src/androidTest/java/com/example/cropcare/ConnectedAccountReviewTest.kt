@@ -70,6 +70,14 @@ class ConnectedAccountReviewTest {
                 image.compress(Bitmap.CompressFormat.PNG, 100, it)
             }
             image.recycle()
+            onView(withText("Sensor readings and quality")).inRoot(isDialog()).perform(scrollTo())
+            instrumentation.waitForIdleSync()
+            instrumentation.uiAutomation.waitForIdle(500, 5000)
+            val supportingImage = instrumentation.uiAutomation.takeScreenshot()
+            File(activity.getExternalFilesDir(null), "recommendation-support-cards.png").outputStream().use {
+                supportingImage.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+            supportingImage.recycle()
             assertEquals("cropcare-hybrid-advisory-v2.1", current.getString("rulesetVersion"))
             assertTrue(current.getJSONObject("programFertilizerPlan").getJSONArray("entries").length() > 0)
             assertFalse(current.getJSONArray("sensorQuality").toString().contains("accuracy remains unverified"))

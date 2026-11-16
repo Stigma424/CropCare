@@ -21,9 +21,9 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     init { orientation = VERTICAL; setPadding(dp(20), dp(8), dp(20), dp(16)) }
     fun showMessage(message: String) { removeAllViews(); addText(this, message, 16) }
-    private fun panel(color: Int = Color.WHITE) = LinearLayout(context).apply {
+    private fun panel(color: Int = Color.rgb(237, 246, 232)) = LinearLayout(context).apply {
         orientation = VERTICAL; setPadding(dp(16), dp(16), dp(16), dp(16))
-        background = GradientDrawable().apply { setColor(color); cornerRadius = dp(14).toFloat() }
+        background = GradientDrawable().apply { setColor(color); cornerRadius = dp(14).toFloat(); setStroke(dp(1), Color.rgb(211, 226, 205)) }
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(12) }
     }
     private fun addText(parent: LinearLayout, value: String, size: Int = 14, bold: Boolean = false) = TextView(context).also {
@@ -39,6 +39,12 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
             orientation = VERTICAL
         }
         build(body); card.addView(body); addView(card)
+    }
+    private fun detailCard(parent: LinearLayout, title: String, color: Int = Color.WHITE, build: (LinearLayout) -> Unit) {
+        val card = panel(color)
+        addText(card, title, 15, true)
+        build(card)
+        parent.addView(card)
     }
     private fun rows(array: JSONArray?, each: (JSONObject, Int) -> Unit) {
         for (i in 0 until (array?.length() ?: 0)) array?.optJSONObject(i)?.let { each(it, i) }
@@ -89,21 +95,31 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         val other = json.optJSONArray("recommendations")
         val otherActions = (0 until (other?.length() ?: 0)).mapNotNull { other?.optJSONObject(it) }.filter { it.optString("code") != primary?.optString("code") }
         if (otherActions.isNotEmpty()) section("Things to consider (${otherActions.size})") { body ->
-            otherActions.forEach { row -> addText(body, row.optString("title"), 16, true); addText(body, "• " + row.optString("whatToDo")); addText(body, "• " + row.optString("why"), 12) }
+            otherActions.forEach { row ->
+                detailCard(body, row.optString("title"), Color.rgb(255, 247, 223)) { card ->
+                    addText(card, "• " + row.optString("whatToDo"))
+                    addText(card, "• " + row.optString("why"), 12)
+                }
+            }
         }
         section("Sensor readings and quality") { body ->
             rows(json.optJSONArray("sensorQuality")) { row, i ->
                 val usable = row.optBoolean("canUseForScore")
-                addText(body, "Sensor ${i + 1} · ${if (usable) "USABLE" else "CHECK REQUIRED"}", 15, true)
-                    .setTextColor(if (usable) green else Color.rgb(164, 48, 48))
-                addText(body, "• " + row.optString("message")); addText(body, "Device record: ${row.optString("sensorId")}", 11)
+                detailCard(body, "Sensor ${i + 1} · ${if (usable) "USABLE" else "CHECK REQUIRED"}", if (usable) Color.WHITE else Color.rgb(255, 237, 234)) { card ->
+                    addText(card, "• " + row.optString("message")).setTextColor(if (usable) green else Color.rgb(164, 48, 48))
+                    addText(card, "Device record: ${row.optString("sensorId")}", 11)
+                }
             }
         }
         section("Full application plan") { body ->
             val plan = assessment.displayPlan; val entries = plan?.optJSONArray("entries")
             addText(body, "Corn program ${assessment.program} · Published amounts scaled to your zone area, not a measured soil-deficit dose. Complete field and crop-stage checks before application.")
             if (entries == null || entries.length() == 0) addText(body, "Complete your zone area and planting details and resolve the priority issue above to calculate an application plan.", 14, true)
-            rows(entries) { row, _ -> addText(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})", 15, true); addText(body, "• Amount: ${String.format(Locale.US, "%.2f", row.optDouble("kgForPlot"))} kg for this plot\n• When: ${row.optString("applicationTiming")}") }
+            rows(entries) { row, _ ->
+                detailCard(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})") { card ->
+                    addText(card, "• Amount: ${String.format(Locale.US, "%.2f", row.optDouble("kgForPlot"))} kg for this plot\n• When: ${row.optString("applicationTiming")}")
+                }
+            }
             addText(body, "How to apply: Follow the product label and the application timing shown for each product. Check soil moisture before application and account for fertilizer already applied this cycle.", 13)
             addText(body, "DAE means days after emergence, not planting. Prior applications are unknown.", 12)
         }
@@ -126,9 +142,10 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
                     else -> null
                 }
                 if (reference != null) {
-                    addText(body, reference.first, 14, true)
-                    addText(body, "• " + reference.second, 12)
-                    addText(body, row.optString("url"), 11)
+                    detailCard(body, reference.first) { card ->
+                        addText(card, "• " + reference.second, 12)
+                        addText(card, row.optString("url"), 11)
+                    }
                 }
             }
             addText(body, "Reading classifications follow CropCare's configured monitoring bands.", 12)
