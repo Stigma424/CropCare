@@ -4,6 +4,10 @@ import org.json.JSONObject
 
 data class FarmerAssessment(val json: JSONObject) {
     val score: Double? get() = (json.optJSONObject("soilHealth")?.opt("score") as? Number)?.toDouble()?.takeIf { it.isFinite() }
+    // Use the same server score availability as the soil-health card, not packet arrival.
+    val hasUsableReadings: Boolean get() = score != null &&
+        json.optJSONObject("soilHealth")?.optInt("validSensors", 1) != 0
+    val noReadingsMessage: String get() = "No good sensor readings available. Place the sensor in the soil and wait for usable readings."
     val label: String get() = json.optJSONObject("soilHealth")?.optString("label") ?: "Unavailable"
     val actions: List<JSONObject> get() = json.optJSONArray("recommendations").let { a ->
         (0 until (a?.length() ?: 0)).mapNotNull { a?.optJSONObject(it) }
@@ -14,7 +18,7 @@ data class FarmerAssessment(val json: JSONObject) {
     }
     private val blockingCodes = setOf("CHECK_SENSOR", "CHECK_REGISTRATION", "AWAIT_READINGS", "LOW_MOISTURE", "HIGH_MOISTURE", "LOW_PH", "HIGH_PH", "EC_REVIEW", "TEMPERATURE_REVIEW", "PLANTING_DATE_REQUIRED", "POST_HARVEST")
     val hasPlan: Boolean get() = planEntries.isNotEmpty()
-    val canReviewApplication: Boolean get() = hasPlan && actions.any { it.optString("code") == "NUTRIENT_REVIEW" } && actions.none { it.optString("code") in blockingCodes }
+    val canReviewApplication: Boolean get() = hasUsableReadings && hasPlan && actions.any { it.optString("code") == "NUTRIENT_REVIEW" } && actions.none { it.optString("code") in blockingCodes }
     val applicationNote: String get() = if (!hasPlan) json.optJSONObject("primaryAction")?.optString("whatToDo").orEmpty()
         else if (actions.any { it.optString("code") in blockingCodes }) "Before applying: " + actions.filter { it.optString("code") in blockingCodes }.joinToString(" ") { it.optString("whatToDo") }
         else if (canReviewApplication) "Nutrient readings are low. Use this crop schedule after confirming the crop stage and earlier applications."
@@ -27,11 +31,11 @@ data class FarmerAssessment(val json: JSONObject) {
         else "Refresh after the crop-cycle details or priority issue are resolved."
     val howMuchToApply: String get() = if (hasPlan) planEntries.joinToString("; ") { "${it.optString("product")}: ${String.format(java.util.Locale.US, "%.2f", it.optDouble("kgForPlot"))} kg for this plot" } + ". Planned program totals; account for fertilizer already applied."
         else "Complete the current crop-cycle setup to display its calculated program quantities."
-    val summary: String get() = listOf("What to apply" to whatToApply, "How to apply" to howToApply, "When to apply" to whenToApply, "How much to apply" to howMuchToApply)
+    val summary: String get() = if (!hasUsableReadings) noReadingsMessage else listOf("What to apply" to whatToApply, "How to apply" to howToApply, "When to apply" to whenToApply, "How much to apply" to howMuchToApply)
         .joinToString("\n\n") { (title, text) -> "• $title\n$text" } + "\n\n• Application status\n" + applicationNote
     val program: String get() = json.optString("programId", "HYB-1")
     val evaluatedAtMs: Long get() = json.optLong("evaluatedAtMs")
-    fun details(): String = buildString {
+    fun details(): String = if (!hasUsableReadings) noReadingsMessage else buildString {
         append("Rules-based advisory\n").append(summary).append("\n\nSoil health score: ").append(score?.let { "$it/100" } ?: "Unavailable")
         val soil = json.optJSONObject("soilHealth")
         val allocation = json.optJSONObject("sensorAllocation")

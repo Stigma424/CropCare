@@ -50,6 +50,10 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         for (i in 0 until (array?.length() ?: 0)) array?.optJSONObject(i)?.let { each(it, i) }
     }
     fun renderSummary(assessment: FarmerAssessment) {
+        if (!assessment.hasUsableReadings) {
+            showMessage(assessment.noReadingsMessage)
+            return
+        }
         removeAllViews()
         setPadding(0, dp(4), 0, 0)
         listOf("What to apply" to assessment.whatToApply, "How to apply" to assessment.howToApply,
@@ -65,6 +69,10 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         addView(status)
     }
     fun render(assessment: FarmerAssessment) {
+        if (!assessment.hasUsableReadings) {
+            showMessage(assessment.noReadingsMessage)
+            return
+        }
         removeAllViews(); val json = assessment.json; val primary = json.optJSONObject("primaryAction")
         val hero = panel(Color.rgb(237, 246, 232)); addText(hero, "YOUR NEXT STEP", 11, true)
         addText(hero, if (assessment.hasPlan) "Your corn application plan" else "Your crop-cycle check", 22, true)
