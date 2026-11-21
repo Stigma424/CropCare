@@ -52,16 +52,12 @@ class ZoneManagementActivity : AppCompatActivity() {
     private lateinit var tvAvgEc: TextView
     private lateinit var tvStatusEc: TextView
 
-    private lateinit var tvRecommendationText: TextView
-    private lateinit var btnSeeMoreRec: Button
     private lateinit var btnNewCornPlanted: Button
     private lateinit var btnHarvest: Button
     private lateinit var btnDeleteZone: Button
 
     private var activeAssessment: FarmerAssessment? = null
     private var assessmentRequest: ApiRequestHandle? = null
-    private var assessmentProgram = "HYB-1"
-    private var detailView: RecommendationView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,11 +87,6 @@ class ZoneManagementActivity : AppCompatActivity() {
         tvAvgEc = findViewById(R.id.tvAvgEc)
         tvStatusEc = findViewById(R.id.tvStatusEc)
 
-        tvRecommendationText =
-            findViewById(R.id.tvRecommendationText)
-
-        btnSeeMoreRec = findViewById(R.id.btnSeeMoreRec)
-        btnSeeMoreRec.isEnabled = false
         btnNewCornPlanted = findViewById(R.id.btnNewCornPlanted)
         btnHarvest = findViewById(R.id.btnHarvest)
         btnDeleteZone = findViewById(R.id.btnDeleteZone)
@@ -123,10 +114,6 @@ class ZoneManagementActivity : AppCompatActivity() {
             }
         }
 
-        btnSeeMoreRec.setOnClickListener {
-            showDetailedRecommendationDialog()
-        }
-
         findViewById<Button>(R.id.btnRefresh)
             .setOnClickListener {
                 loadZoneData()
@@ -137,6 +124,9 @@ class ZoneManagementActivity : AppCompatActivity() {
                 finish()
             }
 
+        findViewById<Button>(R.id.btnDeviceManagement).setOnClickListener {
+            startActivity(Intent(this, DeviceManagementActivity::class.java).putExtra("ZONE_ID", currentZoneId))
+        }
         findViewById<Button>(R.id.btnSensorStatus)
             .setOnClickListener {
                 startActivity(
@@ -401,7 +391,6 @@ class ZoneManagementActivity : AppCompatActivity() {
                     findViewById<TextView>(valueIds[index]).text = value?.let { String.format(Locale.US, "%.1f %s", it, units[index]) } ?: "—"
                     findViewById<TextView>(statusIds[index]).text = ReadingStatus.label(key, value)
                 }
-                if (activeAssessment == null) tvRecommendationText.text = "Waiting for the server assessment; no local recommendation is calculated."
             }
             tvLastUpdated.append("\n" + snapshot.notice)
         }
@@ -451,10 +440,8 @@ class ZoneManagementActivity : AppCompatActivity() {
 
         tvLastUpdated.text = "Last updated: No data"
         if (activeAssessment == null) tvSoilHealth.text = "Server assessment unavailable"
-        if (activeAssessment == null) tvRecommendationText.text = "Server assessment pending."
 
         // Monitoring errors never replace a server assessment with a local calculation.
-        btnSeeMoreRec.isEnabled = activeAssessment != null
     }
 
     private fun updateUiWithAverages(
@@ -502,44 +489,17 @@ class ZoneManagementActivity : AppCompatActivity() {
         assessmentRequest?.cancel()
         val generation = refreshGeneration
         val owner = auth.currentUser?.uid
-        activeAssessment = null; btnSeeMoreRec.isEnabled = false
-        findViewById<android.widget.LinearLayout>(R.id.recommendationSummaryCards).apply { removeAllViews(); visibility = android.view.View.GONE }
-        tvRecommendationText.visibility = android.view.View.VISIBLE
-        tvRecommendationText.text = "Loading server advisory…"
+        activeAssessment = null
         tvSoilHealth.text = "Assessment loading…"
-        detailView?.showMessage("Loading current recommendation…")
-        assessmentRequest = CropCareFarmerApi.assessment(currentZoneId, assessmentProgram) { result ->
+        assessmentRequest = CropCareFarmerApi.assessment(currentZoneId) { result ->
             if (generation != refreshGeneration || owner != auth.currentUser?.uid || isFinishing || isDestroyed) return@assessment
-            val assessment = result.data?.takeIf { result.successful }?.let { runCatching { FarmerAssessment.parse(it) }.getOrNull() }
-            activeAssessment = assessment
-            btnSeeMoreRec.isEnabled = assessment != null
-            if (assessment != null) {
-                tvSoilHealth.text = "Soil health score: " + (assessment.score?.let { "$it/100" } ?: "Unavailable")
-                tvRecommendationText.visibility = android.view.View.GONE
-                findViewById<android.widget.LinearLayout>(R.id.recommendationSummaryCards).apply {
-                    removeAllViews(); visibility = android.view.View.VISIBLE
-                    addView(RecommendationView(this@ZoneManagementActivity) { }.apply { renderSummary(assessment) })
-                }
-                detailView?.render(assessment)
-            } else {
-                val message = when(result.statusCode) { 403 -> "An approved Pro subscription is required for detailed recommendations."; 401 -> "Session expired. Sign in again."; else -> if (result.successful) "API assessment update required" else result.message }
-                tvSoilHealth.text = "Assessment unavailable"
-                tvRecommendationText.text = message; detailView?.showMessage(message)
-            }
+            activeAssessment = result.data?.takeIf { result.successful }
+                ?.let { runCatching { FarmerAssessment.parse(it) }.getOrNull() }
+            val score = activeAssessment?.score
+            tvSoilHealth.text = if (score == null) "Soil health score unavailable" else "Soil health score: $score/100"
         }
     }
-    private fun showDetailedRecommendationDialog() {
-        val assessment = activeAssessment ?: return
-        val content = RecommendationView(this) { program ->
-            if (program != assessmentProgram) { assessmentProgram = program; fetchAssessment() }
-        }.apply { render(assessment) }
-        detailView = content
-        val scroll = android.widget.ScrollView(this).apply { addView(content) }
-        val dialog = AlertDialog.Builder(this).setTitle("Recommendation").setView(scroll).setPositiveButton("Close", null).create()
-        dialog.setOnDismissListener { detailView = null }
-        dialog.show()
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(android.graphics.Color.rgb(29, 78, 43))
-    }
+
     private fun getParameterStatus(type: String, value: Double): String = ReadingStatus.label(type, value)
 
     private fun showMessage(message: String) {
@@ -550,5 +510,3 @@ class ZoneManagementActivity : AppCompatActivity() {
         ).show()
     }
 }
-
-

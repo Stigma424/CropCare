@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -14,8 +13,8 @@ import java.util.Locale
 
 class SensorAdapter(
     private val sensors: List<SensorModel>,
-    private val onDeleteClick: (SensorModel) -> Unit,
-    private val onViewDetailsClick: (SensorModel) -> Unit
+    private val onViewDetailsClick: (SensorModel) -> Unit,
+    private val onHistory: ((SensorModel) -> Unit)? = null
 ) : RecyclerView.Adapter<SensorAdapter.SensorViewHolder>() {
 
     class SensorViewHolder(itemView: View) :
@@ -30,8 +29,7 @@ class SensorAdapter(
         val tvStatus: TextView =
             itemView.findViewById(R.id.tvStatus)
 
-        val btnDelete: ImageButton =
-            itemView.findViewById(R.id.btnDeleteSensor)
+        val btnHistory: Button = itemView.findViewById(R.id.btnSensorHistory)
 
         val btnViewDetails: Button =
             itemView.findViewById(R.id.btnViewDetails)
@@ -130,10 +128,13 @@ class SensorAdapter(
             }
         }
 
-        holder.btnDelete.setOnClickListener {
-            onDeleteClick(sensor)
+        holder.btnHistory.visibility = if (onHistory == null) View.GONE else View.VISIBLE
+        holder.btnHistory.setOnClickListener { onHistory?.invoke(sensor) }
+        if (onHistory == null) {
+            holder.tvStatus.text = if (sensor.pairingStatus == "qr_claimed") "QR paired" else "Unverified registration"
+            holder.tvLastScan.text = "Device ID: ${sensor.deviceId}"
+            holder.btnViewDetails.text = "Manage device"
         }
-
         holder.btnViewDetails.setOnClickListener {
             onViewDetailsClick(sensor)
         }

@@ -11,7 +11,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
-import org.hamcrest.Matchers.startsWith
 import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -80,27 +79,12 @@ class LiveRecommendationTest {
         instrumentation.startActivitySync(Intent(context, ZoneManagementActivity::class.java)
             .putExtra("ZONE_ID", zone).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         awaitActivity("ZoneManagementActivity")
-        val deadline = SystemClock.elapsedRealtime() + 45000
-        while (SystemClock.elapsedRealtime() < deadline) {
-            var ready = false
-            instrumentation.runOnMainSync {
-                val activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-                    .firstOrNull { it is ZoneManagementActivity }
-                ready = activity?.findViewById<android.view.View>(R.id.btnSeeMoreRec)?.isEnabled == true
-            }
-            if (ready) break
-            SystemClock.sleep(250)
-        }
-        screenshot("figma-zone.png")
-        onView(withId(R.id.btnSeeMoreRec)).perform(scrollTo(), click())
-        awaitText("YOUR NEXT STEP")
-        screenshot("recommendation-live-summary.png")
-        onView(withText("What to apply")).perform(scrollTo()).check(matches(isDisplayed()))
-        onView(withText("How much to apply")).perform(scrollTo()).check(matches(isDisplayed()))
-        screenshot("recommendation-live-expanded.png")
-        onView(withText(startsWith("Sensor readings and quality"))).perform(scrollTo())
-        onView(withText(startsWith("Sensor 1"))).perform(scrollTo()).check(matches(isDisplayed()))
-        onView(withText("Close")).perform(click())
+        onView(withId(R.id.btnSensorStatus)).perform(scrollTo(), click())
+        awaitActivity("SensorStatusActivity")
+        onView(withId(R.id.btnViewDetails)).perform(click())
+        awaitActivity("SensorDetailActivity")
+        onView(withText("Soil recommendations")).perform(scrollTo()).check(matches(isDisplayed()))
+        screenshot("sensor-recommendations.png")
         instrumentation.startActivitySync(Intent(context, DashboardActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         val dashboard = awaitActivity("DashboardActivity")

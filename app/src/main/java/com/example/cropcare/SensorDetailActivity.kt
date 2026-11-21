@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -16,13 +14,10 @@ import java.util.Locale
 class SensorDetailActivity : AppCompatActivity() {
 
     private var monitoringRequest: ApiRequestHandle? = null
-    private var removeRequest: ApiRequestHandle? = null
-    private var removing = false
     private var generation = 0
+    private var readingIsRecent = false
     private var sensorId = ""
     private var sensorName = "Sensor"
-    private var deviceId = ""
-    private var pairingStatus = ""
 
     private lateinit var lastUpdated: TextView
 
@@ -36,9 +31,6 @@ class SensorDetailActivity : AppCompatActivity() {
 
         sensorName =
             intent.getStringExtra("SENSOR_NAME") ?: "Sensor"
-
-        deviceId =
-            intent.getStringExtra("DEVICE_ID") ?: ""
 
         lastUpdated = findViewById(R.id.tvLastUpdated)
 
@@ -56,6 +48,7 @@ class SensorDetailActivity : AppCompatActivity() {
             R.id.btnRefreshDetail
         ).setOnClickListener {
             loadMonitoring()
+            loadAssessment()
         }
 
         findViewById<TextView>(
@@ -77,52 +70,11 @@ class SensorDetailActivity : AppCompatActivity() {
             )
         }
 
-        findViewById<TextView>(
-            R.id.btnEditSensor
-        ).setOnClickListener {
-
-            startActivity(
-                Intent(
-                    this,
-                    EditSensorActivity::class.java
-                ).apply {
-                    putExtra("SENSOR_ID", sensorId)
-                    putExtra("DEVICE_ID", deviceId)
-                    putExtra("SENSOR_NAME", sensorName)
-                }
-            )
+        findViewById<android.view.View>(R.id.btnHyb1).setOnClickListener { program = "HYB-1"; loadAssessment() }
+        findViewById<android.view.View>(R.id.btnHyb2).setOnClickListener { program = "HYB-2"; loadAssessment() }
+        findViewById<android.view.View>(R.id.btnSensorDemoPlan).setOnClickListener {
+            startActivity(Intent(this, SubscriptionActivity::class.java))
         }
-
-        findViewById<TextView>(
-            R.id.btnDeleteSensor
-        ).setOnClickListener {
-
-            if (removing || sensorId.isBlank()) return@setOnClickListener
-
-            AlertDialog.Builder(this)
-                .setTitle("Unpair sensor?")
-                .setMessage(
-                    "The API releases any authorized QR claim. Historical soil readings will not be deleted."
-                )
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Remove") { _, _ ->
-
-                    if (removing) return@setPositiveButton
-                    removing = true
-                    removeRequest = CropCareHttpClient.request("DELETE", "/api/sensors/${android.net.Uri.encode(sensorId)}") { result ->
-                        removing = false
-
-                        if (result.successful) {
-                            show(if (result.data?.optBoolean("qrReusable") == true) "Unpaired. The original QR can be reused." else "Registration removed. No linked QR claim was changed.")
-                            finish()
-                        } else {
-                            show(result.message)
-                        }
-                    }
-                }
-                .show()
-        }
-
         listOf(R.id.btnViewHistoryN, R.id.btnViewHistoryP, R.id.btnViewHistoryK, R.id.btnViewHistoryMoisture,
             R.id.btnViewHistoryPh, R.id.btnViewHistoryTemp, R.id.btnViewHistoryEc).forEachIndexed { index, id ->
             findViewById<android.view.View>(id).setOnClickListener {
@@ -135,6 +87,8 @@ class SensorDetailActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadMonitoring()
+        loadAssessment()
+        loadZone()
     }
 
     private fun loadMonitoring() {
@@ -163,12 +117,6 @@ class SensorDetailActivity : AppCompatActivity() {
             sensorName =
                 response.optString("sensorName", sensorName)
 
-            deviceId =
-                response.optString("deviceId", deviceId)
-
-            pairingStatus =
-                response.optString("pairingStatus", "")
-
             findViewById<TextView>(
                 R.id.tvSensorDetailTitle
             ).text = sensorName
@@ -176,6 +124,7 @@ class SensorDetailActivity : AppCompatActivity() {
             val status =
                 response.optString("status", "unknown_time")
 
+            readingIsRecent = status == "recent"
             val reading =
                 response.optJSONObject("reading")
 
@@ -262,13 +211,13 @@ class SensorDetailActivity : AppCompatActivity() {
                 R.id.tvStatusEc,
                 reading,
                 "ec",
-                "%.1f"
+                "%.1f µS/cm"
             )
         }
     }
 
     override fun onStop() {
-        generation++; monitoringRequest?.cancel(); removeRequest?.cancel(); removing = false; super.onStop()
+        generation++; monitoringRequest?.cancel(); assessmentRequest?.cancel(); zoneRequest?.cancel(); super.onStop()
     }
     private fun field(
         valueId: Int,
@@ -302,7 +251,7 @@ class SensorDetailActivity : AppCompatActivity() {
             if (number == null) {
                 "No Data"
             } else {
-                ReadingStatus.label(key, number)
+                if (readingIsRecent) ReadingStatus.label(key, number) else "Check freshness"
             }
     }
 
@@ -338,13 +287,76 @@ class SensorDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun show(message: String) {
-        Toast.makeText(
-            this,
-            message,
-            Toast.LENGTH_LONG
-        ).show()
+    private var program = "HYB-1"
+    private var assessmentRequest: ApiRequestHandle? = null
+    private var zoneRequest: ApiRequestHandle? = null
+
+    private fun loadZone() {
+        val label = findViewById<TextView>(R.id.tvAssignedZone)
+        if (sensorId.isBlank()) return
+        zoneRequest?.cancel()
+        zoneRequest = CropCareHttpClient.request("GET", "/api/sensors/${android.net.Uri.encode(sensorId)}") { result ->
+            val zoneId = result.data?.optString("zoneId").orEmpty()
+            if (!result.successful || zoneId.isBlank()) {
+                label.text = if (result.successful) "No assigned zone" else "Assigned zone unavailable"
+                return@request
+            }
+            zoneRequest = CropCareHttpClient.request("GET", "/api/zones/${android.net.Uri.encode(zoneId)}") { zone ->
+                label.text = zone.data?.optString("zoneName")?.takeIf { it.isNotBlank() } ?: "Assigned zone unavailable"
+            }
+        }
+    }
+
+    private fun loadAssessment() {
+        if (sensorId.isBlank()) return
+        assessmentRequest?.cancel()
+        val requestedProgram = program
+        val content = findViewById<TextView>(R.id.tvSensorAssessment)
+        val subscribe = findViewById<android.view.View>(R.id.btnSensorDemoPlan)
+        findViewById<android.view.View>(R.id.btnHyb1).isEnabled = program != "HYB-1"
+        findViewById<android.view.View>(R.id.btnHyb2).isEnabled = program != "HYB-2"
+        subscribe.visibility = android.view.View.GONE
+        content.text = "Loading $program recommendations…"
+        val path = "/api/sensors/${android.net.Uri.encode(sensorId)}/assessment?programId=$program"
+        assessmentRequest = CropCareHttpClient.request("GET", path) { result ->
+            if (program != requestedProgram) return@request
+            val data = result.data
+            if (!result.successful || data == null) {
+                content.text = result.message
+                if (result.statusCode == 403) subscribe.visibility = android.view.View.VISIBLE
+                return@request
+            }
+            val assessment = runCatching { FarmerAssessment.parse(data) }.getOrNull()
+            if (assessment == null) {
+                content.text = "Sensor recommendations are unavailable."
+                return@request
+            }
+            content.text = buildString {
+                appendLine("Soil health score: ${assessment.score?.let { "$it/100" } ?: "Unavailable"} · ${assessment.label}")
+                val quality = data.optJSONArray("sensorQuality")?.optJSONObject(0)
+                quality?.optString("message")?.takeIf { it.isNotBlank() }?.let { appendLine(it) }
+                val actions = data.optJSONArray("recommendations")
+                for (index in 0 until (actions?.length() ?: 0)) {
+                    val action = actions?.optJSONObject(index) ?: continue
+                    appendLine()
+                    appendLine(action.optString("title"))
+                    appendLine(action.optString("whatToDo"))
+                    appendLine(action.optString("why"))
+                }
+                appendLine()
+                appendLine("Fertilizer reference plan · $requestedProgram")
+                val area = data.optDouble("sensorAssignedAreaSqm")
+                if (area.isFinite()) appendLine(String.format(Locale.US, "Published rates scaled to %.2f m² assigned to this sensor.", area))
+                appendLine("Account for prior applications and confirm crop stage before applying fertilizer.")
+                val entries = assessment.displayPlan?.optJSONArray("entries")
+                for (index in 0 until (entries?.length() ?: 0)) {
+                    val entry = entries?.optJSONObject(index) ?: continue
+                    appendLine()
+                    appendLine(String.format(Locale.US, "%s (%s) · %.2f kg", entry.optString("product"),
+                        entry.optString("fertilizerGrade"), entry.optDouble("kgForPlot")))
+                    appendLine(entry.optString("applicationTiming"))
+                }
+            }.trimEnd()
+        }
     }
 }
-
-

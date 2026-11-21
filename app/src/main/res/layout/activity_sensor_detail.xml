@@ -10,6 +10,7 @@
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="refresh" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
       </LinearLayout>
     </RelativeLayout>
+    <TextView android:id="@+id/tvAssignedZone" android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="@font/montserrat_family" />
     <TextView android:id="@+id/tvLastUpdated" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="Waiting for current readings" android:textColor="#666666" android:textSize="12sp" android:fontFamily="@font/montserrat_family" />
     <TextView android:id="@+id/btnViewAllHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:background="@drawable/bg_history_pill" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="46dp" android:padding="10dp" android:text="View Complete Sensor History" android:textColor="#1B6936" android:textSize="15sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
     <!-- white container -->
@@ -93,12 +94,27 @@
         <TextView android:id="@+id/tvStatusEc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
       </LinearLayout>
     </LinearLayout>
-    <!-- buttons -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="horizontal">
-      <!-- delete button -->
-      <TextView android:id="@+id/btnDeleteSensor" android:layout_width="0dp" android:layout_height="48dp" android:layout_marginEnd="8dp" android:layout_weight="1" android:background="@drawable/bg_button_dark_green" android:clickable="true" android:focusable="true" android:gravity="center" android:text="Unpair sensor" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-      <!-- edit button -->
-      <TextView android:id="@+id/btnEditSensor" android:layout_width="0dp" android:layout_height="48dp" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@drawable/bg_button_dark_green" android:clickable="true" android:focusable="true" android:gravity="center" android:text="Edit Sensor" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
+    <LinearLayout
+      android:id="@+id/sensorRecommendations"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:background="@drawable/cc_zone_card"
+      android:orientation="vertical"
+      android:padding="16dp">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Soil recommendations" android:textSize="18sp" android:textStyle="bold"
+        android:fontFamily="@font/montserrat_family" />
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <Button android:id="@+id/btnHyb1" android:layout_width="0dp" android:layout_height="wrap_content"
+          android:layout_weight="1" android:text="HYB-1" />
+        <Button android:id="@+id/btnHyb2" android:layout_width="0dp" android:layout_height="wrap_content"
+          android:layout_weight="1" android:text="HYB-2" />
+      </LinearLayout>
+      <TextView android:id="@+id/tvSensorAssessment" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:lineSpacingExtra="4dp" android:fontFamily="@font/montserrat_family" />
+      <Button android:id="@+id/btnSensorDemoPlan" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Demo Subscription" android:visibility="gone" />
     </LinearLayout>
   </LinearLayout>
 </ScrollView>
