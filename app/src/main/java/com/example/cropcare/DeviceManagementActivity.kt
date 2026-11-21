@@ -17,7 +17,7 @@ class DeviceManagementActivity : AppCompatActivity() {
     private val items = mutableListOf<SensorModel>()
     private lateinit var adapter: SensorAdapter
     private var zoneId = ""
-    private var request: MonitoringRequest? = null
+    private var request: ApiRequestHandle? = null
     private var removal: ApiRequestHandle? = null
     private var removing = false
     private val handler = Handler(Looper.getMainLooper())
@@ -86,7 +86,7 @@ class DeviceManagementActivity : AppCompatActivity() {
         if (removing || items.isEmpty()) return
         val ids = items.map { it.sensorId }.distinct()
         AlertDialog.Builder(this).setTitle("Delete All sensors?")
-            .setMessage("Unpair all ${ids.size} sensors in this zone? Their QR codes can be paired again. Historical readings are retained.")
+            .setMessage("Unpair all ${ids.size} sensors registered to your account? Their QR codes can be paired again. Historical readings are retained.")
             .setNegativeButton("Cancel", null).setPositiveButton("Delete All") { _, _ ->
                 removing = true; request?.cancel()
                 fun next(index: Int) {
@@ -123,10 +123,10 @@ class DeviceManagementActivity : AppCompatActivity() {
         val state = findViewById<TextView>(R.id.tvSensorListState)
         findViewById<Button>(R.id.btnDeleteAll).text = "Delete All"
         state.text = "Loading sensors…"
-        request = ZoneMonitoringRepository.sensors(zoneId) { snapshots, error ->
-            if (snapshots == null) state.text = (error ?: "Sensors unavailable") + " · tap to retry"
+        request = ZoneMonitoringRepository.listSensors(null) { sensors, error ->
+            if (sensors == null) state.text = (error ?: "Sensors unavailable") + " · tap to retry"
             else {
-                items.clear(); items.addAll(snapshots.map { it.sensor }); adapter.notifyDataSetChanged()
+                items.clear(); items.addAll(sensors); adapter.notifyDataSetChanged()
                 state.text = if (items.isEmpty()) "No sensors registered. Use + to pair a sensor." else "${items.size} sensors · tap to refresh"
             }
         }
