@@ -21,25 +21,31 @@ class PairingVisibilityTest {
             image.recycle()
         }
         try {
+            val details = activity.findViewById<View>(R.id.pairingDetails)
+            val deviceId = activity.findViewById<android.widget.EditText>(R.id.etSensorId)
+            val sensorName = activity.findViewById<View>(R.id.etSensorName)
+            val save = activity.findViewById<View>(R.id.btnSave)
             instrumentation.runOnMainSync {
-                assertFalse(activity.findViewById<View>(R.id.pairingDetails).isShown)
-                assertFalse(activity.findViewById<View>(R.id.etSensorId).isShown)
-                assertFalse(activity.findViewById<View>(R.id.etSensorName).isShown)
-                assertFalse(activity.findViewById<View>(R.id.btnSave).isShown)
+                assertEquals(View.GONE, details.visibility)
+                assertFalse(save.isEnabled)
             }
             capture("pairing-before-scan.png")
             val process = AddSensorActivity::class.java.getDeclaredMethod("processQrResult", String::class.java).apply { isAccessible = true }
             instrumentation.runOnMainSync {
                 process.invoke(activity, "CROPCARE1|QR_FORMAT_TEST|0123456789ABCDEF0123456789ABCDEF")
-                assertTrue(activity.findViewById<View>(R.id.etSensorId).isShown)
-                assertTrue(activity.findViewById<View>(R.id.etSensorName).isShown)
-                assertTrue(activity.findViewById<View>(R.id.btnSave).isShown)
+                assertEquals(View.VISIBLE, details.visibility)
+                assertEquals(View.VISIBLE, deviceId.visibility)
+                assertEquals(View.VISIBLE, sensorName.visibility)
+                assertEquals("QR_FORMAT_TEST", deviceId.text.toString())
+                assertFalse(deviceId.isEnabled)
+                assertTrue(save.isEnabled)
             }
             capture("pairing-valid-format-check.png")
             instrumentation.runOnMainSync {
                 process.invoke(activity, "invalid")
-                assertFalse(activity.findViewById<View>(R.id.pairingDetails).isShown)
-                assertFalse(activity.findViewById<View>(R.id.btnSave).isShown)
+                assertEquals(View.GONE, details.visibility)
+                assertTrue(deviceId.text.isEmpty())
+                assertFalse(save.isEnabled)
             }
         } finally { instrumentation.runOnMainSync { activity.finish() } }
     }
