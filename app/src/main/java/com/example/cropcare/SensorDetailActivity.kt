@@ -70,20 +70,18 @@ class SensorDetailActivity : AppCompatActivity() {
             )
         }
 
-        findViewById<android.view.View>(R.id.btnHyb1).setOnClickListener { program = "HYB-1"; loadAssessment() }
-        findViewById<android.view.View>(R.id.btnHyb2).setOnClickListener { program = "HYB-2"; loadAssessment() }
+        advice = RecommendationView(this) { updatedProgram ->
+            program = updatedProgram
+            loadAssessment()
+        }
+        val cards = findViewById<android.widget.LinearLayout>(R.id.sensorAdviceCards)
+        recommendationSummary = RecommendationView(this) {}
+        cards.addView(recommendationSummary)
+        findViewById<android.view.View>(R.id.btnSensorAdviceDetails).setOnClickListener { showAdviceDetails() }
         findViewById<android.view.View>(R.id.btnSensorDemoPlan).setOnClickListener {
             startActivity(Intent(this, SubscriptionActivity::class.java))
         }
-        listOf(R.id.btnViewHistoryN, R.id.btnViewHistoryP, R.id.btnViewHistoryK, R.id.btnViewHistoryMoisture,
-            R.id.btnViewHistoryPh, R.id.btnViewHistoryTemp, R.id.btnViewHistoryEc).forEachIndexed { index, id ->
-            findViewById<android.view.View>(id).setOnClickListener {
-                if (sensorId.isNotBlank()) startActivity(Intent(this, SensorHistoryActivity::class.java)
-                    .putExtra("SENSOR_ID", sensorId).putExtra("SENSOR_NAME", sensorName).putExtra("METRIC_INDEX", index))
-            }
-        }        //clear("Waiting for monitoring data...")
     }
-
     override fun onResume() {
         super.onResume()
         loadMonitoring()
@@ -217,7 +215,7 @@ class SensorDetailActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        generation++; monitoringRequest?.cancel(); assessmentRequest?.cancel(); zoneRequest?.cancel(); super.onStop()
+        generation++; monitoringRequest?.cancel(); assessmentRequest?.cancel(); zoneRequest?.cancel(); adviceDialog?.dismiss(); super.onStop()
     }
     private fun field(
         valueId: Int,
@@ -307,56 +305,57 @@ class SensorDetailActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var advice: RecommendationView
+    private lateinit var recommendationSummary: RecommendationView
+    private var currentAssessment: FarmerAssessment? = null
+    private var adviceDialog: androidx.appcompat.app.AlertDialog? = null
+
+    private fun showAdviceDetails() {
+        val assessment = currentAssessment ?: return
+        advice.render(assessment)
+        val scroll = android.widget.ScrollView(this).apply { addView(advice) }
+        adviceDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Soil recommendations")
+            .setView(scroll)
+            .setPositiveButton("Close", null)
+            .create().apply {
+                setOnDismissListener { scroll.removeView(advice); adviceDialog = null }
+                show()
+            }
+    }
+
     private fun loadAssessment() {
         if (sensorId.isBlank()) return
         assessmentRequest?.cancel()
+        currentAssessment = null
+        val score = findViewById<TextView>(R.id.tvSensorSoilHealth)
+        score.text = "Score unavailable"
         val requestedProgram = program
-        val content = findViewById<TextView>(R.id.tvSensorAssessment)
+        val details = findViewById<android.view.View>(R.id.btnSensorAdviceDetails)
         val subscribe = findViewById<android.view.View>(R.id.btnSensorDemoPlan)
-        findViewById<android.view.View>(R.id.btnHyb1).isEnabled = program != "HYB-1"
-        findViewById<android.view.View>(R.id.btnHyb2).isEnabled = program != "HYB-2"
+        details.visibility = android.view.View.GONE
         subscribe.visibility = android.view.View.GONE
-        content.text = "Loading $program recommendations…"
+        recommendationSummary.showMessage("Loading $program recommendations…")
+        advice.showMessage("Loading $program recommendations…")
         val path = "/api/sensors/${android.net.Uri.encode(sensorId)}/assessment?programId=$program"
         assessmentRequest = CropCareHttpClient.request("GET", path) { result ->
             if (program != requestedProgram) return@request
-            val data = result.data
-            if (!result.successful || data == null) {
-                content.text = result.message
+            val assessment = result.data?.takeIf { result.successful }
+                ?.let { runCatching { FarmerAssessment.parse(it) }.getOrNull() }
+            val quality = assessment?.json?.optJSONArray("sensorQuality")?.optJSONObject(0)
+            if (assessment?.hasUsableReadings != true || quality?.optBoolean("canUseForScore") != true) {
+                val message = if (assessment == null) result.message else
+                    quality?.optString("message")?.takeIf { it.isNotBlank() } ?: assessment.noReadingsMessage
+                recommendationSummary.showMessage(message)
+                advice.showMessage(message)
                 if (result.statusCode == 403) subscribe.visibility = android.view.View.VISIBLE
                 return@request
             }
-            val assessment = runCatching { FarmerAssessment.parse(data) }.getOrNull()
-            if (assessment == null) {
-                content.text = "Sensor recommendations are unavailable."
-                return@request
-            }
-            content.text = buildString {
-                appendLine("Soil health score: ${assessment.score?.let { "$it/100" } ?: "Unavailable"} · ${assessment.label}")
-                val quality = data.optJSONArray("sensorQuality")?.optJSONObject(0)
-                quality?.optString("message")?.takeIf { it.isNotBlank() }?.let { appendLine(it) }
-                val actions = data.optJSONArray("recommendations")
-                for (index in 0 until (actions?.length() ?: 0)) {
-                    val action = actions?.optJSONObject(index) ?: continue
-                    appendLine()
-                    appendLine(action.optString("title"))
-                    appendLine(action.optString("whatToDo"))
-                    appendLine(action.optString("why"))
-                }
-                appendLine()
-                appendLine("Fertilizer reference plan · $requestedProgram")
-                val area = data.optDouble("sensorAssignedAreaSqm")
-                if (area.isFinite()) appendLine(String.format(Locale.US, "Published rates scaled to %.2f m² assigned to this sensor.", area))
-                appendLine("Account for prior applications and confirm crop stage before applying fertilizer.")
-                val entries = assessment.displayPlan?.optJSONArray("entries")
-                for (index in 0 until (entries?.length() ?: 0)) {
-                    val entry = entries?.optJSONObject(index) ?: continue
-                    appendLine()
-                    appendLine(String.format(Locale.US, "%s (%s) · %.2f kg", entry.optString("product"),
-                        entry.optString("fertilizerGrade"), entry.optDouble("kgForPlot")))
-                    appendLine(entry.optString("applicationTiming"))
-                }
-            }.trimEnd()
+            score.text = String.format(Locale.US, "%.1f/100 · %s", assessment.score, assessment.label)
+            currentAssessment = assessment
+            recommendationSummary.renderSummary(assessment)
+            if (adviceDialog != null) advice.render(assessment)
+            details.visibility = android.view.View.VISIBLE
         }
     }
 }

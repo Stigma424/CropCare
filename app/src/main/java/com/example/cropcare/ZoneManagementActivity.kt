@@ -124,9 +124,6 @@ class ZoneManagementActivity : AppCompatActivity() {
                 finish()
             }
 
-        findViewById<Button>(R.id.btnDeviceManagement).setOnClickListener {
-            startActivity(Intent(this, DeviceManagementActivity::class.java).putExtra("ZONE_ID", currentZoneId))
-        }
         findViewById<Button>(R.id.btnSensorStatus)
             .setOnClickListener {
                 startActivity(

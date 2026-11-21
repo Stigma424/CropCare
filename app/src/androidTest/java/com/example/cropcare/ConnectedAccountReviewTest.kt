@@ -12,7 +12,6 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 import android.os.SystemClock
-import android.widget.TextView
 
 /** Opt-in review of the phone's existing account; no credentials or tokens are written. */
 class ConnectedAccountReviewTest {
@@ -44,7 +43,7 @@ class ConnectedAccountReviewTest {
         var ready = false
         while (!ready && SystemClock.elapsedRealtime() < deadline) {
             instrumentation.runOnMainSync {
-                ready = activity.findViewById<TextView>(R.id.tvSensorAssessment).text.contains("Fertilizer reference plan")
+                ready = activity.findViewById<android.view.View>(R.id.btnSensorAdviceDetails).visibility == android.view.View.VISIBLE
             }
             if (!ready) SystemClock.sleep(250)
         }

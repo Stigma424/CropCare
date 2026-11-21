@@ -32,4 +32,24 @@ class FarmerNavigationTest {
             }
         }
     }
+    @Test fun sensorAdviceCardsRequireAUsableReading() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val themed = android.view.ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_CropCare)
+            val summary = RecommendationView(themed) {}
+            val soil = org.json.JSONObject().put("score", 80).put("validSensors", 1)
+            val assessment = FarmerAssessment(org.json.JSONObject().put("soilHealth", soil))
+            summary.renderSummary(assessment)
+            val titles = (0 until summary.childCount).map { index ->
+                val card = summary.getChildAt(index) as android.widget.LinearLayout
+                (card.getChildAt(0) as android.widget.TextView).text.toString()
+            }
+            assertEquals(listOf("What to apply", "How to apply", "When to apply", "How much to apply", "Application status"), titles)
+
+            soil.put("score", org.json.JSONObject.NULL).put("validSensors", 0)
+            summary.renderSummary(assessment)
+            assertEquals(1, summary.childCount)
+            assertEquals(assessment.noReadingsMessage, (summary.getChildAt(0) as android.widget.TextView).text.toString())
+        }
+    }
 }

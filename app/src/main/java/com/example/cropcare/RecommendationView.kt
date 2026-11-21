@@ -76,7 +76,7 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         removeAllViews(); val json = assessment.json; val primary = json.optJSONObject("primaryAction")
         val hero = panel(Color.rgb(237, 246, 232)); addText(hero, "YOUR NEXT STEP", 11, true)
         addText(hero, if (assessment.hasPlan) "Your corn application plan" else "Your crop-cycle check", 22, true)
-        addText(hero, "Products, amounts and timing for your zone", 14)
+        addText(hero, "Products, amounts and timing for your corn program", 14)
         addView(hero)
         listOf("What to apply" to assessment.whatToApply, "How to apply" to assessment.howToApply,
             "When to apply" to assessment.whenToApply, "How much to apply" to assessment.howMuchToApply).forEach { (title, text) ->
@@ -99,7 +99,7 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         addText(scoreCard, "Sensor-based condition score; laboratory testing provides a fuller soil assessment.", 12)
         if (json.optBoolean("partialCoverage")) addText(scoreCard, "• Some readings cannot be used. This does not describe every part of your zone.", 13)
         val time = SimpleDateFormat("MMM d, h:mm a", Locale.US).apply { timeZone = TimeZone.getTimeZone("Asia/Manila") }.format(Date(assessment.evaluatedAtMs))
-        addText(scoreCard, "Updated $time · Based on your zone assessment.", 11); addView(scoreCard)
+        addText(scoreCard, "Updated $time · Based on usable soil readings.", 11); addView(scoreCard)
         val other = json.optJSONArray("recommendations")
         val otherActions = (0 until (other?.length() ?: 0)).mapNotNull { other?.optJSONObject(it) }.filter { it.optString("code") != primary?.optString("code") }
         if (otherActions.isNotEmpty()) section("Things to consider (${otherActions.size})") { body ->
@@ -121,7 +121,9 @@ class RecommendationView(context: Context, private val onProgramChanged: (String
         }
         section("Full application plan") { body ->
             val plan = assessment.displayPlan; val entries = plan?.optJSONArray("entries")
-            addText(body, "Corn program ${assessment.program} · Published amounts scaled to your zone area, not a measured soil-deficit dose. Complete field and crop-stage checks before application.")
+            val area = json.optDouble("sensorAssignedAreaSqm")
+            val basis = if (area.isFinite()) String.format(Locale.US, "%.2f m² assigned to this sensor", area) else "your zone area"
+            addText(body, "Corn program ${assessment.program} · Published reference amounts scaled to $basis. Confirm crop stage and account for previous applications.")
             if (entries == null || entries.length() == 0) addText(body, "Complete your zone area and planting details and resolve the priority issue above to calculate an application plan.", 14, true)
             rows(entries) { row, _ ->
                 detailCard(body, "${row.optString("product")} (${row.optString("fertilizerGrade")})") { card ->

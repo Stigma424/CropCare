@@ -13,87 +13,65 @@
     <TextView android:id="@+id/tvAssignedZone" android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="@font/montserrat_family" />
     <TextView android:id="@+id/tvLastUpdated" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="Waiting for current readings" android:textColor="#666666" android:textSize="12sp" android:fontFamily="@font/montserrat_family" />
     <TextView android:id="@+id/btnViewAllHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:background="@drawable/bg_history_pill" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="46dp" android:padding="10dp" android:text="View Complete Sensor History" android:textColor="#1B6936" android:textSize="15sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-    <!-- white container -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/loginbg_white_box" android:orientation="vertical" android:padding="16dp">
-      <!-- NPK readings -->
-      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="NPK Readings" android:textColor="#1E4D2B" android:textSize="18sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-      <!-- nitrogen -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <TextView android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_circle_red" android:gravity="center" android:text="N" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-        <!-- detail -->
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:layout_marginEnd="8dp" android:orientation="vertical">
-          <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
-            <TextView android:id="@+id/tvSensorN" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-            <!-- status -->
-            <TextView android:id="@+id/tvStatusN" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="8dp" android:paddingTop="2dp" android:paddingEnd="8dp" android:paddingBottom="2dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_card" android:elevation="2dp" android:padding="20dp" android:layout_marginBottom="16dp">
+        <TextView android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="NPK readings" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="60dp" android:gravity="center_vertical" android:background="@drawable/cc_zone_row" android:paddingHorizontal="12dp" android:layout_marginBottom="10dp">
+          <TextView android:layout_width="32dp" android:gravity="center" android:textColor="#D96554" android:textSize="21sp" android:textStyle="bold" android:layout_height="wrap_content" android:text="N" android:fontFamily="@font/montserrat_family" />
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nitrogen" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="17sp" android:textStyle="bold" android:id="@+id/tvSensorN" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
           </LinearLayout>
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nitrogen" android:textColor="#666666" android:textSize="12sp" android:fontFamily="@font/montserrat_family" />
+          <TextView android:layout_width="wrap_content" android:textSize="10sp" android:textColor="@color/cc_primary" android:background="@drawable/cc_badge" android:paddingHorizontal="8dp" android:paddingVertical="5dp" android:id="@+id/tvStatusN" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
         </LinearLayout>
-        <TextView android:id="@+id/btnViewHistoryN" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-      </LinearLayout>
-      <!-- phosporus -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <TextView android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_circle_green" android:gravity="center" android:text="P" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-        <!-- detail -->
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:layout_marginEnd="8dp" android:orientation="vertical">
-          <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
-            <TextView android:id="@+id/tvSensorP" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-            <!-- status -->
-            <TextView android:id="@+id/tvStatusP" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="8dp" android:paddingTop="2dp" android:paddingEnd="8dp" android:paddingBottom="2dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="60dp" android:gravity="center_vertical" android:background="@drawable/cc_zone_row" android:paddingHorizontal="12dp" android:layout_marginBottom="10dp">
+          <TextView android:layout_width="32dp" android:gravity="center" android:textColor="#4F905E" android:textSize="21sp" android:textStyle="bold" android:layout_height="wrap_content" android:text="P" android:fontFamily="@font/montserrat_family" />
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Phosphorus" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="17sp" android:textStyle="bold" android:id="@+id/tvSensorP" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
           </LinearLayout>
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phosphorus" android:textColor="#666666" android:textSize="12sp" android:fontFamily="@font/montserrat_family" />
+          <TextView android:layout_width="wrap_content" android:textSize="10sp" android:textColor="@color/cc_primary" android:background="@drawable/cc_badge" android:paddingHorizontal="8dp" android:paddingVertical="5dp" android:id="@+id/tvStatusP" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
         </LinearLayout>
-        <TextView android:id="@+id/btnViewHistoryP" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-      </LinearLayout>
-      <!-- potassium -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="24dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <TextView android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_circle_blue" android:gravity="center" android:text="K" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-        <!-- detail -->
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:layout_marginEnd="8dp" android:orientation="vertical">
-          <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
-            <TextView android:id="@+id/tvSensorK" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-            <!-- status -->
-            <TextView android:id="@+id/tvStatusK" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="8dp" android:paddingTop="2dp" android:paddingEnd="8dp" android:paddingBottom="2dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="60dp" android:gravity="center_vertical" android:background="@drawable/cc_zone_row" android:paddingHorizontal="12dp" android:layout_marginBottom="10dp">
+          <TextView android:layout_width="32dp" android:gravity="center" android:textColor="#5597B4" android:textSize="21sp" android:textStyle="bold" android:layout_height="wrap_content" android:text="K" android:fontFamily="@font/montserrat_family" />
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Potassium" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="17sp" android:textStyle="bold" android:id="@+id/tvSensorK" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
           </LinearLayout>
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Potassium" android:textColor="#666666" android:textSize="12sp" android:fontFamily="@font/montserrat_family" />
+          <TextView android:layout_width="wrap_content" android:textSize="10sp" android:textColor="@color/cc_primary" android:background="@drawable/cc_badge" android:paddingHorizontal="8dp" android:paddingVertical="5dp" android:id="@+id/tvStatusK" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
         </LinearLayout>
-        <TextView android:id="@+id/btnViewHistoryK" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
       </LinearLayout>
-      <!-- other details -->
-      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="Other Details" android:textColor="#1E4D2B" android:textSize="18sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-      <!-- moisture -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-          <TextView android:id="@+id/tvSensorMoisture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-          <TextView android:id="@+id/btnViewHistoryMoisture" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Moisture History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_card" android:elevation="2dp" android:padding="20dp" android:layout_marginBottom="16dp">
+        <TextView android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Other details" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_row" android:padding="14dp" android:layout_margin="4dp">
+            <TextView android:textSize="11sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Moisture" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="8dp" android:id="@+id/tvSensorMoisture" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_marginTop="6dp" android:id="@+id/tvStatusMoisture" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
+          </LinearLayout>
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_row" android:padding="14dp" android:layout_margin="4dp">
+            <TextView android:textSize="11sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="pH level" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="8dp" android:id="@+id/tvSensorPh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_marginTop="6dp" android:id="@+id/tvStatusPh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
+          </LinearLayout>
         </LinearLayout>
-        <TextView android:id="@+id/tvStatusMoisture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
-      </LinearLayout>
-      <!-- pH level -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-          <TextView android:id="@+id/tvSensorPh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-          <TextView android:id="@+id/btnViewHistoryPh" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View pH level History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_row" android:padding="14dp" android:layout_margin="4dp">
+            <TextView android:textSize="11sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Temperature" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="8dp" android:id="@+id/tvSensorTemp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_marginTop="6dp" android:id="@+id/tvStatusTemp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
+          </LinearLayout>
+          <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_row" android:padding="14dp" android:layout_margin="4dp">
+            <TextView android:textSize="11sp" android:textColor="@color/cc_muted" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Electrical conductivity" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="8dp" android:id="@+id/tvSensorEc" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+            <TextView android:textSize="10sp" android:textColor="@color/cc_muted" android:layout_marginTop="6dp" android:id="@+id/tvStatusEc" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No data" android:fontFamily="@font/montserrat_family" />
+          </LinearLayout>
         </LinearLayout>
-        <TextView android:id="@+id/tvStatusPh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
       </LinearLayout>
-      <!-- temperature -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-          <TextView android:id="@+id/tvSensorTemp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-          <TextView android:id="@+id/btnViewHistoryTemp" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Temp History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-        </LinearLayout>
-        <TextView android:id="@+id/tvStatusTemp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
+      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/cc_zone_card" android:elevation="2dp" android:padding="20dp" android:layout_marginBottom="16dp">
+        <TextView android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Soil health" android:textColor="@color/cc_text" android:fontFamily="@font/montserrat_family" />
+        <TextView android:textSize="18sp" android:textStyle="bold" android:textColor="@color/cc_primary" android:id="@+id/tvSensorSoilHealth" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Awaiting assessment" android:fontFamily="@font/montserrat_family" />
+        <TextView android:textSize="11sp" android:textColor="@color/cc_muted" android:layout_marginTop="10dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Based on the latest usable reading from this sensor." android:fontFamily="@font/montserrat_family" />
       </LinearLayout>
-      <!-- electrical conductivity -->
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:orientation="horizontal" android:gravity="center_vertical">
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-          <TextView android:id="@+id/tvSensorEc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:text="—" android:textColor="#000000" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-          <TextView android:id="@+id/btnViewHistoryEc" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View EC History" android:textColor="#1E4D2B" android:textSize="12sp" android:textStyle="bold" android:fontFamily="@font/montserrat_family" />
-        </LinearLayout>
-        <TextView android:id="@+id/tvStatusEc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_status_pill" android:gravity="center" android:minWidth="60dp" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp" android:text="No data" android:textColor="#1E4D2B" android:textSize="10sp" android:fontFamily="@font/montserrat_family" />
-      </LinearLayout>
-    </LinearLayout>
     <LinearLayout
       android:id="@+id/sensorRecommendations"
       android:layout_width="match_parent"
@@ -105,14 +83,10 @@
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Soil recommendations" android:textSize="18sp" android:textStyle="bold"
         android:fontFamily="@font/montserrat_family" />
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <Button android:id="@+id/btnHyb1" android:layout_width="0dp" android:layout_height="wrap_content"
-          android:layout_weight="1" android:text="HYB-1" />
-        <Button android:id="@+id/btnHyb2" android:layout_width="0dp" android:layout_height="wrap_content"
-          android:layout_weight="1" android:text="HYB-2" />
-      </LinearLayout>
-      <TextView android:id="@+id/tvSensorAssessment" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:lineSpacingExtra="4dp" android:fontFamily="@font/montserrat_family" />
+      <LinearLayout android:id="@+id/sensorAdviceCards" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="vertical" />
+      <Button android:id="@+id/btnSensorAdviceDetails" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="View more details" android:textAllCaps="false" android:visibility="gone" />
       <Button android:id="@+id/btnSensorDemoPlan" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:text="Demo Subscription" android:visibility="gone" />
     </LinearLayout>

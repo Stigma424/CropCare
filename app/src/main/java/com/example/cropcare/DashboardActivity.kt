@@ -34,6 +34,9 @@ class DashboardActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.rvZones).apply {
             layoutManager = LinearLayoutManager(this@DashboardActivity); adapter = this@DashboardActivity.adapter
         }
+        findViewById<View>(R.id.btnDeviceManagement).setOnClickListener {
+            startActivity(Intent(this, DeviceManagementActivity::class.java))
+        }
         findViewById<View>(R.id.btnRefreshZones).setOnClickListener { refresh() }
         findViewById<View>(R.id.navAddZone).setOnClickListener { startActivity(Intent(this, AddZoneActivity::class.java)) }
         findViewById<View>(R.id.navNotif).setOnClickListener { startActivity(Intent(this, NotificationsActivity::class.java)) }

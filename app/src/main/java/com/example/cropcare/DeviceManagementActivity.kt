@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 class DeviceManagementActivity : AppCompatActivity() {
     private val items = mutableListOf<SensorModel>()
     private lateinit var adapter: SensorAdapter
-    private var zoneId = ""
     private var request: ApiRequestHandle? = null
     private var removal: ApiRequestHandle? = null
     private var removing = false
@@ -26,18 +25,18 @@ class DeviceManagementActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); setContentView(R.layout.activity_device_management)
-        zoneId = intent.getStringExtra("ZONE_ID").orEmpty()
         adapter = SensorAdapter(items, ::manageSensor)
         findViewById<RecyclerView>(R.id.rvSensors).apply {
             layoutManager = LinearLayoutManager(this@DeviceManagementActivity); adapter = this@DeviceManagementActivity.adapter
         }
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<View>(R.id.btnAddSensor).setOnClickListener {
-            startActivity(Intent(this, AddSensorActivity::class.java).putExtra("ZONE_ID", zoneId))
+            if (!removing) chooseZone("Choose a zone for the new sensor") { zoneId ->
+                startActivity(Intent(this, AddSensorActivity::class.java).putExtra("ZONE_ID", zoneId))
+            }
         }
         findViewById<Button>(R.id.btnDeleteAll).apply { text = "Delete All"; setOnClickListener { confirmRemoveAll() } }
         findViewById<View>(R.id.tvSensorListState).setOnClickListener { if (!removing) load() }
-        if (zoneId.isBlank()) { Toast.makeText(this, "Missing farm zone.", Toast.LENGTH_LONG).show(); finish() }
     }
     private var assignment: ApiRequestHandle? = null
 
@@ -47,13 +46,13 @@ class DeviceManagementActivity : AppCompatActivity() {
             .setItems(arrayOf("Rename sensor", "Change assigned zone", "Unpair sensor")) { _, position ->
                 when (position) {
                     0 -> startActivity(Intent(this, EditSensorActivity::class.java).putExtra("SENSOR_ID", sensor.sensorId))
-                    1 -> chooseZone(sensor)
+                    1 -> chooseZone("Assign to a zone", sensor.zoneId) { assignZone(sensor, it) }
                     2 -> confirmRemove(sensor)
                 }
             }.show()
     }
 
-    private fun chooseZone(sensor: SensorModel) {
+    private fun chooseZone(title: String, currentZone: String = "", selected: (String) -> Unit) {
         assignment?.cancel()
         assignment = CropCareHttpClient.request("GET", "/api/zones") { result ->
             val zones = result.array
@@ -66,19 +65,22 @@ class DeviceManagementActivity : AppCompatActivity() {
                 Toast.makeText(this, "Create a farm zone first.", Toast.LENGTH_LONG).show()
                 return@request
             }
-            AlertDialog.Builder(this).setTitle("Assign to a zone")
+            AlertDialog.Builder(this).setTitle(title)
                 .setSingleChoiceItems(choices.map { it.optString("zoneName") }.toTypedArray(),
-                    choices.indexOfFirst { it.optString("zoneId") == sensor.zoneId }) { dialog, position ->
+                    choices.indexOfFirst { it.optString("zoneId") == currentZone }) { dialog, position ->
                     dialog.dismiss()
                     val destination = choices[position].optString("zoneId")
-                    if (destination == sensor.zoneId) return@setSingleChoiceItems
-                    val path = "/api/sensors/${android.net.Uri.encode(sensor.sensorId)}/zone"
-                    assignment = CropCareHttpClient.request("PUT", path, org.json.JSONObject().put("zoneId", destination)) { updated ->
-                        Toast.makeText(this, updated.message, Toast.LENGTH_LONG).show()
-                        load()
-                    }
+                    if (destination.isNotBlank() && destination != currentZone) selected(destination)
                 }
                 .setNegativeButton("Cancel", null).show()
+        }
+    }
+
+    private fun assignZone(sensor: SensorModel, zoneId: String) {
+        val path = "/api/sensors/${android.net.Uri.encode(sensor.sensorId)}/zone"
+        assignment = CropCareHttpClient.request("PUT", path, org.json.JSONObject().put("zoneId", zoneId)) { updated ->
+            Toast.makeText(this, updated.message, Toast.LENGTH_LONG).show()
+            load()
         }
     }
 
